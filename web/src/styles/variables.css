@@ -7,6 +7,8 @@
 :root {
   /* Width of the page content area. */
   --torch-page-max-width: 1440px;
+  /* Width of the timeline page: a little wider than the content area, the lanes need the room. */
+  --torch-wide-page-max-width: 1680px;
 
   /* Carbon font stacks: Carbon exposes `font-family()` only in Sass, not as custom properties. */
   --torch-font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;

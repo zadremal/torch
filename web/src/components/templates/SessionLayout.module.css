@@ -22,7 +22,7 @@
 }
 
 .headWide {
-  max-inline-size: none;
+  max-inline-size: var(--torch-wide-page-max-width);
 }
 
 .titleRow {

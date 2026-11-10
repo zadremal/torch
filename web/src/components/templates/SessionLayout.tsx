@@ -40,7 +40,7 @@ export interface SessionHeaderProps {
   meta?: ReactNode;
   /** Buttons to the right of the heading: Export JSON, Open timeline. */
   actions?: ReactNode;
-  /** Header across the full window width, as on the timeline; otherwise — the width of the content area. */
+  /** Header at the width of the timeline page; otherwise — the width of the content area. */
   wide?: boolean;
 }
 
