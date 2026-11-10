@@ -1,9 +1,12 @@
 // The Session detail page, route /sessions/:id. Package W3.
 // Requests and state are only here (plan §9.4); the blocks get ready values from model.ts.
+// An agent from the Agents table opens in the details panel beside the overview: the selection is the `sel`
+// parameter of the address, as on the timeline, and the panel is the same PanelContainer.
 import { ArrowRight, Download } from "@carbon/icons-react";
 import { Button, InlineNotification, SkeletonText, Tag } from "@carbon/react";
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { parseSelection } from "@contracts/selection.ts";
+import { Link, useParams, useSearchParams } from "react-router";
 import { Mono } from "../../components/atoms/Mono.tsx";
 import { ErrorNotice } from "../../components/molecules/ErrorNotice.tsx";
 import { StatTile, StatTileGrid } from "../../components/molecules/StatTile.tsx";
@@ -12,6 +15,8 @@ import { api } from "../../lib/api.ts";
 import { useLiveReload } from "../../lib/live.ts";
 import { ROUTES, sessionHref } from "../../lib/routes.ts";
 import { useApi } from "../../lib/useApi.ts";
+import { panelHref, withSelection } from "../panel/address.ts";
+import { PanelContainer } from "../panel/PanelContainer.tsx";
 import { AgentsTable } from "./components/AgentsTable.tsx";
 import { PromptSection } from "./components/PromptSection.tsx";
 import { Section } from "../../components/molecules/Section.tsx";
@@ -27,6 +32,9 @@ import {
   summaryTiles,
   timeRange,
 } from "./model.ts";
+import styles from "./SessionOverviewPage.module.css";
+
+const SELECTION_PARAM = "sel";
 
 /** Short form of the identifier for breadcrumbs. */
 function shortId(id: string): string {
@@ -40,6 +48,15 @@ export function SessionOverviewPage() {
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const s = session.data;
+  const [search, setSearchParams] = useSearchParams();
+  const sel = parseSelection(search.get(SELECTION_PARAM));
+  const agentHref = (agentId: string) => `?${withSelection(search, { kind: "agent", id: agentId }).toString()}`;
+  const closePanel = () =>
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete(SELECTION_PARAM);
+      return next;
+    });
 
   async function exportJson() {
     setExporting(true);
@@ -96,40 +113,60 @@ export function SessionOverviewPage() {
           )
         }
       />
-      <SessionContent>
-        {exportError && (
-          <InlineNotification
-            kind="error"
-            title="Export failed"
-            subtitle={exportError}
-            onCloseButtonClick={() => setExportError(null)}
-          />
-        )}
-        {session.error && !s && (
-          <ErrorNotice title="Could not load the session" error={session.error} onRetry={session.reload} />
-        )}
-        {session.loading && !s && <SkeletonText paragraph lineCount={6} />}
-        {s && (
-          <>
-            <StatTileGrid label="Session summary">
-              {summaryTiles(s).map((tile) => (
-                <StatTile key={tile.label} {...tile} />
-              ))}
-            </StatTileGrid>
-            <Section id="tok-h" title="Token usage">
-              <TokenUsage tokens={s.tokens} />
-            </Section>
-            {prompts && (
-              <Section id="prompt-h" title="Original prompt" aside={prompts.caption}>
-                <PromptSection model={prompts} />
-              </Section>
+      <div className={styles.workspace}>
+        <div className={styles.main}>
+          <SessionContent>
+            {exportError && (
+              <InlineNotification
+                kind="error"
+                title="Export failed"
+                subtitle={exportError}
+                onCloseButtonClick={() => setExportError(null)}
+              />
             )}
-            <Section id="agents-h" title="Agents" aside={`Context window: ${formatWindow(s.contextWindow)} tokens`}>
-              <AgentsTable rows={agentRows(s.agents)} timelineHref={sessionHref("timeline", id)} />
-            </Section>
-          </>
+            {session.error && !s && (
+              <ErrorNotice title="Could not load the session" error={session.error} onRetry={session.reload} />
+            )}
+            {session.loading && !s && <SkeletonText paragraph lineCount={6} />}
+            {s && (
+              <>
+                <StatTileGrid label="Session summary">
+                  {summaryTiles(s).map((tile) => (
+                    <StatTile key={tile.label} {...tile} />
+                  ))}
+                </StatTileGrid>
+                <Section id="tok-h" title="Token usage">
+                  <TokenUsage tokens={s.tokens} />
+                </Section>
+                {prompts && (
+                  <Section id="prompt-h" title="Original prompt" aside={prompts.caption}>
+                    <PromptSection model={prompts} />
+                  </Section>
+                )}
+                <Section id="agents-h" title="Agents" aside={`Context window: ${formatWindow(s.contextWindow)} tokens`}>
+                  <AgentsTable
+                      rows={agentRows(s.agents)}
+                      agentHref={agentHref}
+                      selectedAgentId={sel?.kind === "agent" ? sel.id : undefined}
+                    />
+                </Section>
+              </>
+            )}
+          </SessionContent>
+        </div>
+        {sel && (
+          <div className={styles.panel}>
+            <PanelContainer
+              sessionId={id}
+              selection={sel}
+              sessionStart={s?.startedAt ?? undefined}
+              dock="right"
+              onClose={closePanel}
+              detachedHref={panelHref(id, sel)}
+            />
+          </div>
         )}
-      </SessionContent>
+      </div>
     </>
   );
 }

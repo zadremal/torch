@@ -210,6 +210,18 @@ export async function runScenario({ world, baseUrl, browser, page }: Stage): Pro
     await shows("Agents table, number of agent rows", String(ref.agents.length), async () => String((await (await agents.find("table")).all("link")).length));
   });
 
+  await step("Session overview", "an agent from the Agents table opens in the details panel beside the overview", async () => {
+    await (await (await page.find("region", "Agents")).find("link", callAgent.type!)).click();
+    await atPath(sessionPath);
+    await withParam("sel", `agent:${callAgent.id}`);
+    const details = await page.find("region", "Details");
+    await details.find("heading", callAgent.type!);
+    await showsText(details, "panel", callAgent.description!);
+    await (await details.find("button", "Close panel")).click();
+    await withParam("sel", null);
+    await page.gone("region", "Details");
+  });
+
   await step("Session timeline", "opens from the overview: tracks with marks", async () => {
     await (await page.find("link", "Open timeline")).click();
     await atPath(`${sessionPath}/timeline`);

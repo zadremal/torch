@@ -30,6 +30,10 @@
     background: var(--cds-layer-hover-01);
   }
 
+  tbody tr.selected {
+    background: var(--cds-layer-selected-01);
+  }
+
   a {
     color: var(--cds-link-primary);
     text-decoration: none;
