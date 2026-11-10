@@ -18,8 +18,14 @@
   --torch-timeline-page-height: max(480px, calc(100vh - 264px));
 
   display: flex;
+  box-sizing: border-box;
   flex-direction: column;
   flex-grow: 1;
+  /* The same column as the session header: centered, at the width of the timeline page. */
+  padding-inline: var(--cds-spacing-07);
+  margin-inline: auto;
+  inline-size: 100%;
+  max-inline-size: var(--torch-wide-page-max-width);
   min-inline-size: 0;
 }
 
@@ -28,7 +34,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: var(--cds-spacing-05) var(--cds-spacing-07);
+  padding-block: var(--cds-spacing-05);
   gap: var(--cds-spacing-04) var(--cds-spacing-06);
 }
 
