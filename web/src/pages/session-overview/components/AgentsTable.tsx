@@ -7,11 +7,13 @@ import styles from "./AgentsTable.module.css";
 
 export interface AgentsTableProps {
   rows: AgentRowModel[];
-  /** Address of this session's Timeline tab. */
-  timelineHref: string;
+  /** Address that opens the agent in the details panel beside the overview. */
+  agentHref: (agentId: string) => string;
+  /** The agent shown in the details panel: its row is highlighted. */
+  selectedAgentId?: string;
 }
 
-export function AgentsTable({ rows, timelineHref }: AgentsTableProps) {
+export function AgentsTable({ rows, agentHref, selectedAgentId }: AgentsTableProps) {
   return (
     <div className={styles.root}>
       <table className={styles.table}>
@@ -34,14 +36,16 @@ export function AgentsTable({ rows, timelineHref }: AgentsTableProps) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.agentId}>
+            <tr key={row.agentId} className={row.agentId === selectedAgentId ? styles.selected : undefined}>
               <td>
                 <div
                   className={styles.name}
                   data-depth={row.depth}
                   style={{ paddingInlineStart: `calc(${row.depth} * 1.5rem)` }}
                 >
-                  <Link to={timelineHref}>{row.name}</Link>
+                  <Link to={agentHref(row.agentId)} aria-current={row.agentId === selectedAgentId ? "true" : undefined}>
+                    {row.name}
+                  </Link>
                   <Mono tone="helper">{row.caption}</Mono>
                 </div>
               </td>

@@ -1,0 +1,34 @@
+/*
+ * Overview layout: the column of blocks and, when a selection is in the address, the details panel on the
+ * right, as in the timeline's right dock. The panel stays in view while the overview scrolls.
+ */
+.workspace {
+  /* The minimum overview width next to the panel: narrower and the panel wraps under it. */
+  --torch-overview-page-min-width: 560px;
+  /* The same panel width as in the timeline dock. */
+  --torch-overview-page-panel-width: 440px;
+  --torch-overview-page-panel-max-width: 520px;
+
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.main {
+  display: flex;
+  flex: 999 1 var(--torch-overview-page-min-width);
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.panel {
+  position: sticky;
+  inset-block-start: 0;
+  flex: 1 1 var(--torch-overview-page-panel-width);
+  background: var(--cds-background);
+  block-size: 100vh;
+  border-inline-start: 1px solid var(--cds-border-subtle-01);
+  max-inline-size: var(--torch-overview-page-panel-max-width);
+  overflow-y: auto;
+}
