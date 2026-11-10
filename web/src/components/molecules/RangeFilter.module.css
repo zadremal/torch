@@ -1,0 +1,30 @@
+.root {
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.legend {
+  font-size: var(--cds-label-01-font-size);
+  font-weight: var(--cds-label-01-font-weight);
+  line-height: var(--cds-label-01-line-height);
+  letter-spacing: var(--cds-label-01-letter-spacing);
+  color: var(--cds-text-secondary);
+
+  padding: 0;
+  margin-block-end: var(--cds-spacing-03);
+}
+
+.fields {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--cds-spacing-03);
+}
+
+.number :global(.cds--text-input) {
+  inline-size: var(--torch-range-input-number-width);
+}
+
+.date :global(.cds--text-input) {
+  inline-size: var(--torch-range-input-date-width);
+}

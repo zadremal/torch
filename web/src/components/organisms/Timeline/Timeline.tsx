@@ -15,7 +15,7 @@ import { LaneRow } from "./LaneRow.tsx";
 import { AXIS_HEIGHT, LABEL_WIDTH, buildModel, contentWidthCss, laneSelection, selectionContext } from "./model.ts";
 import { useViewport } from "./useViewport.ts";
 import { type MarkRef, NAV_KEYS, type NavKey, type ScrollMetrics, anchoredScrollLeft, moveFocus, revealScroll, visibleRows } from "./window.ts";
-import "./Timeline.scss";
+import styles from "./Timeline.module.css";
 
 export interface TimelineProps {
   data: TimelineResponse;
@@ -182,35 +182,35 @@ export function Timeline({ data, selection, view, zoom, onSelect }: TimelineProp
     <section
       ref={scroller}
       aria-label="Timeline"
-      className="torch-timeline"
+      className={styles.root}
       style={{ "--torch-timeline-label": `${LABEL_WIDTH}px`, "--torch-timeline-axis": `${AXIS_HEIGHT}px` } as CSSProperties}
       onScroll={measure}
       onKeyDown={onKeyDown}
       onFocus={onFocus}
     >
-      <div ref={content} className="torch-timeline__content" style={{ width: contentWidthCss(axis, zoom) }}>
-        <div className="torch-timeline__axis" style={{ height: AXIS_HEIGHT }}>
-          <div className="torch-timeline__label torch-timeline__label--axis">{model.startLabel}</div>
-          <div className="torch-timeline__ticks">
+      <div ref={content} className={styles.content} style={{ width: contentWidthCss(axis, zoom) }}>
+        <div className={styles.axis} style={{ height: AXIS_HEIGHT }}>
+          <div className={`${styles.label} ${styles.labelAxis}`}>{model.startLabel}</div>
+          <div className={styles.ticks}>
             {ticks.map((tick) => (
-              <span key={tick.ts} className="torch-timeline__tick" style={{ left: tick.left }} aria-hidden="true">
+              <span key={tick.ts} className={styles.tick} style={{ left: tick.left }} aria-hidden="true">
                 {tick.label}
               </span>
             ))}
             {gaps.map((gap) => (
-              <span key={gap.key} className="torch-timeline__gap-label" style={{ left: gap.left, width: GAP_WIDTH }} title={gap.hint}>
+              <span key={gap.key} className={styles.gapLabel} style={{ left: gap.left, width: GAP_WIDTH }} title={gap.hint}>
                 {gap.duration}
               </span>
             ))}
           </div>
         </div>
-        <div className="torch-timeline__rows" style={{ height: offsets[rows.length] }}>
+        <div className={styles.rows} style={{ height: offsets[rows.length] }}>
           {shownRows.map((index) => {
             const row = rows[index]!;
             if (row.type === "group") {
               return (
-                <div key={row.id} className="torch-timeline__group" style={{ top: offsets[index], height: row.height }}>
-                  <span className="torch-timeline__group-title">{row.title}</span>
+                <div key={row.id} className={styles.group} style={{ top: offsets[index], height: row.height }}>
+                  <span className={styles.groupTitle}>{row.title}</span>
                 </div>
               );
             }
@@ -231,11 +231,11 @@ export function Timeline({ data, selection, view, zoom, onSelect }: TimelineProp
               />
             );
           })}
-          <div className="torch-timeline__overlay" aria-hidden="true">
+          <div className={styles.overlay} aria-hidden="true">
             {gaps.map((gap) => (
-              <span key={gap.key} className="torch-timeline__gap" style={{ left: gap.left, width: GAP_WIDTH }} />
+              <span key={gap.key} className={styles.gap} style={{ left: gap.left, width: GAP_WIDTH }} />
             ))}
-            {context.cursorTs !== null && <span className="torch-timeline__cursor" style={{ left: cssLeft(axis, locate(axis, context.cursorTs)) }} />}
+            {context.cursorTs !== null && <span className={styles.cursor} style={{ left: cssLeft(axis, locate(axis, context.cursorTs)) }} />}
           </div>
         </div>
       </div>

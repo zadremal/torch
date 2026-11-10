@@ -6,7 +6,7 @@ import { Link } from "react-router";
 import { Mono } from "../../../components/atoms/Mono.tsx";
 import { DASH, formatCount, formatDateTime, formatDuration, formatMoney, formatTokens } from "../../../lib/format.ts";
 import { sessionHref } from "../../../lib/routes.ts";
-import "./SessionsTable.scss";
+import styles from "./SessionsTable.module.css";
 
 interface Column {
   key: SessionSortKey;
@@ -36,9 +36,9 @@ export interface SessionsTableProps {
 
 export function SessionsTable({ items, sort, dir, noSessions, onSort }: SessionsTableProps) {
   return (
-    <div className="torch-slist-table__scroll">
-      <div role="table" aria-label="Sessions" className="torch-slist-table">
-        <div role="row" className="torch-slist-table__row torch-slist-table__row--head">
+    <div className={styles.scroll}>
+      <div role="table" aria-label="Sessions" className={styles.root}>
+        <div role="row" className={`${styles.row} ${styles.rowHead}`}>
           {COLUMNS.map((column) => {
             const active = column.key === sort;
             return (
@@ -48,9 +48,9 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
                 aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
                 className={cell(column.numeric)}
               >
-                <button type="button" className="torch-slist-table__sort" onClick={() => onSort(column.key)}>
+                <button type="button" className={styles.sort} onClick={() => onSort(column.key)}>
                   {column.label}
-                  <span aria-hidden="true" className="torch-slist-table__arrow">
+                  <span aria-hidden="true" className={styles.arrow}>
                     {active ? (dir === "asc" ? "↑" : "↓") : ""}
                   </span>
                 </button>
@@ -59,9 +59,9 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
           })}
         </div>
         {items.map((item) => (
-          <div role="row" key={item.id} className="torch-slist-table__row">
-            <div role="cell" className="torch-slist-table__cell torch-slist-table__name">
-              <Link className="torch-slist-table__link" to={sessionHref("session", item.id)}>
+          <div role="row" key={item.id} className={styles.row}>
+            <div role="cell" className={`${styles.cell} ${styles.name}`}>
+              <Link className={styles.link} to={sessionHref("session", item.id)}>
                 {item.name}
               </Link>
               <Mono tone="helper">
@@ -69,7 +69,7 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
                 {item.project !== null && ` · ${item.project}`}
               </Mono>
             </div>
-            <div role="cell" className="torch-slist-table__cell torch-slist-table__started">
+            <div role="cell" className={`${styles.cell} ${styles.started}`}>
               {formatDateTime(item.startedAt)}
             </div>
             <div role="cell" className={cell(true)} title="Active time">
@@ -86,12 +86,12 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
             </div>
             <div role="cell" className={cell(true)}>
               {item.errors > 0 ? (
-                <span className="torch-slist-table__errors">
+                <span className={styles.errors}>
                   <ErrorFilled size={16} aria-hidden="true" />
                   {formatCount(item.errors)}
                 </span>
               ) : (
-                <span className="torch-slist-table__zero">0</span>
+                <span className={styles.zero}>0</span>
               )}
             </div>
             <div role="cell" className={cell(true)}>
@@ -100,18 +100,18 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
           </div>
         ))}
         {items.length === 0 && (
-          <div className="torch-slist-table__empty">
+          <div className={styles.empty}>
             {noSessions ? (
               <>
-                <p className="torch-slist-table__empty-title">No sessions yet</p>
-                <p className="torch-slist-table__empty-text">
+                <p className={styles.emptyTitle}>No sessions yet</p>
+                <p className={styles.emptyText}>
                   Sessions appear here once torch has indexed your Claude Code history.
                 </p>
               </>
             ) : (
               <>
-                <p className="torch-slist-table__empty-title">No sessions match these filters</p>
-                <p className="torch-slist-table__empty-text">Widen a range or clear the search to see more sessions.</p>
+                <p className={styles.emptyTitle}>No sessions match these filters</p>
+                <p className={styles.emptyText}>Widen a range or clear the search to see more sessions.</p>
               </>
             )}
           </div>
@@ -122,4 +122,4 @@ export function SessionsTable({ items, sort, dir, noSessions, onSort }: Sessions
 }
 
 const cell = (numeric: boolean) =>
-  numeric ? "torch-slist-table__cell torch-slist-table__cell--num" : "torch-slist-table__cell";
+  numeric ? `${styles.cell} ${styles.cellNum}` : styles.cell;

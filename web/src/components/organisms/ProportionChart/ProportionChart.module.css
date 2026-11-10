@@ -1,0 +1,15 @@
+/* Carbon Charts without a height parameter takes the parent's height. */
+.root {
+  block-size: var(--torch-proportion-chart-height);
+  min-inline-size: 0;
+}
+
+.empty {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  margin: 0;
+  block-size: auto;
+  color: var(--cds-text-secondary);
+}

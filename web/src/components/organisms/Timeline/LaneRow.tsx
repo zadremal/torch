@@ -5,8 +5,16 @@ import type { Selection } from "@contracts/selection.ts";
 import { type CSSProperties, type MouseEvent, memo, useMemo } from "react";
 import type { Axis } from "./axis.ts";
 import { Mark } from "./Mark.tsx";
-import { type Lane, markDimmed, markSelected } from "./model.ts";
+import { type Lane, type LaneTitleTone, markDimmed, markSelected } from "./model.ts";
+import styles from "./Timeline.module.css";
 import { nearestMark, visibleMarks } from "./window.ts";
+
+const TITLE_CLASS: Record<LaneTitleTone, string> = {
+  plain: styles.title,
+  strong: `${styles.title} ${styles.titleStrong}`,
+  secondary: `${styles.title} ${styles.titleSecondary}`,
+  mono: `${styles.title} ${styles.titleMono}`,
+};
 
 export interface LaneRowProps {
   lane: Lane;
@@ -66,16 +74,16 @@ export const LaneRow = memo(function LaneRow({
 
   return (
     <div
-      className={active ? "torch-timeline__lane torch-timeline__lane--active" : "torch-timeline__lane"}
+      className={active ? `${styles.lane} ${styles.laneActive}` : styles.lane}
       style={{ top, height: lane.height }}
     >
-      <div className="torch-timeline__label" style={lane.indent > 0 ? { paddingInlineStart: 16 + lane.indent * INDENT_STEP } : undefined}>
-        <span className={`torch-timeline__title torch-timeline__title--${lane.titleTone}`} title={lane.titleHint}>
+      <div className={styles.label} style={lane.indent > 0 ? { paddingInlineStart: 16 + lane.indent * INDENT_STEP } : undefined}>
+        <span className={TITLE_CLASS[lane.titleTone]} title={lane.titleHint}>
           {lane.title}
         </span>
-        <small className="torch-timeline__caption">{lane.caption}</small>
+        <small className={styles.caption}>{lane.caption}</small>
       </div>
-      <div className="torch-timeline__track" role="group" aria-label={`${lane.titleHint ?? lane.title}, ${lane.caption}`} data-row={row} style={gridStyle} onClick={onTrackClick}>
+      <div className={styles.track} role="group" aria-label={`${lane.titleHint ?? lane.title}, ${lane.caption}`} data-row={row} style={gridStyle} onClick={onTrackClick}>
         {shown.map((index) => {
           const mark = lane.marks[index]!;
           return (

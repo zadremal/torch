@@ -1,0 +1,36 @@
+.text {
+  font-size: var(--cds-code-02-font-size);
+  font-weight: var(--cds-code-02-font-weight);
+  line-height: var(--cds-code-02-line-height);
+  letter-spacing: var(--cds-code-02-letter-spacing);
+  padding: var(--cds-spacing-05);
+  background: var(--cds-layer-01);
+  font-family: var(--torch-font-mono);
+  white-space: pre-wrap;
+}
+
+.more {
+  font-size: var(--cds-body-01-font-size);
+  font-weight: var(--cds-body-01-font-weight);
+  line-height: var(--cds-body-01-line-height);
+  letter-spacing: var(--cds-body-01-letter-spacing);
+
+  summary {
+    color: var(--cds-link-primary);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--cds-focus);
+      outline-offset: -2px;
+    }
+  }
+
+  ol {
+    display: flex;
+    flex-direction: column;
+    padding-inline-start: var(--cds-spacing-06);
+    margin: var(--cds-spacing-04) 0 0;
+    color: var(--cds-text-secondary);
+    gap: var(--cds-spacing-03);
+  }
+}

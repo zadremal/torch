@@ -9,7 +9,7 @@ export function PromptView({ prompt, ctx }: { prompt: PromptPanel; ctx: ViewCont
     <>
       <PanelHead caption="User prompt" title={promptTitle(prompt.kind)} />
       <FieldsBlock fields={promptFields(prompt, ctx.sessionStart)} onOpen={ctx.onOpen} />
-      <Section id="panel-prompt" title="Prompt">
+      <Section variant="panel" id="panel-prompt" title="Prompt">
         <BodyBlock body={prompt.body} emptyText="No prompt recorded." large onLoadContent={ctx.onLoadContent} />
       </Section>
     </>

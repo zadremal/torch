@@ -1,0 +1,15 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  background: var(--cds-background);
+  color: var(--cds-text-primary);
+  min-block-size: 100vh;
+}
+
+/* The page decides for itself whether to stretch to the full height (timeline) or not. */
+.main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-inline-size: 0;
+}

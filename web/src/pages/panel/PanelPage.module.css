@@ -1,0 +1,5 @@
+/* A separate tab: the panel takes the full window height, with no app header. */
+.root {
+  background: var(--cds-background);
+  block-size: 100vh;
+}

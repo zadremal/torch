@@ -1,8 +1,17 @@
 // Global styles: all of Carbon (reset, white theme, theme zones, components) and the IBM Plex fonts
 // from the @ibm/plex package. Carbon Charts styles are imported separately, in main.tsx.
+// The only Sass file: Carbon is configured through Sass, and its precompiled CSS loads the fonts from
+// IBM's CDN instead of the local package. Component styles are CSS modules next to their components.
 @use '@carbon/react' with (
   $font-path: '@ibm/plex'
 );
+@use '@carbon/react/scss/theme';
+
+// Carbon tokens (color, type, spacing) as custom properties for the CSS modules, which read `var(--cds-…)`.
+// Carbon emits them only inside theme zones; its own components fall back to the white theme values.
+:root {
+  @include theme.theme();
+}
 
 #root {
   min-height: 100vh;

@@ -1,0 +1,78 @@
+/*
+ * Values from the mockup that are not in the Carbon tokens (plan §9.4). The only place: component
+ * modules read them as `var(--torch-…)` instead of repeating the numbers themselves.
+ * Carbon tokens themselves come from the Carbon styles as `var(--cds-…)` custom properties.
+ * Series colors for code live in `styles/palette.ts`.
+ */
+:root {
+  /* Width of the page content area. */
+  --torch-page-max-width: 1440px;
+
+  /* Carbon font stacks: Carbon exposes `font-family()` only in Sass, not as custom properties. */
+  --torch-font-sans: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
+  --torch-font-mono: 'IBM Plex Mono', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', monospace;
+
+  /*
+   * Carbon palette colors used by the styles (mark, meter and row colors from the mockup). Carbon exposes the
+   * palette only in Sass and JS: the values are those of `@carbon/colors`, a test keeps them equal.
+   */
+  --torch-color-blue-10: #edf5ff;
+  --torch-color-blue-20: #d0e2ff;
+  --torch-color-blue-60: #0f62fe;
+  --torch-color-blue-80: #002d9c;
+  --torch-color-cyan-40: #33b1ff;
+  --torch-color-gray-80: #393939;
+  --torch-color-gray-100: #161616;
+  --torch-color-purple-60: #8a3ffc;
+  --torch-color-red-10: #fff1f1;
+  --torch-color-red-20: #ffd7d9;
+  --torch-color-teal-50: #009d9a;
+
+  /* 13px text: monospaced tool and model names, detail panel rows. */
+  --torch-font-size-13: 0.8125rem;
+  --torch-line-height-13: 1rem;
+
+  /* Weight of the digit in the summary tile: 32px/40px, light. */
+  --torch-stat-value-weight: 300;
+  /* Smallest width of the summary tile. */
+  --torch-stat-tile-min-width: 180px;
+
+  /* Legend square. */
+  --torch-swatch-size: 0.75rem;
+
+  /* Bar inside a table or list row. */
+  --torch-meter-height: 0.5rem;
+  --torch-meter-radius: 0.25rem;
+
+  /* List of "label — value" pairs in the detail panel: smallest column width. */
+  --torch-key-value-min-width: 150px;
+
+  /* Tool call row in the panel: time, name, target, duration, error icon. */
+  --torch-call-row-columns: 64px 88px minmax(0, 1fr) 56px 20px;
+  --torch-call-row-min-height: 2.25rem;
+
+  /* Filter fields: Min and Max of the session list, From and To of the dashboard. */
+  --torch-range-input-number-width: 88px;
+  --torch-range-input-date-width: 160px;
+
+  /* Height of the bar chart including the title and axes. */
+  --torch-bar-chart-height: 280px;
+  /*
+   * Height of the composite bar with the total and the legend: as in the Carbon Charts example for
+   * the proportional MeterChart; enough for a legend of two or three lines in a narrow panel.
+   */
+  --torch-proportion-chart-height: 130px;
+
+  /* Timeline marks. */
+  --torch-mark-bar-height: 20px;
+  --torch-mark-agent-compact-height: 8px;
+  --torch-mark-tool-height: 12px;
+  --torch-mark-prompt-size: 12px;
+  --torch-mark-file-width: 8px;
+  --torch-mark-file-height: 12px;
+  --torch-mark-model-width: 2px;
+  --torch-mark-model-height: 10px;
+  --torch-mark-external-width: 6px;
+  --torch-mark-external-height: 20px;
+  --torch-mark-dimmed-opacity: 0.25;
+}

@@ -5,7 +5,7 @@ import { RangeFilter } from "../../../components/molecules/RangeFilter.tsx";
 import { SegmentedControl, type SegmentedOption } from "../../../components/molecules/SegmentedControl.tsx";
 import type { AgentsBucket } from "@contracts/api.ts";
 import type { SessionsState } from "../query.ts";
-import "./SessionFilters.scss";
+import styles from "./SessionFilters.module.css";
 
 const AGENT_OPTIONS: readonly SegmentedOption<AgentsBucket>[] = [
   { value: "any", label: "Any" },
@@ -24,7 +24,7 @@ export interface SessionFiltersProps {
 
 export function SessionFilters({ state, projects, canReset, onChange, onReset }: SessionFiltersProps) {
   return (
-    <div className="torch-slist-filters">
+    <div className={styles.root}>
       <Search
         size="lg"
         labelText="Search sessions by name"
@@ -33,7 +33,7 @@ export function SessionFilters({ state, projects, canReset, onChange, onReset }:
         onChange={(event) => onChange({ q: event.target.value })}
         onClear={() => onChange({ q: "" })}
       />
-      <div className="torch-slist-filters__row">
+      <div className={styles.row}>
         <SegmentedControl
           label="Agents"
           showLabel
@@ -56,7 +56,7 @@ export function SessionFilters({ state, projects, canReset, onChange, onReset }:
           value={{ min: state.tkMin, max: state.tkMax }}
           onChange={({ min, max }) => onChange({ tkMin: min, tkMax: max })}
         />
-        <div className="torch-slist-filters__project">
+        <div className={styles.project}>
           <Select
             id="sessions-project"
             size="sm"

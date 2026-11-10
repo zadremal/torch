@@ -1,0 +1,126 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-inline-size: 0;
+}
+
+/* The page header has arrived — the template's placeholder header is not needed. */
+.slot:not(:empty) + .placeholder {
+  display: none;
+}
+
+.head {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: var(--cds-spacing-06) var(--cds-spacing-07) 0;
+  margin-inline: auto;
+  gap: var(--cds-spacing-05);
+  inline-size: 100%;
+  max-inline-size: var(--torch-page-max-width);
+}
+
+.headWide {
+  max-inline-size: none;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cds-spacing-05);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-spacing-03);
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--cds-heading-04-font-size);
+  font-weight: var(--cds-heading-04-font-weight);
+  line-height: var(--cds-heading-04-line-height);
+  letter-spacing: var(--cds-heading-04-letter-spacing);
+  margin: 0;
+}
+
+/* The placeholder takes the height of the heading row: the page does not jump when the name arrives. */
+.titleSkeleton {
+  block-size: 1.75rem;
+  inline-size: 24rem;
+  margin-block: var(--cds-spacing-02);
+  max-inline-size: 100%;
+}
+
+.meta {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--cds-text-secondary);
+  gap: var(--cds-spacing-03) var(--cds-spacing-05);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tab {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  display: flex;
+  align-items: center;
+  block-size: var(--cds-spacing-08);
+  border-block-end: 2px solid var(--cds-border-subtle-01);
+  color: var(--cds-text-secondary);
+  padding-inline: var(--cds-spacing-05);
+  text-decoration: none;
+
+  &:is(a):hover {
+    border-block-end-color: var(--cds-border-strong-01);
+    color: var(--cds-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+  }
+
+  &[aria-current='page'] {
+    border-block-end-color: var(--cds-border-interactive);
+    color: var(--cds-text-primary);
+    font-weight: 600;
+  }
+}
+
+/* The line under the tabs stretches to the right edge. */
+.tabsRest {
+  flex: 1;
+  border-block-end: 2px solid var(--cds-border-subtle-01);
+}
+
+.content {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: var(--cds-spacing-07) var(--cds-spacing-07) var(--cds-spacing-09);
+  margin-inline: auto;
+  gap: var(--cds-spacing-07);
+  inline-size: 100%;
+  max-inline-size: var(--torch-page-max-width);
+}

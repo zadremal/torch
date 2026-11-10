@@ -2,7 +2,7 @@
 // and Operations of a file. All values arrive as ready strings: the molecule knows nothing about API types.
 import { ErrorFilled } from "@carbon/icons-react";
 import { Mono } from "../atoms/Mono.tsx";
-import "./CallRow.scss";
+import styles from "./CallRow.module.css";
 
 export interface CallRowProps {
   /** Time since the session start: "+6:12". */
@@ -31,7 +31,7 @@ export function CallRow({
   current = false,
   onSelect,
 }: CallRowProps) {
-  const className = ["torch-call-row", error && "torch-call-row--error", current && "torch-call-row--current"]
+  const className = [styles.root, error && styles.error, current && styles.current]
     .filter(Boolean)
     .join(" ");
   return (
@@ -42,10 +42,10 @@ export function CallRow({
       aria-current={current || undefined}
       onClick={onSelect}
     >
-      <span className="torch-call-row__time">
+      <span className={styles.time}>
         <Mono>{time}</Mono>
       </span>
-      <span className="torch-call-row__name">
+      <span className={styles.name}>
         <Mono size="md">{name}</Mono>
       </span>
       {detailMono ? (
@@ -53,14 +53,14 @@ export function CallRow({
           {detail}
         </Mono>
       ) : (
-        <span className="torch-call-row__detail" title={detail}>
+        <span className={styles.detail} title={detail}>
           {detail}
         </span>
       )}
-      <span className="torch-call-row__duration">
+      <span className={styles.duration}>
         <Mono>{duration}</Mono>
       </span>
-      {error && <ErrorFilled size={16} className="torch-call-row__icon" aria-hidden="true" />}
+      {error && <ErrorFilled size={16} className={styles.icon} aria-hidden="true" />}
     </button>
   );
 }

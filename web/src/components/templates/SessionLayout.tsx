@@ -19,7 +19,7 @@ import { Breadcrumb, BreadcrumbItem, SkeletonText } from "@carbon/react";
 import { type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, Outlet, useOutletContext } from "react-router";
-import "./SessionLayout.scss";
+import styles from "./SessionLayout.module.css";
 
 export type SessionTab = "overview" | "timeline";
 
@@ -54,7 +54,7 @@ type HeaderSlot = HTMLElement | null;
 
 function HeaderContent({ title, breadcrumbs = [], activeTab, tabHrefs, meta, actions, wide = false }: SessionHeaderProps) {
   return (
-    <div className={wide ? "torch-session__head torch-session__head--wide" : "torch-session__head"}>
+    <div className={wide ? `${styles.head} ${styles.headWide}` : styles.head}>
       {breadcrumbs.length > 0 && (
         <Breadcrumb noTrailingSlash aria-label="Breadcrumb">
           {breadcrumbs.map((crumb) =>
@@ -70,35 +70,35 @@ function HeaderContent({ title, breadcrumbs = [], activeTab, tabHrefs, meta, act
           )}
         </Breadcrumb>
       )}
-      <div className="torch-session__title-row">
-        <div className="torch-session__heading">
+      <div className={styles.titleRow}>
+        <div className={styles.heading}>
           {title === undefined ? (
-            <SkeletonText heading className="torch-session__title-skeleton" />
+            <SkeletonText heading className={styles.titleSkeleton} />
           ) : (
-            <h1 className="torch-session__title">{title}</h1>
+            <h1 className={styles.title}>{title}</h1>
           )}
-          {meta && <div className="torch-session__meta">{meta}</div>}
+          {meta && <div className={styles.meta}>{meta}</div>}
         </div>
-        {actions && <div className="torch-session__actions">{actions}</div>}
+        {actions && <div className={styles.actions}>{actions}</div>}
       </div>
-      <nav aria-label="Session views" className="torch-session__tabs">
+      <nav aria-label="Session views" className={styles.tabs}>
         {TABS.map(({ tab, label }) =>
           tabHrefs ? (
             <Link
               key={tab}
               to={tabHrefs[tab]}
-              className="torch-session__tab"
+              className={styles.tab}
               aria-current={tab === activeTab ? "page" : undefined}
             >
               {label}
             </Link>
           ) : (
-            <span key={tab} className="torch-session__tab" aria-current={tab === activeTab ? "page" : undefined}>
+            <span key={tab} className={styles.tab} aria-current={tab === activeTab ? "page" : undefined}>
               {label}
             </span>
           ),
         )}
-        <span className="torch-session__tabs-rest" />
+        <span className={styles.tabsRest} />
       </nav>
     </div>
   );
@@ -107,10 +107,10 @@ function HeaderContent({ title, breadcrumbs = [], activeTab, tabHrefs, meta, act
 export function SessionLayout() {
   const [slot, setSlot] = useState<HeaderSlot>(null);
   return (
-    <div className="torch-session">
-      <div ref={setSlot} className="torch-session__slot" />
+    <div className={styles.root}>
+      <div ref={setSlot} className={styles.slot} />
       {/* Hidden by the styles as soon as the page header has appeared in the header place. */}
-      <div className="torch-session__placeholder" aria-hidden="true">
+      <div className={styles.placeholder} aria-hidden="true">
         <HeaderContent />
       </div>
       <Outlet context={slot satisfies HeaderSlot} />
@@ -126,5 +126,5 @@ export function SessionHeader(props: SessionHeaderProps) {
 
 /** Column of blocks under the header at the width of the content area: the session overview. */
 export function SessionContent({ children }: { children: ReactNode }) {
-  return <div className="torch-session__content">{children}</div>;
+  return <div className={styles.content}>{children}</div>;
 }

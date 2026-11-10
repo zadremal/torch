@@ -27,7 +27,13 @@ import {
   selectNavigation,
   viewNavigation,
 } from "./urlState.ts";
-import "./SessionTimelinePage.scss";
+import styles from "./SessionTimelinePage.module.css";
+
+const WORKSPACE_CLASS: Record<PanelDock, string> = {
+  right: styles.workspace,
+  left: `${styles.workspace} ${styles.workspaceLeft}`,
+  bottom: `${styles.workspace} ${styles.workspaceBottom}`,
+};
 
 const VIEW_OPTIONS: SegmentedOption<TimelineView>[] = [
   { value: "compact", label: "Compact" },
@@ -76,10 +82,10 @@ export function SessionTimelinePage() {
         tabHrefs={{ overview: sessionHref("session", id), timeline: sessionHref("timeline", id) }}
         wide
       />
-      <div className="torch-timeline-page">
-        <div className="torch-timeline-page__toolbar">
+      <div className={styles.root}>
+        <div className={styles.toolbar}>
           <TimelineLegend />
-          <div className="torch-timeline-page__controls">
+          <div className={styles.controls}>
             <SegmentedControl label="Density" options={VIEW_OPTIONS} value={state.view} onChange={setView} />
             <SegmentedControl label="Zoom" options={ZOOM_OPTIONS} value={state.zoom} onChange={setZoom} />
             {!state.sel && (
@@ -89,14 +95,14 @@ export function SessionTimelinePage() {
             )}
           </div>
         </div>
-        <div className={`torch-timeline-page__workspace torch-timeline-page__workspace--${state.dock}`}>
-          <div className="torch-timeline-page__main">
+        <div className={WORKSPACE_CLASS[state.dock]}>
+          <div className={styles.main}>
             {timeline.error && !data && <ErrorNotice title="Could not load the timeline" error={timeline.error} onRetry={timeline.reload} />}
-            {timeline.loading && !data && <SkeletonText paragraph lineCount={6} className="torch-timeline-page__skeleton" />}
+            {timeline.loading && !data && <SkeletonText paragraph lineCount={6} className={styles.skeleton} />}
             {data && <Timeline data={data} selection={state.sel} view={state.view} zoom={state.zoom} onSelect={select} />}
           </div>
           {state.sel && (
-            <div className="torch-timeline-page__panel">
+            <div className={styles.panel}>
               <PanelContainer
                 sessionId={id}
                 selection={state.sel}

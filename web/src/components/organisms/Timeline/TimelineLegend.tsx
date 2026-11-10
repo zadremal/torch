@@ -1,6 +1,6 @@
 // Timeline legend: samples of the TimelineMark atom marks with labels from the artboard.
 import { TimelineMark, type TimelineMarkKind } from "../../atoms/TimelineMark.tsx";
-import "./Timeline.scss";
+import styles from "./Timeline.module.css";
 
 const ITEMS: { kind: TimelineMarkKind; label: string; error?: boolean }[] = [
   { kind: "agent-compact", label: "Agent run" },
@@ -15,9 +15,9 @@ const ITEMS: { kind: TimelineMarkKind; label: string; error?: boolean }[] = [
 
 export function TimelineLegend() {
   return (
-    <ul aria-label="Legend" className="torch-timeline-legend">
+    <ul aria-label="Legend" className={styles.legend}>
       {ITEMS.map((item) => (
-        <li key={item.label} className="torch-timeline-legend__item">
+        <li key={item.label} className={styles.legendItem}>
           <TimelineMark kind={item.kind} label={item.label} error={item.error} />
           {item.label}
         </li>

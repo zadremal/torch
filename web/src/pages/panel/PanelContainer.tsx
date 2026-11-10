@@ -12,7 +12,7 @@ import { api } from "../../lib/api.ts";
 import { ErrorNotice } from "../../components/molecules/ErrorNotice.tsx";
 import { useLiveReload } from "../../lib/live.ts";
 import { usePanelHistory, usePanelItem } from "./usePanel.ts";
-import "./PanelContainer.scss";
+import styles from "./PanelContainer.module.css";
 
 export interface PanelContainerProps extends Omit<DetailPanelChrome, "onBack" | "backLabel"> {
   sessionId: string;
@@ -32,7 +32,7 @@ export function PanelContainer({ sessionId, selection, sessionStart, ...frame }:
   if (!data) {
     return (
       <DetailPanelShell sessionId={sessionId} {...chrome}>
-        <div className="torch-panel-state">
+        <div className={styles.root}>
           {item.error ? (
             <ErrorNotice title="Could not load details" error={item.error} onRetry={item.reload} />
           ) : (

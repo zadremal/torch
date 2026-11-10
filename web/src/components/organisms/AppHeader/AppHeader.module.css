@@ -1,0 +1,55 @@
+/* Theme tokens inside the header come from the g100 zone set by the Theme component. */
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--cds-background);
+  border-block-end: 1px solid var(--cds-border-subtle-01);
+  color: var(--cds-text-primary);
+  min-block-size: var(--cds-spacing-09);
+  padding-inline-start: var(--cds-spacing-05);
+}
+
+.name {
+  font-size: var(--cds-heading-compact-01-font-size);
+  font-weight: var(--cds-heading-compact-01-font-weight);
+  line-height: var(--cds-heading-compact-01-line-height);
+  letter-spacing: var(--cds-heading-compact-01-letter-spacing);
+  padding-inline-end: var(--cds-spacing-07);
+}
+
+.nav {
+  display: flex;
+  flex-grow: 1;
+}
+
+.link {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  block-size: var(--cds-spacing-09);
+  border-block-end: 2px solid transparent;
+  color: var(--cds-text-secondary);
+  padding-inline: var(--cds-spacing-05);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--cds-background-hover);
+    color: var(--cds-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+  }
+
+  /* NavLink sets aria-current="page" on the active link. */
+  &[aria-current='page'] {
+    border-block-end-color: var(--cds-border-interactive);
+    color: var(--cds-text-primary);
+  }
+}

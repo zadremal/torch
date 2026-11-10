@@ -8,7 +8,7 @@ import { DAY_BUCKET_HOURS } from "@contracts/constants.ts";
 import { useMemo } from "react";
 import { formatBucket, formatCount } from "../../../lib/format.ts";
 import { ACTIVITY_COLORS } from "../../../styles/palette.ts";
-import "./BarChart.scss";
+import styles from "./BarChart.module.css";
 
 export type BarChartMetric = keyof typeof ACTIVITY_COLORS;
 
@@ -79,11 +79,11 @@ export function BarChart({ metric, points, bucket }: BarChartProps) {
   );
 
   return (
-    <section className="torch-bar-chart" aria-label={title}>
-      <p className="torch-bar-chart__summary">
+    <section className={styles.root} aria-label={title}>
+      <p className={styles.summary}>
         {formatCount(total)} total · peak {formatCount(peak)}
       </p>
-      <div className="torch-bar-chart__plot">
+      <div className={styles.plot}>
         <SimpleBarChart data={data} options={options} />
       </div>
     </section>

@@ -3,14 +3,14 @@
 import { Mono } from "../../../components/atoms/Mono.tsx";
 import { formatClock } from "../../../lib/format.ts";
 import type { PromptsModel } from "../model.ts";
-import "./PromptSection.scss";
+import styles from "./PromptSection.module.css";
 
 export function PromptSection({ model }: { model: PromptsModel }) {
   return (
     <>
-      <div className="torch-session-prompt__text">{model.original.text}</div>
+      <div className={styles.text}>{model.original.text}</div>
       {model.followUps.length > 0 && (
-        <details className="torch-session-prompt__more">
+        <details className={styles.more}>
           <summary>{model.followUpsLabel}</summary>
           <ol>
             {model.followUps.map((p) => (

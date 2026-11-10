@@ -72,16 +72,16 @@ describe("plan §9.1 routes", () => {
     ["/settings", null],
   ])("%s: the AppShell template without the session shell", (location, active) => {
     const html = renderRoute(location);
-    expect(html).toContain('class="torch-shell"');
+    expect(html).toContain('class="AppShell__root"');
     expect(html).toContain("<main");
-    expect(html).not.toContain("torch-session");
+    expect(html).not.toContain("SessionLayout__");
     expect(activeLink(html)).toBe(active);
   });
 
   test.each(["/sessions/abc", "/sessions/abc/timeline"])("%s: the AppShell and SessionLayout templates", (location) => {
     const html = renderRoute(location);
-    expect(html).toContain('class="torch-shell"');
-    expect(html).toContain('class="torch-session"');
+    expect(html).toContain('class="AppShell__root"');
+    expect(html).toContain('class="SessionLayout__root"');
     // The page stub passed nothing: the template shows the heading placeholder and both tabs.
     expect(html).toContain("cds--skeleton__heading");
     expect(html).toMatch(/Session views.*Overview.*Timeline/s);
@@ -91,16 +91,16 @@ describe("plan §9.1 routes", () => {
 
   test("/sessions/abc/panel: a separate tab without the app header", () => {
     const html = renderRoute("/sessions/abc/panel");
-    expect(html).not.toContain("torch-shell");
-    expect(html).not.toContain("torch-header");
+    expect(html).not.toContain("AppShell__");
+    expect(html).not.toContain("AppHeader__");
   });
 });
 
 describe("header", () => {
   test("the torch name, the Dashboard and Sessions links, the gear leads to /settings", () => {
     const html = renderRoute("/");
-    expect(html).toMatch(/<header class="torch-header[^"]*cds--g100/);
-    expect(html).toContain('<span class="torch-header__name">torch</span>');
+    expect(html).toMatch(/<header class="AppHeader__root[^"]*cds--g100/);
+    expect(html).toContain('<span class="AppHeader__name">torch</span>');
     expect(html).not.toContain("Session debugger");
     expect(html).toMatch(/<nav aria-label="Main"[^>]*>.*href="\/"[^>]*>Dashboard<.*href="\/sessions"[^>]*>Sessions</s);
     expect(html).toMatch(/<a[^>]*class="cds--btn cds--btn--ghost cds--btn--icon-only[^"]*"[^>]*href="\/settings"/);
@@ -115,7 +115,7 @@ describe("atoms", () => {
     expect(await render(file, "Meter", { ratio: 3 })).toContain("inline-size:100%");
     expect(await render(file, "Meter", { ratio: Number.NaN })).toContain("inline-size:0%");
     const bare = await render(file, "Meter", { ratio: 0.5, color: "#009d9a", track: false });
-    expect(bare).toContain("torch-meter--bare");
+    expect(bare).toContain("Meter__bare");
     expect(bare).toContain("background:#009d9a");
   });
 
@@ -124,7 +124,7 @@ describe("atoms", () => {
       "background:#8a3ffc",
     );
     const mono = await render("/src/components/atoms/Mono.tsx", "Mono", { size: "md", tone: "helper" }, "claude-opus-5-5");
-    expect(mono).toBe('<span class="torch-mono torch-mono--md torch-mono--helper">claude-opus-5-5</span>');
+    expect(mono).toBe('<span class="Mono__root Mono__md Mono__helper">claude-opus-5-5</span>');
   });
 
   test("TimelineMark: with onSelect a button with a label and a state, without it a legend sample", async () => {
@@ -140,13 +140,13 @@ describe("atoms", () => {
       onSelect() {},
     });
     expect(mark).toStartWith('<button type="button"');
-    expect(mark).toContain("torch-mark--tool torch-mark--error torch-mark--dimmed");
+    expect(mark).toContain("TimelineMark__tool TimelineMark__error TimelineMark__dimmed");
     expect(mark).toContain('aria-label="Bash bun test, failed"');
     expect(mark).toContain('aria-pressed="true"');
     expect(mark).toContain("left:33%");
 
     const sample = await render(file, "TimelineMark", { kind: "prompt", label: "Prompt" });
-    expect(sample).toBe('<span class="torch-mark torch-mark--prompt torch-mark--sample" aria-hidden="true"></span>');
+    expect(sample).toBe('<span class="TimelineMark__root TimelineMark__prompt TimelineMark__sample" aria-hidden="true"></span>');
   });
 });
 
@@ -161,11 +161,11 @@ describe("molecules", () => {
       h(StatTile, { label: "Total tokens", value: "2.18M", helper: "79% served from cache" }),
       h(StatTile, { label: "Errors", value: "7", helper: "3.8% of 186 tool calls", error: true }),
     );
-    expect(html).toStartWith('<section class="torch-stat-tiles" aria-label="Session summary">');
-    expect(html).toContain('<span class="torch-stat-tile__value">2.18M</span>');
+    expect(html).toStartWith('<section class="StatTile__tiles" aria-label="Session summary">');
+    expect(html).toContain('<span class="StatTile__value">2.18M</span>');
     expect(html).toContain("79% served from cache");
     // The error icon appears only in a tile with the error flag.
-    expect(html.match(/torch-stat-tile__icon/g)).toHaveLength(1);
+    expect(html.match(/StatTile__icon/g)).toHaveLength(1);
   });
 
   test("SegmentedControl: the selected value is marked with aria-pressed", async () => {
@@ -223,7 +223,7 @@ describe("molecules", () => {
     );
     expect(html).toStartWith("<dl");
     expect(html).toMatch(/<dt[^>]*>Duration<\/dt><dd[^>]*>18m 42s<\/dd>/);
-    expect(html).toMatch(/torch-key-value__value--error">10 \(7 tool, 3 network\)</);
+    expect(html).toMatch(/KeyValue__valueError">10 \(7 tool, 3 network\)</);
   });
 
   test("CallRow: a button row of a call with an error", async () => {
@@ -236,10 +236,10 @@ describe("molecules", () => {
       current: true,
       onSelect() {},
     });
-    expect(html).toStartWith('<button type="button" class="torch-call-row torch-call-row--error torch-call-row--current"');
+    expect(html).toStartWith('<button type="button" class="CallRow__root CallRow__error CallRow__current"');
     expect(html).toContain('aria-label="Bash bun run generate:client, failed"');
     for (const text of ["+6:12", "Bash", "bun run generate:client", "4.2 s"]) expect(html).toContain(`>${text}<`);
-    expect(html).toContain("torch-call-row__icon");
+    expect(html).toContain("CallRow__icon");
   });
 });
 
@@ -274,8 +274,8 @@ describe("chart organisms", () => {
   });
 
   test("Carbon Charts is imported only in two organisms, its styles at the entry point", () => {
-    const importers = [...new Bun.Glob("**/*.{ts,tsx,scss}").scanSync({ cwd: join(WEB_DIR, "src"), absolute: true })]
-      .filter((file) => /from\s+["']@carbon\/charts|import\s+["']@carbon\/charts|@use\s+["']@carbon\/charts/.test(readFileSync(file, "utf8")))
+    const importers = [...new Bun.Glob("**/*.{ts,tsx,css,scss}").scanSync({ cwd: join(WEB_DIR, "src"), absolute: true })]
+      .filter((file) => /from\s+["']@carbon\/charts|import\s+["']@carbon\/charts|@(use|import)\s+["']@carbon\/charts/.test(readFileSync(file, "utf8")))
       .map((file) => relative(join(WEB_DIR, "src"), file))
       .sort();
     expect(importers).toEqual([

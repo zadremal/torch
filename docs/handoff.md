@@ -57,7 +57,7 @@ Consolidated at K2: the `dto` examples are obtained by API calls on the referenc
 
 To consolidate before or during stage C:
 
-- **Timeline mark.** `Timeline/Mark.tsx` and the mark base in `Timeline.scss` duplicate the atom `TimelineMark`: the atom's `::before` pseudo-element costs about 0.1 ms of style calculation per mark. Remove `::before` from the atom (the track widens the click area), give it a `tabIndex` and a mark number, wrap it in `memo`, then delete the copy.
+- **Timeline mark.** `Timeline/Mark.tsx` and the mark base in `Timeline.module.css` duplicate the atom `TimelineMark`: the atom's `::before` pseudo-element costs about 0.1 ms of style calculation per mark. Remove `::before` from the atom (the track widens the click area), give it a `tabIndex` and a mark number, wrap it in `memo`, then delete the copy.
 - **"Back to …" rolls back the mode, zoom and dock** changed after the last navigation: going back is a history step back, while the switches replace the current entry. They are kept in the artboard.
 - **A selected mark without focus leaves the DOM on scroll;** "Show details" after closing does not scroll to the selected mark (W5 review, remarks 3 and 4).
 - **Tests of timeline effects and of the page-to-organism wiring:** there is no DOM environment, 12 of 21 mutations survived (W5 review, remark 7). Close in T1 or set up a DOM environment.

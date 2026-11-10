@@ -1,0 +1,6 @@
+.root {
+  display: inline-block;
+  flex: none;
+  block-size: var(--torch-swatch-size);
+  inline-size: var(--torch-swatch-size);
+}

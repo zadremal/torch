@@ -1,0 +1,47 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cds-spacing-05);
+}
+
+.scroll {
+  inline-size: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  inline-size: 100%;
+  min-inline-size: 920px;
+  border-collapse: collapse;
+
+  th {
+    font-size: var(--cds-body-compact-01-font-size);
+    line-height: var(--cds-body-compact-01-line-height);
+    letter-spacing: var(--cds-body-compact-01-letter-spacing);
+    padding: var(--cds-spacing-04) var(--cds-spacing-03);
+    background: var(--cds-layer-accent-01);
+    font-weight: 600;
+    text-align: start;
+  }
+
+  td {
+    padding: var(--cds-spacing-02) var(--cds-spacing-03);
+    border-block-end: 1px solid var(--cds-border-subtle-00);
+    vertical-align: top;
+  }
+
+  /* The model name is wider than the numeric columns. */
+  th:first-child,
+  td:first-child {
+    inline-size: 22%;
+  }
+}
+
+.sr {
+  position: absolute;
+  overflow: hidden;
+  block-size: 1px;
+  inline-size: 1px;
+  clip-path: inset(50%);
+}

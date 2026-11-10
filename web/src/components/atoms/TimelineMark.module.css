@@ -1,0 +1,157 @@
+/* Mark colors come from the mockup (references.md §2), Carbon palette tokens. */
+
+.root {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+
+  /* The click area is larger than the visible mark. */
+  &::before {
+    position: absolute;
+    content: '';
+    inset: -6px -2px;
+  }
+
+  &:hover {
+    z-index: 2;
+    filter: brightness(0.8);
+  }
+
+  &:focus-visible,
+  &[aria-pressed='true'] {
+    z-index: 4;
+    outline: 2px solid var(--cds-focus);
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    box-shadow: 0 0 0 2px var(--cds-background);
+  }
+}
+
+/* Session and agent-run bar: with text inside. */
+.session,
+.agent {
+  font-size: var(--cds-label-01-font-size);
+  font-weight: var(--cds-label-01-font-weight);
+  line-height: var(--cds-label-01-line-height);
+  overflow: hidden;
+  border: 1px solid var(--torch-color-blue-60);
+  background: var(--torch-color-blue-20);
+  block-size: var(--torch-mark-bar-height);
+  color: var(--torch-color-blue-80);
+  font-family: var(--torch-font-sans);
+  letter-spacing: 0;
+  padding-inline: calc(var(--cds-spacing-02) + var(--cds-spacing-01));
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session {
+  border-color: var(--torch-color-gray-100);
+  background: var(--torch-color-gray-80);
+  color: var(--cds-text-on-color);
+}
+
+/* Agent run in Compact mode: several rows in one lane, the row is set by `top`. */
+.agentCompact {
+  border: 1px solid var(--torch-color-blue-60);
+  background: var(--torch-color-blue-20);
+  block-size: var(--torch-mark-agent-compact-height);
+  transform: none;
+}
+
+.tool {
+  background: var(--torch-color-teal-50);
+  block-size: var(--torch-mark-tool-height);
+}
+
+/* Prompt — a diamond centered on the point in time. */
+.prompt {
+  background: var(--torch-color-gray-100);
+  block-size: var(--torch-mark-prompt-size);
+  inline-size: var(--torch-mark-prompt-size);
+  transform: translate(-50%, -50%) rotate(45deg);
+
+  &[aria-pressed='true'] {
+    outline-offset: 3px;
+  }
+}
+
+/* File read — an outline, edit and write — a fill. */
+.fileRead,
+.fileWrite {
+  block-size: var(--torch-mark-file-height);
+  inline-size: var(--torch-mark-file-width);
+  transform: translate(-50%, -50%);
+}
+
+.fileRead {
+  border: 2px solid var(--torch-color-blue-60);
+  background: var(--cds-background);
+}
+
+.fileWrite {
+  background: var(--torch-color-blue-60);
+}
+
+.model {
+  background: var(--torch-color-purple-60);
+  block-size: var(--torch-mark-model-height);
+  inline-size: var(--torch-mark-model-width);
+}
+
+.external {
+  border: 1px solid var(--torch-color-blue-80);
+  background: var(--torch-color-cyan-40);
+  block-size: var(--torch-mark-external-height);
+  inline-size: var(--torch-mark-external-width);
+}
+
+/* An error overrides the kind color: it comes after it. */
+.error {
+  border-color: var(--cds-support-error);
+  background: var(--cds-support-error);
+}
+
+.dimmed {
+  opacity: var(--torch-mark-dimmed-opacity);
+}
+
+/* Sample for the legend: inline in the text flow, not clickable. */
+.sample {
+  position: static;
+  display: inline-block;
+  flex: none;
+  padding: 0;
+  cursor: default;
+  transform: none;
+
+  &::before {
+    content: none;
+  }
+
+  &:hover {
+    filter: none;
+  }
+
+  &.prompt {
+    transform: rotate(45deg);
+  }
+
+  &.session,
+  &.agent,
+  &.agentCompact {
+    inline-size: var(--cds-spacing-05);
+  }
+
+  &.tool {
+    inline-size: var(--torch-mark-external-width);
+  }
+}

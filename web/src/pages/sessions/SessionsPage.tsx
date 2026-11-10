@@ -20,7 +20,7 @@ import {
   withFilter,
   withSort,
 } from "./query.ts";
-import "./SessionsPage.scss";
+import styles from "./SessionsPage.module.css";
 
 export function SessionsPage() {
   const [params, setParams] = useSearchParams();
@@ -51,10 +51,10 @@ export function SessionsPage() {
         onChange={onChange}
         onReset={() => go(resetFilters(state), true)}
       />
-      <section aria-label="Session list" className="torch-slist">
-        <div className="torch-slist__bar">
-          <h2 className="torch-slist__title">All sessions</h2>
-          <span className="torch-slist__count" aria-live="polite">
+      <section aria-label="Session list" className={styles.root}>
+        <div className={styles.bar}>
+          <h2 className={styles.title}>All sessions</h2>
+          <span className={styles.count} aria-live="polite">
             {data ? `Showing ${data.total} of ${data.totalAll} sessions` : sessions.loading ? "Loading…" : ""}
           </span>
         </div>

@@ -114,25 +114,25 @@ describe("six views on the dto responses", () => {
     expect(markup).toContain("Open the peak model call");
     expect(markup).toContain("~2.4K tokens");
     // The First / Last / Peak bars and Tool usage are the Meter atom: three with a track, four without.
-    expect(markup.match(/class="torch-meter"/g)).toHaveLength(3);
-    expect(markup.match(/torch-meter--bare/g)).toHaveLength(4);
+    expect(markup.match(/class="Meter__root"/g)).toHaveLength(3);
+    expect(markup.match(/Meter__bare/g)).toHaveLength(4);
     expect(markup).toContain("Errors only (4)");
-    expect(markup.match(/<button type="button" class="torch-call-row/g)).toHaveLength(49);
-    expect(markup.match(/torch-call-row--error/g)).toHaveLength(4);
+    expect(markup.match(/<button type="button" class="CallRow__root/g)).toHaveLength(49);
+    expect(markup.match(/CallRow__error/g)).toHaveLength(4);
   });
 
   test("Tool call with an error: the Error label, message, input and error output", () => {
     const markup = panel({ item: ITEMS.tool });
     expect(headings(markup)).toEqual(["Bash", "Basic information", "Input", "Error output"]);
     expect(markup).toContain(">Tool call</span>");
-    expect(markup).toContain("torch-panel__title--mono");
+    expect(markup).toContain("DetailPanel__titleMono");
     expect(markup).toContain("cds--tag--red");
     expect(markup).toContain("bun run generate:client");
     expect(markup).toContain("(+6:12)");
     expect(markup).toContain("~4.2 s");
     expect(markup).toContain("cds--inline-notification--error");
     expect(markup).toContain("$ openapi-ts -i openapi.yaml -o src/api/billing/gen --zod");
-    expect(markup).toContain("torch-panel__pre--error");
+    expect(markup).toContain("DetailPanel__preError");
     expect(markup).toContain("error: unknown option &#x27;--zod&#x27;");
   });
 
@@ -141,7 +141,7 @@ describe("six views on the dto responses", () => {
     expect(headings(markup)).toEqual(["Edit", "Basic information", "Input", "Output", "File"]);
     expect(markup).toContain("cds--tag--green");
     expect(markup).not.toContain("cds--inline-notification");
-    expect(markup).not.toContain("torch-panel__pre--error");
+    expect(markup).not.toContain("DetailPanel__preError");
     expect(markup).toContain("+6 −3");
   });
 
@@ -150,16 +150,16 @@ describe("six views on the dto responses", () => {
     expect(headings(markup)).toEqual(["Original prompt", "Prompt"]);
     expect(markup).toContain(">User prompt</span>");
     expect(markup).toContain("Image #1");
-    expect(markup).toContain("torch-panel__pre--large");
+    expect(markup).toContain("DetailPanel__preLarge");
     expect(markup).toContain("Replace the hand-written fetch wrapper");
   });
 
   test("File: the path as the heading, counters and a list of operations with agents", () => {
     const markup = panel({ item: ITEMS.file });
     expect(headings(markup)).toEqual([SCHEMAS, "Operations"]);
-    expect(markup).toContain("torch-panel__title--path");
+    expect(markup).toContain("DetailPanel__titlePath");
     expect(markup).toContain("+290 −21");
-    expect(markup.match(/<button type="button" class="torch-call-row/g)).toHaveLength(15);
+    expect(markup.match(/<button type="button" class="CallRow__root/g)).toHaveLength(15);
     expect(markup).toContain(">general-purpose · gp-1<");
   });
 
@@ -179,7 +179,7 @@ describe("six views on the dto responses", () => {
     expect(headings(failed)).toEqual(["Error response"]);
     expect(failed).toContain("cds--inline-notification--error");
     expect(failed).toContain("Attempt 1 of 10 · retried after 1.2 s");
-    expect(failed).toMatch(/torch-panel__pre--error[^>]*>529 Overloaded</);
+    expect(failed).toMatch(/DetailPanel__preError[^>]*>529 Overloaded</);
 
     const external = panel({ item: item("net", network["external:toolu_plan-1_008"]) });
     expect(headings(external)).toEqual([]);
@@ -205,12 +205,12 @@ describe("six views on the dto responses", () => {
   test("the panel heading names the session; links to other views are buttons", () => {
     for (const data of Object.values(ITEMS)) {
       const markup = panel({ item: data });
-      expect(markup).toStartWith('<section class="torch-panel" aria-label="Details">');
+      expect(markup).toStartWith('<section class="DetailPanel__root" aria-label="Details">');
       expect(markup).toContain("Details · 8f3c1a2e");
       // The session scaffold substring does not occur in the panel markup (shell.test.ts).
-      expect(markup).not.toContain("torch-session");
+      expect(markup).not.toContain("SessionLayout__");
     }
-    expect(panel({ item: ITEMS.tool })).toMatch(/<button type="button" class="torch-panel__link">Main agent<\/button>/);
+    expect(panel({ item: ITEMS.tool })).toMatch(/<button type="button" class="DetailPanel__link">Main agent<\/button>/);
   });
 
   test("without a session start the time is shown as time of day, not as an offset", () => {
@@ -264,7 +264,7 @@ describe("panel frame", () => {
   test("the \"Back to …\" button exists only when there is somewhere to go back to", () => {
     const withBack = panel({ item: ITEMS.tool, onBack() {}, backLabel: "general-purpose (gp-1)" });
     expect(withBack).toContain("Back to general-purpose (gp-1)</button>");
-    expect(panel({ item: ITEMS.tool })).not.toContain("torch-panel__back");
+    expect(panel({ item: ITEMS.tool })).not.toContain("DetailPanel__back");
   });
 
   test("the same frame without data: shown by the loader while the request is in flight", () => {
@@ -283,7 +283,7 @@ describe("page /sessions/:id/panel", () => {
 
   test("separate tab: the panel frame without the app header, a placeholder while the data loads", () => {
     const markup = route("/sessions/abc/panel?sel=tool%3Atoolu_main_009");
-    expect(markup).toStartWith('<main class="torch-panel-page">');
+    expect(markup).toStartWith('<main class="PanelPage__root">');
     expect(markup).toContain("Details · abc");
     expect(markup).toContain("cds--skeleton__text");
     expect(markup).toMatch(/href="\/sessions\/abc\/timeline\?sel=tool%3Atoolu_main_009"[^>]*>Back to timeline</);
@@ -295,7 +295,7 @@ describe("page /sessions/:id/panel", () => {
     const withState = route({ ...location, state: { panelBack: "general-purpose (gp-1)" } });
     expect(withState).toContain("Back to general-purpose (gp-1)</button>");
     // A tab opened by address has no panel history.
-    expect(route(location)).not.toContain("torch-panel__back");
+    expect(route(location)).not.toContain("DetailPanel__back");
   });
 
   test("without a selection in the address the back link leads to the timeline with the session view", () => {

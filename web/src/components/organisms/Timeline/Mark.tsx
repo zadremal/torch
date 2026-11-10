@@ -1,11 +1,12 @@
-// A button mark on a lane. Its kind comes from the TimelineMark atom: its `torch-mark--<kind>` classes,
+// A button mark on a lane. Its kind comes from the TimelineMark atom: its kind classes,
 // error and dimming. The atom itself does not fit for two reasons: it has no place in the keyboard
 // traversal order (`tabIndex`) and no mark number, by which the organism moves focus with the arrows, and
-// its click-area pseudo-element is too expensive on thousands of marks (see Timeline.scss).
+// its click-area pseudo-element is too expensive on thousands of marks (see Timeline.module.css).
 import type { Selection } from "@contracts/selection.ts";
 import { memo } from "react";
-import type { TimelineMarkKind } from "../../atoms/TimelineMark.tsx";
-import "../../atoms/TimelineMark.scss";
+import markStyles from "../../atoms/TimelineMark.module.css";
+import { MARK_KIND_CLASS, type TimelineMarkKind } from "../../atoms/TimelineMark.tsx";
+import styles from "./Timeline.module.css";
 import type { Mark as MarkModel } from "./model.ts";
 
 export interface MarkProps {
@@ -22,7 +23,13 @@ export interface MarkProps {
 export const Mark = memo(function Mark({ mark, index, selected, dimmed, tabStop, onSelect }: MarkProps) {
   // The layout mark kind is one of the atom's kinds: a mismatch between the lists will not pass type checking.
   const kind: TimelineMarkKind = mark.kind;
-  const className = ["torch-timeline__mark", `torch-mark--${kind}`, mark.error && "torch-mark--error", dimmed && "torch-mark--dimmed"]
+  const className = [
+    styles.mark,
+    MARK_KIND_CLASS[kind],
+    mark.error && markStyles.error,
+    mark.error && styles.markError,
+    dimmed && markStyles.dimmed,
+  ]
     .filter(Boolean)
     .join(" ");
   return (

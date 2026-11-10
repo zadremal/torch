@@ -4,6 +4,7 @@ import { Mono } from "../../../atoms/Mono.tsx";
 import { Section } from "../../../molecules/Section.tsx";
 import { toolFields, toolNotice, toolOutputTitle, toolStatusTag } from "../model.ts";
 import { BodyBlock, Fields, LinkButton, Notice, PanelHead, type ViewContext } from "../parts.tsx";
+import styles from "../DetailPanel.module.css";
 
 export function ToolCallView({ call, ctx }: { call: ToolCallPanel; ctx: ViewContext }) {
   const notice = toolNotice(call);
@@ -19,17 +20,17 @@ export function ToolCallView({ call, ctx }: { call: ToolCallPanel; ctx: ViewCont
         )}
       </PanelHead>
 
-      <Section id="panel-basic" title="Basic information">
+      <Section variant="panel" id="panel-basic" title="Basic information">
         <Fields fields={toolFields(call, ctx.sessionStart)} onOpen={ctx.onOpen} />
       </Section>
 
       {notice && <Notice notice={notice} />}
 
-      <Section id="panel-input" title="Input">
+      <Section variant="panel" id="panel-input" title="Input">
         <BodyBlock body={call.input} emptyText="No input recorded." onLoadContent={ctx.onLoadContent} />
       </Section>
 
-      <Section id="panel-output" title={toolOutputTitle(call)}>
+      <Section variant="panel" id="panel-output" title={toolOutputTitle(call)}>
         <BodyBlock
           body={call.output}
           emptyText="No output recorded."
@@ -39,8 +40,8 @@ export function ToolCallView({ call, ctx }: { call: ToolCallPanel; ctx: ViewCont
       </Section>
 
       {filePath && (
-        <Section id="panel-file" title="File">
-          <div className="torch-panel__path">
+        <Section variant="panel" id="panel-file" title="File">
+          <div className={styles.path}>
             <LinkButton onClick={() => ctx.onOpen({ kind: "file", id: filePath })}>
               <Mono size="md">{filePath}</Mono>
             </LinkButton>

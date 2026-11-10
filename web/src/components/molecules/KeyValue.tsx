@@ -1,7 +1,7 @@
 // Molecule: a "label — value" pair and a grid list of such pairs — the Basic information block
 // in all detail panel views.
 import type { ReactNode } from "react";
-import "./KeyValue.scss";
+import styles from "./KeyValue.module.css";
 
 export interface KeyValueProps {
   label: string;
@@ -13,9 +13,9 @@ export interface KeyValueProps {
 
 export function KeyValue({ label, children, error = false }: KeyValueProps) {
   return (
-    <div className="torch-key-value">
-      <dt className="torch-key-value__label">{label}</dt>
-      <dd className={error ? "torch-key-value__value torch-key-value__value--error" : "torch-key-value__value"}>
+    <div>
+      <dt className={styles.label}>{label}</dt>
+      <dd className={error ? `${styles.value} ${styles.valueError}` : styles.value}>
         {children}
       </dd>
     </div>
@@ -24,5 +24,5 @@ export function KeyValue({ label, children, error = false }: KeyValueProps) {
 
 /** List of pairs; the children are `KeyValue`. */
 export function KeyValueList({ children }: { children: ReactNode }) {
-  return <dl className="torch-key-value-list">{children}</dl>;
+  return <dl className={styles.list}>{children}</dl>;
 }
