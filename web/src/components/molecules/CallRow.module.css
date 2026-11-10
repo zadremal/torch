@@ -1,0 +1,68 @@
+.root {
+  display: grid;
+  align-items: center;
+  padding: calc(var(--cds-spacing-02) + var(--cds-spacing-01)) var(--cds-spacing-05);
+  border: 0;
+  background: transparent;
+  border-block-end: 1px solid var(--cds-border-subtle-00);
+  color: var(--cds-text-primary);
+  cursor: pointer;
+  font-family: var(--torch-font-sans);
+  font-size: var(--torch-font-size-13);
+  gap: var(--cds-spacing-03);
+  grid-template-columns: var(--torch-call-row-columns);
+  inline-size: 100%;
+  line-height: var(--torch-line-height-13);
+  min-block-size: var(--torch-call-row-min-height);
+  text-align: start;
+
+  &:hover {
+    background: var(--cds-layer-hover-01);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+  }
+}
+
+.time {
+  opacity: 0.8;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.detail {
+  overflow: hidden;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duration {
+  text-align: end;
+}
+
+.icon {
+  fill: var(--cds-support-error);
+}
+
+.error {
+  /*
+   * Token of the Notification component: Carbon exposes it only as a CSS property; the fallback value is
+   * its color in the light theme.
+   */
+  background: var(--cds-notification-background-error, var(--torch-color-red-10));
+  color: var(--cds-text-error);
+
+  /* In the mockup it is red-20: a shade darker than the background of the error row. */
+  &:hover {
+    background: var(--torch-color-red-20);
+  }
+}
+
+.current {
+  box-shadow: inset 3px 0 0 var(--cds-border-interactive);
+}

@@ -1,4 +1,5 @@
 import "./styles/index.scss";
+import "./styles/variables.css";
 import "@carbon/charts/styles.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

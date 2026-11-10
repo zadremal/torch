@@ -21,7 +21,7 @@ import { Leaderboard } from "./components/Leaderboard.tsx";
 import { ModelsTable, ToolsTable } from "./components/Tables.tsx";
 import { BOARDS, cacheHitRate, formatWindow, leaderboardRows, modelRows, toolRows, totalTiles } from "./model.ts";
 import { CUSTOM_ISSUE_TEXT, type DashboardState, customIssue, parseState, stateToQuery, stateToSearch } from "./query.ts";
-import "./DashboardPage.scss";
+import styles from "./DashboardPage.module.css";
 
 const RANGE_OPTIONS: { value: DashboardRange; label: string }[] = [
   { value: "day", label: "Last day" },
@@ -95,7 +95,7 @@ export function DashboardPage() {
       {!issue && dashboard.error && (
         <ErrorNotice title="Could not load the dashboard" error={dashboard.error} onRetry={dashboard.reload} />
       )}
-      {!issue && !data && dashboard.loading && <p className="torch-dashboard__loading">Loading…</p>}
+      {!issue && !data && dashboard.loading && <p className={styles.loading}>Loading…</p>}
       {data && (
         <>
           <StatTileGrid label="Totals">
@@ -104,7 +104,7 @@ export function DashboardPage() {
             ))}
           </StatTileGrid>
 
-          <section aria-label="Activity" className="torch-dashboard__charts">
+          <section aria-label="Activity" className={styles.charts}>
             <BarChart metric="modelCalls" points={data.series.modelCalls} bucket={data.bucket} />
             <BarChart metric="toolCalls" points={data.series.toolCalls} bucket={data.bucket} />
           </section>
@@ -118,7 +118,7 @@ export function DashboardPage() {
           </Section>
 
           <Section id="dashboard-insights" title="Insights">
-            <div className="torch-dashboard__boards">
+            <div className={styles.boards}>
               {BOARDS.map((board) => (
                 <Leaderboard
                   key={board.key}
@@ -130,7 +130,7 @@ export function DashboardPage() {
             </div>
           </Section>
 
-          <div className="torch-dashboard__tables">
+          <div className={styles.tables}>
             <Section id="dashboard-tools" title="Tool calls by tool">
               <ToolsTable rows={toolRows(data.tools)} />
             </Section>

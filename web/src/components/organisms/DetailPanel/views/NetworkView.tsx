@@ -5,6 +5,7 @@ import { Mono } from "../../../atoms/Mono.tsx";
 import { Section } from "../../../molecules/Section.tsx";
 import { callRows, messageTitle, networkFields, networkNotice, networkSubject, networkTags } from "../model.ts";
 import { BodyBlock, CallList, FieldsBlock, Notice, PanelHead, Pre, type ViewContext } from "../parts.tsx";
+import styles from "../DetailPanel.module.css";
 
 export function NetworkView({ call, ctx }: { call: NetworkPanel; ctx: ViewContext }) {
   const subject = networkSubject(call);
@@ -14,7 +15,7 @@ export function NetworkView({ call, ctx }: { call: NetworkPanel; ctx: ViewContex
     <>
       <PanelHead caption="Network call" tags={networkTags(call)}>
         {subject && (
-          <span className="torch-panel__path">
+          <span className={styles.path}>
             <Mono size="md">{subject}</Mono>
           </span>
         )}
@@ -26,16 +27,16 @@ export function NetworkView({ call, ctx }: { call: NetworkPanel; ctx: ViewContex
 
       {call.net === "model" &&
         call.messages.map((message, index) => (
-          <Section key={message.body.contentId} id={`panel-message-${index}`} title={messageTitle(message.kind)}>
+          <Section key={message.body.contentId} variant="panel" id={`panel-message-${index}`} title={messageTitle(message.kind)}>
             <BodyBlock body={message.body} emptyText="No text recorded." onLoadContent={ctx.onLoadContent} />
           </Section>
         ))}
 
       {call.net === "model" && call.toolCalls.length > 0 && (
-        <section aria-labelledby="panel-requested" className="torch-panel__list-block">
-          <div className="torch-panel__list-head">
-            <h2 id="panel-requested" className="torch-panel__list-title">
-              Tool calls requested <span className="torch-panel__count">({call.toolCalls.length})</span>
+        <section aria-labelledby="panel-requested" className={styles.listBlock}>
+          <div className={styles.listHead}>
+            <h2 id="panel-requested" className={styles.listTitle}>
+              Tool calls requested <span className={styles.count}>({call.toolCalls.length})</span>
             </h2>
           </div>
           <CallList
@@ -46,7 +47,7 @@ export function NetworkView({ call, ctx }: { call: NetworkPanel; ctx: ViewContex
       )}
 
       {call.net === "error" && (
-        <Section id="panel-error" title="Error response">
+        <Section variant="panel" id="panel-error" title="Error response">
           <Pre text={call.error} error />
         </Section>
       )}

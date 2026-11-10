@@ -1,7 +1,7 @@
 // The page switcher under the table; with a single page it renders nothing.
 import { Button } from "@carbon/react";
 import { pageCount } from "../query.ts";
-import "./SessionsPager.scss";
+import styles from "./SessionsPager.module.css";
 
 export interface SessionsPagerProps {
   page: number;
@@ -14,8 +14,8 @@ export function SessionsPager({ page, pageSize, total, onPage }: SessionsPagerPr
   const pages = pageCount(total, pageSize);
   if (pages <= 1) return null;
   return (
-    <nav aria-label="Pages" className="torch-slist-pager">
-      <span className="torch-slist-pager__status">
+    <nav aria-label="Pages" className={styles.root}>
+      <span className={styles.status}>
         Page {page} of {pages}
       </span>
       <Button kind="ghost" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}>

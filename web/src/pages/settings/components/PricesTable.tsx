@@ -2,7 +2,7 @@
 import { Button, TextInput } from "@carbon/react";
 import { Add, TrashCan } from "@carbon/icons-react";
 import { type DraftRow, type PriceField, PRICE_COLUMNS } from "../model.ts";
-import "./PricesTable.scss";
+import styles from "./PricesTable.module.css";
 
 export interface PricesTableProps {
   rows: readonly DraftRow[];
@@ -16,9 +16,9 @@ export interface PricesTableProps {
 
 export function PricesTable({ rows, errors, onModelChange, onCellChange, onRemove, onAdd }: PricesTableProps) {
   return (
-    <div className="torch-prices">
-      <div className="torch-prices__scroll">
-        <table className="torch-prices__table" aria-label="Prices per million tokens">
+    <div className={styles.root}>
+      <div className={styles.scroll}>
+        <table className={styles.table} aria-label="Prices per million tokens">
           <thead>
             <tr>
               <th scope="col">Model</th>
@@ -28,7 +28,7 @@ export function PricesTable({ rows, errors, onModelChange, onCellChange, onRemov
                 </th>
               ))}
               <th scope="col">
-                <span className="torch-prices__sr">Actions</span>
+                <span className={styles.sr}>Actions</span>
               </th>
             </tr>
           </thead>

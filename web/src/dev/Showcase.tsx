@@ -34,7 +34,7 @@ import {
 import { ROUTES } from "../lib/routes.ts";
 import { useApi } from "../lib/useApi.ts";
 import { CONTEXT_STAGE_COLORS, TOKEN_COLORS, TOOL_USAGE_COLOR } from "../styles/palette.ts";
-import "./Showcase.scss";
+import styles from "./Showcase.module.css";
 
 const SESSION_SHOWCASE_PATH = "/dev/session";
 
@@ -63,8 +63,8 @@ const MARK_KINDS: { kind: TimelineMarkKind; label: string }[] = [
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="dev-showcase__block">
-      <h2 className="dev-showcase__title">{title}</h2>
+    <section className={styles.block}>
+      <h2 className={styles.title}>{title}</h2>
       {children}
     </section>
   );
@@ -125,7 +125,7 @@ export function ComponentsShowcase() {
             />
           </StatTileGrid>
 
-          <div className="dev-showcase__charts">
+          <div className={styles.charts}>
             <BarChart metric="modelCalls" points={d.series.modelCalls} bucket={d.bucket} />
             <BarChart metric="toolCalls" points={d.series.toolCalls} bucket={d.bucket} />
           </div>
@@ -143,11 +143,11 @@ export function ComponentsShowcase() {
           </Block>
 
           <Block title="Meter, Swatch, Mono">
-            <div className="dev-showcase__meters">
+            <div className={styles.meters}>
               {(["first", "last", "peak"] as const).map((stage) => {
                 const tokens = { first: a.ctxFirst, last: a.ctxLast, peak: a.ctxPeak }[stage];
                 return (
-                  <div key={stage} className="dev-showcase__meter-row">
+                  <div key={stage} className={styles.meterRow}>
                     <span>{stage}</span>
                     <Meter ratio={(tokens ?? 0) / (a.ctxWindow ?? 1)} color={CONTEXT_STAGE_COLORS[stage]} />
                     <span>{formatTokens(tokens)}</span>
@@ -155,16 +155,16 @@ export function ComponentsShowcase() {
                 );
               })}
               {a.toolUsage.map((usage) => (
-                <div key={usage.name} className="dev-showcase__meter-row">
+                <div key={usage.name} className={styles.meterRow}>
                   <Mono size="md">{usage.name}</Mono>
                   <Meter ratio={usage.count / (a.toolUsage[0]?.count ?? 1)} color={TOOL_USAGE_COLOR} track={false} />
                   <span>{usage.count}</span>
                 </div>
               ))}
             </div>
-            <div className="dev-showcase__row">
+            <div className={styles.row}>
               {Object.entries(TOKEN_COLORS).map(([name, color]) => (
-                <span key={name} className="dev-showcase__legend">
+                <span key={name} className={styles.legend}>
                   <Swatch color={color} /> {name}
                 </span>
               ))}
@@ -209,7 +209,7 @@ export function ComponentsShowcase() {
       )}
 
       <Block title="SegmentedControl, RangeFilter">
-        <div className="dev-showcase__row dev-showcase__row--end">
+        <div className={`${styles.row} ${styles.rowEnd}`}>
           <SegmentedControl label="Agents" showLabel options={AGENT_OPTIONS} value={bucket} onChange={setBucket} />
           <RangeFilter legend="Tool calls" value={toolCalls} onChange={setToolCalls} />
           <SegmentedControl
@@ -222,22 +222,22 @@ export function ComponentsShowcase() {
       </Block>
 
       <Block title="TimelineMark">
-        <ul className="dev-showcase__row dev-showcase__marks">
+        <ul className={`${styles.row} ${styles.marks}`}>
           {MARK_KINDS.map(({ kind, label }) => (
-            <li key={kind} className="dev-showcase__legend">
+            <li key={kind} className={styles.legend}>
               <TimelineMark kind={kind} label={label} /> {label}
             </li>
           ))}
-          <li className="dev-showcase__legend">
+          <li className={styles.legend}>
             <TimelineMark kind="tool" label="Error" error /> Error (any item that failed)
           </li>
         </ul>
-        <div className="dev-showcase__lane">
+        <div className={styles.lane}>
           <TimelineMark kind="session" label="Session" left="0" width="100%" selected={mark === "session"} onSelect={() => setMark("session")}>
             Session · 186 tool calls
           </TimelineMark>
         </div>
-        <div className="dev-showcase__lane">
+        <div className={styles.lane}>
           <TimelineMark kind="prompt" label="Original prompt" left="2%" selected={mark === "prompt"} onSelect={() => setMark("prompt")} />
           <TimelineMark kind="agent-compact" label="Explore" left="6%" width="13%" top="5px" selected={mark === "agent"} onSelect={() => setMark("agent")} />
           <TimelineMark kind="agent-compact" label="general-purpose" left="54%" width="26%" top="16px" dimmed onSelect={() => setMark("agent2")} selected={mark === "agent2"} />

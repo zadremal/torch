@@ -2,13 +2,13 @@
 // Knows nothing about data: the router supplies the page.
 import { Outlet } from "react-router";
 import { AppHeader } from "../organisms/AppHeader/AppHeader.tsx";
-import "./AppShell.scss";
+import styles from "./AppShell.module.css";
 
 export function AppShell() {
   return (
-    <div className="torch-shell">
+    <div className={styles.root}>
       <AppHeader />
-      <main className="torch-shell__main">
+      <main className={styles.main}>
         <Outlet />
       </main>
     </div>

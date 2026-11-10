@@ -1,6 +1,6 @@
 // Atom: a colored legend square. The color is a primitive; the meaning of the color is known by whoever passes it
 // (styles/palette.ts).
-import "./Swatch.scss";
+import styles from "./Swatch.module.css";
 
 export interface SwatchProps {
   /** Any CSS color notation. */
@@ -8,5 +8,5 @@ export interface SwatchProps {
 }
 
 export function Swatch({ color }: SwatchProps) {
-  return <span className="torch-swatch" style={{ background: color }} aria-hidden="true" />;
+  return <span className={styles.root} style={{ background: color }} aria-hidden="true" />;
 }

@@ -491,7 +491,7 @@ Rules:
 
 - **Data enters from the top.** API requests, state in the page address and the SSE subscription live only in pages. Everything below receives data through props and reports actions through callbacks. This is why `DetailPanel` works the same in the timeline dock and in a separate tab.
 - **Carbon provides ready-made atoms.** A Carbon component is used directly; a wrapper over it appears only if it adds behaviour.
-- **Styles.** Atoms and molecules take colours, spacing and fonts from Carbon tokens; values from the mockup that are not in the tokens are set in one variables file.
+- **Styles.** Each component's styles are a CSS module next to it (`Name.module.css`, plain modern CSS); the generated class name is `Name__class`. Atoms and molecules take colours, spacing and fonts from Carbon tokens as `var(--cds-…)`, which the only Sass file, the Carbon entry `styles/index.scss`, emits on `:root`; values from the mockup that are not in the tokens are set in one variables file, `styles/variables.css`, as `--torch-…` custom properties. A component styles another component only through its props (the `panel` variant of `Section`), not through the other's classes; `test/web/styles.test.ts` checks tokens, classes and module names.
 - **A component moves up to a shared level at its second consumer.** Until then it lies next to the page or organism that needs it (`pages/<name>/components/`).
 - **Charts are Carbon Charts.** A chart is a block with axes or with a legend. A bar inside a table or list row does not count as a chart and stays the `Meter` atom.
 

@@ -24,6 +24,7 @@ import {
   visibleCalls,
 } from "../model.ts";
 import { BodyBlock, CallList, Fields, LinkButton, PanelHead, type ViewContext } from "../parts.tsx";
+import styles from "../DetailPanel.module.css";
 
 export function AgentView({ agent, ctx }: { agent: AgentPanel; ctx: ViewContext }) {
   const [errorsOnly, setErrorsOnly] = useState(false);
@@ -35,30 +36,30 @@ export function AgentView({ agent, ctx }: { agent: AgentPanel; ctx: ViewContext 
   return (
     <>
       <PanelHead caption="Agent" title={agentName(agent.agentId, agent.type)} tags={agentTags(agent)}>
-        {description && <p className="torch-panel__description">{description}</p>}
+        {description && <p className={styles.description}>{description}</p>}
       </PanelHead>
 
-      <Section id="panel-basic" title="Basic information">
+      <Section variant="panel" id="panel-basic" title="Basic information">
         <Fields fields={agentFields(agent)} onOpen={ctx.onOpen} />
       </Section>
 
-      <Section id="panel-prompt" title="Input prompt">
+      <Section variant="panel" id="panel-prompt" title="Input prompt">
         <BodyBlock body={agent.prompt} emptyText="No prompt recorded." onLoadContent={ctx.onLoadContent} />
       </Section>
 
-      <Section id="panel-context" title="Context" aside={contextWindowAside(agent)}>
-        <div className="torch-panel__rows">
+      <Section variant="panel" id="panel-context" title="Context" aside={contextWindowAside(agent)}>
+        <div className={styles.rows}>
           {contextStages(agent).map((stage) => (
-            <div key={stage.label} className="torch-panel__stage">
-              <span className="torch-panel__stage-label">{stage.label}</span>
+            <div key={stage.label} className={styles.stage}>
+              <span className={styles.stageLabel}>{stage.label}</span>
               <Meter ratio={stage.ratio} color={stage.color} />
-              <span className="torch-panel__number">{stage.value}</span>
+              <span className={styles.number}>{stage.value}</span>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section id="panel-peak" title="What was in the context at peak" aside={breakdownAside(agent)}>
+      <Section variant="panel" id="panel-peak" title="What was in the context at peak" aside={breakdownAside(agent)}>
         <ProportionChart kind="context" label="Context at peak" breakdown={agent.ctxBreakdown} />
         {peakCallId && (
           <div>
@@ -69,36 +70,36 @@ export function AgentView({ agent, ctx }: { agent: AgentPanel; ctx: ViewContext 
         )}
       </Section>
 
-      <Section id="panel-instructions" title="Instructions loaded">
+      <Section variant="panel" id="panel-instructions" title="Instructions loaded">
         {instructions.length === 0 ? (
-          <p className="torch-panel__empty">No instructions recorded for this agent.</p>
+          <p className={styles.empty}>No instructions recorded for this agent.</p>
         ) : (
-          <div className="torch-panel__instructions">
+          <div className={styles.instructions}>
             {instructions.map((row, index) => (
-              <div key={`${row.path}:${index}`} className="torch-panel__instruction">
+              <div key={`${row.path}:${index}`} className={styles.instruction}>
                 <Mono size="md" truncate title={row.path}>
                   {row.path}
                 </Mono>
-                <span className="torch-panel__instruction-tokens">{row.tokens}</span>
-                <span className="torch-panel__instruction-kind">{row.kind}</span>
+                <span className={styles.instructionTokens}>{row.tokens}</span>
+                <span className={styles.instructionKind}>{row.kind}</span>
               </div>
             ))}
           </div>
         )}
       </Section>
 
-      <Section id="panel-usage" title="Tool usage" aside={toolUsageAside(agent)}>
-        <div className="torch-panel__rows">
+      <Section variant="panel" id="panel-usage" title="Tool usage" aside={toolUsageAside(agent)}>
+        <div className={styles.rows}>
           {toolUsageRows(agent.toolUsage).map((row) => (
-            <div key={row.name} className="torch-panel__usage">
+            <div key={row.name} className={styles.usage}>
               <Mono size="md" truncate title={row.name}>
                 {row.name}
               </Mono>
               <Meter ratio={row.ratio} color={TOOL_USAGE_COLOR} track={false} />
-              <span className="torch-panel__number">
+              <span className={styles.number}>
                 {row.count}
                 {row.errors > 0 && (
-                  <span className="torch-panel__usage-errors" title={`${row.errors} failed`}>
+                  <span className={styles.usageErrors} title={`${row.errors} failed`}>
                     {" "}
                     · {row.errors}✕
                   </span>
@@ -109,10 +110,10 @@ export function AgentView({ agent, ctx }: { agent: AgentPanel; ctx: ViewContext 
         </div>
       </Section>
 
-      <section aria-labelledby="panel-calls" className="torch-panel__list-block">
-        <div className="torch-panel__list-head">
-          <h2 id="panel-calls" className="torch-panel__list-title">
-            Tool calls <span className="torch-panel__count">({shown.length})</span>
+      <section aria-labelledby="panel-calls" className={styles.listBlock}>
+        <div className={styles.listHead}>
+          <h2 id="panel-calls" className={styles.listTitle}>
+            Tool calls <span className={styles.count}>({shown.length})</span>
           </h2>
           <Checkbox
             id="panel-errors-only"

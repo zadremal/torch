@@ -3,7 +3,7 @@
 // means "bound not set".
 import { TextInput } from "@carbon/react";
 import { useId } from "react";
-import "./RangeFilter.scss";
+import styles from "./RangeFilter.module.css";
 
 export interface RangeValue {
   min: string;
@@ -36,9 +36,9 @@ export function RangeFilter({
   const isNumber = type === "number";
   const shared = { type, size: isNumber ? "sm" : "md", min: isNumber ? 0 : undefined } as const;
   return (
-    <fieldset className={`torch-range torch-range--${type}`}>
-      <legend className={hideLegend ? "cds--visually-hidden" : "torch-range__legend"}>{legend}</legend>
-      <div className="torch-range__fields">
+    <fieldset className={`${styles.root} ${styles[type]}`}>
+      <legend className={hideLegend ? "cds--visually-hidden" : styles.legend}>{legend}</legend>
+      <div className={styles.fields}>
         <TextInput
           {...shared}
           id={`${id}-min`}

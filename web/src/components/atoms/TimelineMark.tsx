@@ -2,7 +2,7 @@
 // (plan §9.2); without it — a sample of the same shape for the legend. The Timeline organism
 // computes the position and passes it as ready CSS values.
 import type { ReactNode } from "react";
-import "./TimelineMark.scss";
+import styles from "./TimelineMark.module.css";
 
 export type TimelineMarkKind =
   | "session"
@@ -14,6 +14,19 @@ export type TimelineMarkKind =
   | "file-write"
   | "model"
   | "external";
+
+/** Class of each kind; the Timeline organism's button marks take the kind from here too. */
+export const MARK_KIND_CLASS: Record<TimelineMarkKind, string | undefined> = {
+  session: styles.session,
+  agent: styles.agent,
+  "agent-compact": styles.agentCompact,
+  tool: styles.tool,
+  prompt: styles.prompt,
+  "file-read": styles.fileRead,
+  "file-write": styles.fileWrite,
+  model: styles.model,
+  external: styles.external,
+};
 
 export interface TimelineMarkProps {
   kind: TimelineMarkKind;
@@ -47,11 +60,11 @@ export function TimelineMark({
   children,
 }: TimelineMarkProps) {
   const className = [
-    "torch-mark",
-    `torch-mark--${kind}`,
-    error && "torch-mark--error",
-    dimmed && "torch-mark--dimmed",
-    !onSelect && "torch-mark--sample",
+    styles.root,
+    MARK_KIND_CLASS[kind],
+    error && styles.error,
+    dimmed && styles.dimmed,
+    !onSelect && styles.sample,
   ]
     .filter(Boolean)
     .join(" ");

@@ -8,6 +8,7 @@ import { type ReactNode, useState } from "react";
 import { Mono } from "../../atoms/Mono.tsx";
 import { CallRow } from "../../molecules/CallRow.tsx";
 import { KeyValue, KeyValueList } from "../../molecules/KeyValue.tsx";
+import styles from "./DetailPanel.module.css";
 import { bodyNote, type CallRowModel, type FieldModel, type NoticeModel, type TagModel } from "./model.ts";
 
 /** What a view receives from the panel besides its own data. */
@@ -28,6 +29,12 @@ export function StatusTag({ tag }: { tag: TagModel }) {
   );
 }
 
+const TITLE_CLASS = {
+  plain: styles.title,
+  mono: `${styles.title} ${styles.titleMono}`,
+  path: `${styles.title} ${styles.titlePath}`,
+};
+
 export interface PanelHeadProps {
   /** Kind of the item above the title: "Agent", "Tool call". */
   caption: string;
@@ -41,11 +48,11 @@ export interface PanelHeadProps {
 
 export function PanelHead({ caption, title, titleKind = "plain", tags = [], children }: PanelHeadProps) {
   return (
-    <div className="torch-panel__head">
-      <span className="torch-panel__caption">{caption}</span>
+    <div className={styles.head}>
+      <span className={styles.caption}>{caption}</span>
       {(title !== undefined || tags.length > 0) && (
-        <div className="torch-panel__title-row">
-          {title !== undefined && <h2 className={`torch-panel__title torch-panel__title--${titleKind}`}>{title}</h2>}
+        <div className={styles.titleRow}>
+          {title !== undefined && <h2 className={TITLE_CLASS[titleKind]}>{title}</h2>}
           {tags.map((tag) => (
             <StatusTag key={tag.label} tag={tag} />
           ))}
@@ -65,7 +72,7 @@ export interface LinkButtonProps {
 /** Link to another panel view: a button, not an address — the page performs the navigation. */
 export function LinkButton({ children, onClick, disabled }: LinkButtonProps) {
   return (
-    <button type="button" className="torch-panel__link" onClick={onClick} disabled={disabled}>
+    <button type="button" className={styles.link} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );
@@ -91,7 +98,7 @@ export function Fields({ fields, onOpen }: { fields: FieldModel[]; onOpen: (sel:
 /** Block of fields without a title. */
 export function FieldsBlock(props: { fields: FieldModel[]; onOpen: (sel: Selection) => void }) {
   return (
-    <div className="torch-panel__block">
+    <div className={styles.block}>
       <Fields {...props} />
     </div>
   );
@@ -107,7 +114,7 @@ export interface PreProps {
 
 /** Monospaced text with scrolling; it can take focus so that it scrolls from the keyboard. */
 export function Pre({ text, error = false, large = false }: PreProps) {
-  const className = ["torch-panel__pre", error && "torch-panel__pre--error", large && "torch-panel__pre--large"]
+  const className = [styles.pre, error && styles.preError, large && styles.preLarge]
     .filter(Boolean)
     .join(" ");
   return (
@@ -132,7 +139,7 @@ export function BodyBlock({ body, emptyText, onLoadContent, ...pre }: BodyBlockP
   const [full, setFull] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "failed">("idle");
 
-  if (!body) return <p className="torch-panel__empty">{emptyText}</p>;
+  if (!body) return <p className={styles.empty}>{emptyText}</p>;
 
   const note = full === null ? bodyNote(body) : null;
   const showAll = () => {
@@ -151,7 +158,7 @@ export function BodyBlock({ body, emptyText, onLoadContent, ...pre }: BodyBlockP
     <>
       <Pre text={full ?? body.preview} {...pre} />
       {note && (
-        <p className="torch-panel__body-note">
+        <p className={styles.bodyNote}>
           <span>{note}</span>
           {onLoadContent && (
             <LinkButton onClick={showAll} disabled={status === "loading"}>
@@ -159,7 +166,7 @@ export function BodyBlock({ body, emptyText, onLoadContent, ...pre }: BodyBlockP
             </LinkButton>
           )}
           {status === "failed" && (
-            <span role="alert" className="torch-panel__body-error">
+            <span role="alert" className={styles.bodyError}>
               Could not load the full text.
             </span>
           )}
@@ -178,10 +185,10 @@ export interface CallListProps {
 
 export function CallList({ rows, onSelect, emptyText }: CallListProps) {
   if (rows.length === 0) {
-    return emptyText ? <p className="torch-panel__empty torch-panel__empty--list">{emptyText}</p> : null;
+    return emptyText ? <p className={`${styles.empty} ${styles.emptyList}`}>{emptyText}</p> : null;
   }
   return (
-    <div role="list" className="torch-panel__list">
+    <div role="list" className={styles.list}>
       {rows.map(({ id, ...row }) => (
         <div role="listitem" key={id}>
           <CallRow {...row} onSelect={() => onSelect(id)} />
@@ -193,7 +200,7 @@ export function CallList({ rows, onSelect, emptyText }: CallListProps) {
 
 export function Notice({ notice }: { notice: NoticeModel }) {
   return (
-    <div className="torch-panel__notice">
+    <div className={styles.notice}>
       <InlineNotification kind="error" hideCloseButton title={notice.title} subtitle={notice.subtitle} />
     </div>
   );

@@ -5,7 +5,7 @@ import { Settings } from "@carbon/icons-react";
 import type { MouseEvent } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { ROUTES } from "../../../lib/routes.ts";
-import "./AppHeader.scss";
+import styles from "./AppHeader.module.css";
 
 export function AppHeader() {
   const navigate = useNavigate();
@@ -19,14 +19,14 @@ export function AppHeader() {
   };
 
   return (
-    <Theme as="header" theme="g100" className="torch-header">
-      <span className="torch-header__name">torch</span>
-      <nav aria-label="Main" className="torch-header__nav">
+    <Theme as="header" theme="g100" className={styles.root}>
+      <span className={styles.name}>torch</span>
+      <nav aria-label="Main" className={styles.nav}>
         {/* `end`: Dashboard is active only on "/", Sessions — also on session pages. */}
-        <NavLink to={ROUTES.dashboard} end className="torch-header__link">
+        <NavLink to={ROUTES.dashboard} end className={styles.link}>
           Dashboard
         </NavLink>
-        <NavLink to={ROUTES.sessions} className="torch-header__link">
+        <NavLink to={ROUTES.sessions} className={styles.link}>
           Sessions
         </NavLink>
       </nav>

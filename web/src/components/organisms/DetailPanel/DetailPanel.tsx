@@ -18,7 +18,7 @@ import { NetworkView } from "./views/NetworkView.tsx";
 import { PromptView } from "./views/PromptView.tsx";
 import { SessionView } from "./views/SessionView.tsx";
 import { ToolCallView } from "./views/ToolCallView.tsx";
-import "./DetailPanel.scss";
+import styles from "./DetailPanel.module.css";
 
 export type { DetailPanelData } from "./model.ts";
 
@@ -68,13 +68,13 @@ export function DetailPanelShell({
   children,
 }: DetailPanelShellProps) {
   return (
-    <section className="torch-panel" aria-label="Details">
-      <div className="torch-panel__bar">
-        <span className="torch-panel__bar-title">Details · {shortSessionId(sessionId)}</span>
+    <section className={styles.root} aria-label="Details">
+      <div className={styles.bar}>
+        <span className={styles.barTitle}>Details · {shortSessionId(sessionId)}</span>
         {dock !== undefined ? (
           <>
             {onDock && (
-              <div role="group" aria-label="Dock panel" className="torch-panel__docks">
+              <div role="group" aria-label="Dock panel" className={styles.docks}>
                 {DOCK_OPTIONS.map((option) => {
                   const Icon = DOCK_ICONS[option.dock];
                   const pressed = option.dock === dock;
@@ -116,21 +116,21 @@ export function DetailPanelShell({
           </>
         ) : (
           timelineHref && (
-            <Link to={timelineHref} className="torch-panel__bar-link">
+            <Link to={timelineHref} className={styles.barLink}>
               Back to timeline
             </Link>
           )
         )}
       </div>
       {onBack && (
-        <div className="torch-panel__back">
-          <button type="button" className="torch-panel__link torch-panel__link--back" onClick={onBack}>
+        <div className={styles.back}>
+          <button type="button" className={`${styles.link} ${styles.linkBack}`} onClick={onBack}>
             <ArrowLeft size={16} aria-hidden="true" />
             Back to {backLabel}
           </button>
         </div>
       )}
-      <div key={contentKey} className="torch-panel__body">
+      <div key={contentKey} className={styles.body}>
         {children}
       </div>
     </section>

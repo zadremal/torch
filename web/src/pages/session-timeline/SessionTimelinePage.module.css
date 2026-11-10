@@ -1,0 +1,103 @@
+/*
+ * Timeline page layout per the artboard: a row of legend and toggles, under it the timeline
+ * and the details panel in the dock on the right, left or bottom.
+ */
+
+/* Artboard values that are not in the Carbon tokens or in styles/variables.css. */
+.root {
+  /* The minimum timeline width next to the panel: narrower and the panel wraps under it. */
+  --torch-timeline-page-min-width: 560px;
+  /* The panel in a side dock and its share of the workspace height in the bottom one. */
+  --torch-timeline-page-panel-width: 440px;
+  --torch-timeline-page-panel-max-width: 520px;
+  --torch-timeline-page-panel-bottom-share: 50%;
+  /*
+   * Height of the app header, the session header and the legend row above the workspace (264px): the workspace
+   * takes the rest of the window, at least 480px, and the timeline and the panel scroll inside it.
+   */
+  --torch-timeline-page-height: max(480px, calc(100vh - 264px));
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-inline-size: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--cds-spacing-05) var(--cds-spacing-07);
+  gap: var(--cds-spacing-04) var(--cds-spacing-06);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cds-spacing-05);
+}
+
+.workspace {
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  border-block-start: 1px solid var(--cds-border-subtle-01);
+}
+
+.workspaceLeft {
+  flex-direction: row-reverse;
+}
+
+/*
+ * In the bottom dock the timeline and the panel share the workspace height: the page does not scroll,
+ * the panel is visible at once.
+ */
+.workspaceBottom {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  flex-grow: 0;
+  block-size: var(--torch-timeline-page-height);
+}
+
+/* The timeline scrolls inside this area in both directions. */
+.main {
+  display: flex;
+  flex: 999 1 var(--torch-timeline-page-min-width);
+  flex-direction: column;
+  max-block-size: var(--torch-timeline-page-height);
+  min-inline-size: 0;
+}
+
+.workspaceBottom .main {
+  flex: 1 1 0;
+  max-block-size: none;
+  min-block-size: 0;
+}
+
+.panel {
+  flex: 1 1 var(--torch-timeline-page-panel-width);
+  background: var(--cds-background);
+  block-size: var(--torch-timeline-page-height);
+  border-inline-start: 1px solid var(--cds-border-subtle-01);
+  max-inline-size: var(--torch-timeline-page-panel-max-width);
+  overflow-y: auto;
+}
+
+.workspaceLeft .panel {
+  border-inline-end: 1px solid var(--cds-border-subtle-01);
+  border-inline-start: 0;
+}
+
+.workspaceBottom .panel {
+  flex: none;
+  block-size: var(--torch-timeline-page-panel-bottom-share);
+  border-block-start: 1px solid var(--cds-border-subtle-01);
+  border-inline-start: 0;
+  max-inline-size: none;
+}
+
+.skeleton {
+  padding: var(--cds-spacing-05) var(--cds-spacing-07);
+}

@@ -1,0 +1,36 @@
+.root {
+  font-family: var(--torch-font-mono);
+}
+
+.sm {
+  font-family: var(--cds-code-01-font-family);
+  font-size: var(--cds-code-01-font-size);
+  font-weight: var(--cds-code-01-font-weight);
+  line-height: var(--cds-code-01-line-height);
+  letter-spacing: var(--cds-code-01-letter-spacing);
+}
+
+.md {
+  font-size: var(--torch-font-size-13);
+  line-height: var(--torch-line-height-13);
+}
+
+.primary {
+  color: var(--cds-text-primary);
+}
+
+.secondary {
+  color: var(--cds-text-secondary);
+}
+
+.helper {
+  color: var(--cds-text-helper);
+}
+
+.truncate {
+  display: block;
+  overflow: hidden;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

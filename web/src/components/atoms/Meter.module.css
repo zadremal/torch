@@ -1,0 +1,21 @@
+.root {
+  display: block;
+  background: var(--cds-layer-accent-01);
+  block-size: var(--torch-meter-height);
+  inline-size: 100%;
+}
+
+.fill {
+  display: block;
+  background: var(--torch-color-blue-60);
+  block-size: 100%;
+}
+
+.bare {
+  background: transparent;
+
+  .fill {
+    border-start-end-radius: var(--torch-meter-radius);
+    border-end-end-radius: var(--torch-meter-radius);
+  }
+}

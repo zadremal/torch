@@ -2,7 +2,7 @@
 // tiles with a shared border: six on the session overview and six on the dashboard.
 import { ErrorFilled } from "@carbon/icons-react";
 import type { ReactNode } from "react";
-import "./StatTile.scss";
+import styles from "./StatTile.module.css";
 
 export interface StatTileProps {
   label: string;
@@ -16,13 +16,13 @@ export interface StatTileProps {
 
 export function StatTile({ label, value, helper, error = false }: StatTileProps) {
   return (
-    <div className="torch-stat-tile">
-      <span className="torch-stat-tile__label">{label}</span>
-      <span className="torch-stat-tile__value">
-        {error && <ErrorFilled size={24} className="torch-stat-tile__icon" aria-hidden="true" />}
+    <div className={styles.tile}>
+      <span className={styles.label}>{label}</span>
+      <span className={styles.value}>
+        {error && <ErrorFilled size={24} className={styles.icon} aria-hidden="true" />}
         {value}
       </span>
-      {helper && <span className="torch-stat-tile__helper">{helper}</span>}
+      {helper && <span className={styles.helper}>{helper}</span>}
     </div>
   );
 }
@@ -35,7 +35,7 @@ export interface StatTileGridProps {
 
 export function StatTileGrid({ label, children }: StatTileGridProps) {
   return (
-    <section className="torch-stat-tiles" aria-label={label}>
+    <section className={styles.tiles} aria-label={label}>
       {children}
     </section>
   );

@@ -10,7 +10,7 @@ import { useApi } from "../../lib/useApi.ts";
 import { Channels, DataPaths, Retention } from "./components/Overview.tsx";
 import { PricesTable } from "./components/PricesTable.tsx";
 import { type Draft, addRow, editRow, isChanged, parseDraft, removeRow, toDraft } from "./model.ts";
-import "./SettingsPage.scss";
+import styles from "./SettingsPage.module.css";
 
 export function SettingsPage() {
   const settings = useApi(() => api.settings(), []);
@@ -53,7 +53,7 @@ export function SettingsPage() {
   return (
     <PageLayout title="Settings" description="Prices, data locations and enrichment channels">
       {settings.error && <ErrorNotice title="Could not load the settings" error={settings.error} onRetry={settings.reload} />}
-      {!data && settings.loading && <p className="torch-settings__loading">Loading…</p>}
+      {!data && settings.loading && <p className={styles.loading}>Loading…</p>}
       {data && draft && (
         <>
           <Section id="settings-prices" title="Prices" aside={`US dollars per million tokens · updated ${data.prices.updated}`}>
@@ -67,7 +67,7 @@ export function SettingsPage() {
               onRemove={(key) => change((d) => removeRow(d, key))}
               onAdd={() => change(addRow)}
             />
-            <p className="torch-settings__note">
+            <p className={styles.note}>
               Source: {data.prices.source}. Saving recalculates the cost of every stored call; a model missing from the table
               shows no cost.
             </p>
@@ -77,7 +77,7 @@ export function SettingsPage() {
             {saved && !changed && (
               <InlineNotification kind="success" lowContrast hideCloseButton title="Prices saved" subtitle="Costs are recalculated." />
             )}
-            <div className="torch-settings__actions">
+            <div className={styles.actions}>
               <Button kind="primary" size="md" disabled={!changed || !parsed?.ok || saving} onClick={save}>
                 {saving ? "Saving…" : "Save prices"}
               </Button>

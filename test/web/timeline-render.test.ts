@@ -257,9 +257,9 @@ afterAll(async () => {
 const count = (html: string, needle: string) => html.split(needle).length - 1;
 const buttons = (html: string) => html.match(/<button[^>]*>/g) ?? [];
 /** Track markup in order: each part starts right after the track class. */
-const laneHtml = (html: string) => html.split('<div class="torch-timeline__lane').slice(1);
-const isActive = (laneMarkup: string) => laneMarkup.startsWith(" torch-timeline__lane--active");
-const titleOf = (laneMarkup: string) => laneMarkup.match(/torch-timeline__title[^>]*>([^<]*)</)![1];
+const laneHtml = (html: string) => html.split('<div class="Timeline__lane').slice(1);
+const isActive = (laneMarkup: string) => laneMarkup.startsWith(" Timeline__laneActive");
+const titleOf = (laneMarkup: string) => laneMarkup.match(/Timeline__title[^>]*>([^<]*)</)![1];
 
 describe("markup: Compact mode on the baseline session", () => {
   let html: string;
@@ -268,9 +268,9 @@ describe("markup: Compact mode on the baseline session", () => {
   });
 
   test("the timeline area, the axis with the local start time and ticks", () => {
-    expect(html).toStartWith('<section aria-label="Timeline" class="torch-timeline"');
+    expect(html).toStartWith('<section aria-label="Timeline" class="Timeline__root"');
     expect(html).toContain(`>${formatClock(data.session.startedAt)} start</div>`);
-    expect([...html.matchAll(/class="torch-timeline__tick"[^>]*>([^<]*)</g)].map((m) => m[1])).toEqual([
+    expect([...html.matchAll(/class="Timeline__tick"[^>]*>([^<]*)</g)].map((m) => m[1])).toEqual([
       "0m",
       "2m",
       "4m",
@@ -282,7 +282,7 @@ describe("markup: Compact mode on the baseline session", () => {
       "16m",
       "18m",
     ]);
-    expect(html).toContain('class="torch-timeline__content" style="width:calc(200px + 1 * max(700px, 100% - 200px))"');
+    expect(html).toContain('class="Timeline__content" style="width:calc(200px + 1 * max(700px, 100% - 200px))"');
   });
 
   test("six tracks with labels; each mark is a button with a name", () => {
@@ -296,13 +296,13 @@ describe("markup: Compact mode on the baseline session", () => {
   });
 
   test("mark kinds and errors are TimelineMark atom classes", () => {
-    expect(count(html, "torch-timeline__mark torch-mark--tool")).toBe(186);
-    expect(count(html, "torch-timeline__mark torch-mark--tool torch-mark--error")).toBe(7);
-    expect(count(html, "torch-timeline__mark torch-mark--model torch-mark--error")).toBe(3);
-    expect(count(html, "torch-timeline__mark torch-mark--prompt")).toBe(3);
-    expect(count(html, "torch-timeline__mark torch-mark--agent-compact")).toBe(5);
-    expect(count(html, "torch-timeline__mark torch-mark--external")).toBe(2);
-    expect(count(html, "torch-timeline__mark torch-mark--file-read") + count(html, "torch-timeline__mark torch-mark--file-write")).toBe(110);
+    expect(count(html, "Timeline__mark TimelineMark__tool")).toBe(186);
+    expect(count(html, "Timeline__mark TimelineMark__tool TimelineMark__error")).toBe(7);
+    expect(count(html, "Timeline__mark TimelineMark__model TimelineMark__error")).toBe(3);
+    expect(count(html, "Timeline__mark TimelineMark__prompt")).toBe(3);
+    expect(count(html, "Timeline__mark TimelineMark__agentCompact")).toBe(5);
+    expect(count(html, "Timeline__mark TimelineMark__external")).toBe(2);
+    expect(count(html, "Timeline__mark TimelineMark__fileRead") + count(html, "Timeline__mark TimelineMark__fileWrite")).toBe(110);
   });
 
   test("each track has one Tab stop, the first mark; the rest are reached by arrows", () => {
@@ -316,10 +316,10 @@ describe("markup: Compact mode on the baseline session", () => {
 
   test("nothing selected: no selected marks, highlighted tracks, dimming or cursor", () => {
     expect(html).not.toContain('aria-pressed="true"');
-    expect(html).not.toContain("torch-timeline__lane--active");
-    expect(html).not.toContain("torch-mark--dimmed");
-    expect(html).not.toContain("torch-timeline__cursor");
-    expect(html).not.toContain("torch-timeline__gap");
+    expect(html).not.toContain("Timeline__laneActive");
+    expect(html).not.toContain("TimelineMark__dimmed");
+    expect(html).not.toContain("Timeline__cursor");
+    expect(html).not.toContain("Timeline__gap");
   });
 });
 
@@ -329,18 +329,18 @@ describe("markup: selection", () => {
     const html = renderTimeline({ data, selection: { kind: "tool", id: tool.id } });
     const pressed = buttons(html).filter((b) => b.includes('aria-pressed="true"'));
     expect(pressed).toHaveLength(1);
-    expect(pressed[0]).toContain("torch-mark--tool");
+    expect(pressed[0]).toContain("TimelineMark__tool");
     expect(pressed[0]).toContain('tabindex="0"');
     expect(laneHtml(html).map(isActive)).toEqual([false, false, false, true, false, false]);
     const left = pressed[0]!.match(/left:([^;"]+)/)![1];
-    expect(html).toContain(`<span class="torch-timeline__cursor" style="left:${left}"></span>`);
+    expect(html).toContain(`<span class="Timeline__cursor" style="left:${left}"></span>`);
   });
 
   test("agent in Compact mode: the marks of the other agents are dimmed", () => {
     const html = renderTimeline({ data, selection: { kind: "agent", id: "gp-1" } });
     const others = (list: { agentId: string }[]) => list.filter((x) => x.agentId !== "gp-1").length;
     const lanes = laneHtml(html);
-    expect(lanes.map((l) => count(l, "torch-mark--dimmed"))).toEqual([
+    expect(lanes.map((l) => count(l, "TimelineMark__dimmed"))).toEqual([
       0,
       0,
       0,
@@ -362,17 +362,17 @@ describe("markup: selection", () => {
 describe("markup: Expanded mode", () => {
   test("groups, a track and calls of each agent, a track per file, network", () => {
     const html = renderTimeline({ data, view: "expanded" });
-    expect([...html.matchAll(/torch-timeline__group-title">([^<]*)</g)].map((m) => m[1])).toEqual([
+    expect([...html.matchAll(/Timeline__groupTitle">([^<]*)</g)].map((m) => m[1])).toEqual([
       "Session",
       "Agents and tool calls",
       "Files",
       "Network",
     ]);
-    expect(html).toContain('<span class="torch-timeline__title torch-timeline__title--strong">Main agent</span>');
-    expect(html).toContain('<small class="torch-timeline__caption">gp-1 · claude-sonnet-4-5</small>');
+    expect(html).toContain('<span class="Timeline__title Timeline__titleStrong">Main agent</span>');
+    expect(html).toContain('<small class="Timeline__caption">gp-1 · claude-sonnet-4-5</small>');
     expect(html).toContain(">Rewrite tests with bun test</button>");
     expect(html).toContain(
-      '<span class="torch-timeline__title torch-timeline__title--mono" title="/Users/dev/code/billing-web/src/api/billing/schemas.ts">…/billing/schemas.ts</span>',
+      '<span class="Timeline__title Timeline__titleMono" title="/Users/dev/code/billing-web/src/api/billing/schemas.ts">…/billing/schemas.ts</span>',
     );
     expect(html).toContain(">Model API</span>");
     // The call label has no agent: it is named by the track.
@@ -383,7 +383,7 @@ describe("markup: Expanded mode", () => {
     const tool = data.tools.find((t) => t.agentId === "explore-1")!;
     const html = renderTimeline({ data, view: "expanded", selection: { kind: "tool", id: tool.id } });
     expect(laneHtml(html).filter(isActive).map(titleOf).slice(0, 2)).toEqual(["Explore", "Tools"]);
-    expect(html).not.toContain("torch-mark--dimmed");
+    expect(html).not.toContain("TimelineMark__dimmed");
   });
 });
 
@@ -394,22 +394,22 @@ describe("markup: gaps", () => {
     const html = renderTimeline({ data: gapped });
     const gap = gapped.gaps[0]!;
     expect(html).toContain(
-      `<span class="torch-timeline__gap-label" style="left:calc(0px + (100% - 56px) * 0.5);width:56px" title="No activity for 3h 12m: ${formatClock(gap.start)}–${formatClock(gap.end)}">3h 12m</span>`,
+      `<span class="Timeline__gapLabel" style="left:calc(0px + (100% - 56px) * 0.5);width:56px" title="No activity for 3h 12m: ${formatClock(gap.start)}–${formatClock(gap.end)}">3h 12m</span>`,
     );
-    expect(html).toContain('<span class="torch-timeline__gap" style="left:calc(0px + (100% - 56px) * 0.5);width:56px"></span>');
+    expect(html).toContain('<span class="Timeline__gap" style="left:calc(0px + (100% - 56px) * 0.5);width:56px"></span>');
     // The gap band is part of the constant width: the scale does not stretch it.
     expect(html).toContain("width:calc(256px + 1 * max(700px, 100% - 256px))");
     // The marks of the second half stand after the gap band.
     expect(html).toContain("left:calc(56px + (100% - 56px) * 0.5)");
     // Ticks after the gap are labeled with the real time since the start.
-    expect([...html.matchAll(/class="torch-timeline__tick"[^>]*>([^<]*)</g)].map((m) => m[1])).toEqual(["0m", "5m", "10m", "15m", "3h 35m", "3h 40m", "3h 45m"]);
+    expect([...html.matchAll(/class="Timeline__tick"[^>]*>([^<]*)</g)].map((m) => m[1])).toEqual(["0m", "5m", "10m", "15m", "3h 35m", "3h 40m", "3h 45m"]);
   });
 });
 
 describe("markup: large sessions", () => {
   test("a thousand calls: on first render every mark is a button", () => {
     const html = renderTimeline({ data: repeatTimeline(data, 6) });
-    expect(count(html, "torch-timeline__mark torch-mark--tool")).toBe(1116);
+    expect(count(html, "Timeline__mark TimelineMark__tool")).toBe(1116);
     expect(buttons(html).length).toBe(1 + 18 + 25 + 1116 + 660 + 882);
   });
 
@@ -421,7 +421,7 @@ describe("markup: large sessions", () => {
     expect(buttons(html).length).toBeLessThan(total / 3);
     expect(count(html, 'tabindex="0"')).toBe(6);
     // Errors are visible in a dense track too.
-    expect(count(html, "torch-mark--error")).toBeGreaterThan(0);
+    expect(count(html, "TimelineMark__error")).toBeGreaterThan(0);
   });
 
   test("ten thousand calls, Expanded: the DOM has only the rows near the scroll start", () => {
@@ -448,7 +448,7 @@ describe("legend and page", () => {
       "Model API call",
       "External request",
     ]);
-    expect(count(html, "torch-mark--sample")).toBe(8);
+    expect(count(html, "TimelineMark__sample")).toBe(8);
   });
 
   const pressedIn = (html: string, group: string) =>
@@ -460,7 +460,7 @@ describe("legend and page", () => {
     expect(pressedIn(html, "Zoom")).toBe("Fit");
     expect(html).toContain("Show details");
     expect(html).not.toContain('aria-label="Details"');
-    expect(html).toContain("torch-timeline-page__workspace--right");
+    expect(html).toContain('class="SessionTimelinePage__workspace"');
     expect(html).toContain('<ul aria-label="Legend"');
   });
 
@@ -468,11 +468,11 @@ describe("legend and page", () => {
     const html = renderRoute("/sessions/abc/timeline?sel=agent:gp-1&dock=left&view=expanded&zoom=4");
     expect(pressedIn(html, "Density")).toBe("Expanded");
     expect(pressedIn(html, "Zoom")).toBe("4×");
-    expect(html).toContain("torch-timeline-page__workspace--left");
+    expect(html).toContain("SessionTimelinePage__workspaceLeft");
     // In the dock stands the panel with the marked position and a link to a separate tab with the same selection.
-    expect(html).toContain('<div class="torch-timeline-page__panel"><section class="torch-panel" aria-label="Details">');
+    expect(html).toContain('<div class="SessionTimelinePage__panel"><section class="DetailPanel__root" aria-label="Details">');
     expect(html).toContain('href="/sessions/abc/panel?sel=agent%3Agp-1"');
     expect(html).not.toContain("Show details");
-    expect(renderRoute("/sessions/abc/timeline?sel=session&dock=bottom")).toContain("torch-timeline-page__workspace--bottom");
+    expect(renderRoute("/sessions/abc/timeline?sel=session&dock=bottom")).toContain("SessionTimelinePage__workspaceBottom");
   });
 });

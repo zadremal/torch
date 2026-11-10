@@ -1,6 +1,6 @@
 // Atom: monospaced text — identifiers, model and tool names, paths, time.
 import type { ReactNode } from "react";
-import "./Mono.scss";
+import styles from "./Mono.module.css";
 
 export interface MonoProps {
   children: ReactNode;
@@ -15,10 +15,10 @@ export interface MonoProps {
 
 export function Mono({ children, size = "sm", tone, truncate = false, title }: MonoProps) {
   const className = [
-    "torch-mono",
-    `torch-mono--${size}`,
-    tone && `torch-mono--${tone}`,
-    truncate && "torch-mono--truncate",
+    styles.root,
+    styles[size],
+    tone && styles[tone],
+    truncate && styles.truncate,
   ]
     .filter(Boolean)
     .join(" ");

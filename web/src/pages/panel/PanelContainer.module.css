@@ -1,0 +1,4 @@
+/* Panel content while there is no data: a placeholder or an error message. */
+.root {
+  padding: var(--cds-spacing-05);
+}

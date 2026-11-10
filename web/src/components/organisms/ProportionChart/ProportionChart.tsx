@@ -10,7 +10,7 @@ import type { ContextBreakdownEntry, ContextCategory, TokenTotals } from "@contr
 import { useMemo } from "react";
 import { formatPercent, formatTokens } from "../../../lib/format.ts";
 import { CONTEXT_COLORS, TOKEN_COLORS } from "../../../styles/palette.ts";
-import "./ProportionChart.scss";
+import styles from "./ProportionChart.module.css";
 
 export type ProportionChartProps = {
   /** Chart name for assistive technologies; the screen sets the visible heading. */
@@ -84,11 +84,11 @@ export function ProportionChart(props: ProportionChartProps) {
   }, [key, props.label]);
 
   if (total === 0) {
-    return <p className="torch-proportion-chart torch-proportion-chart--empty">No data</p>;
+    return <p className={`${styles.root} ${styles.empty}`}>No data</p>;
   }
 
   return (
-    <div className="torch-proportion-chart" role="group" aria-label={props.label}>
+    <div className={styles.root} role="group" aria-label={props.label}>
       <MeterChart data={data} options={options} />
     </div>
   );

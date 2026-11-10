@@ -1,7 +1,0 @@
-@use '@carbon/react/scss/theme' as *;
-
-// A separate tab: the panel takes the full window height, with no app header.
-.torch-panel-page {
-  background: $background;
-  block-size: 100vh;
-}

@@ -1,0 +1,60 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-spacing-03);
+}
+
+.label {
+  font-size: var(--cds-label-01-font-size);
+  font-weight: var(--cds-label-01-font-weight);
+  line-height: var(--cds-label-01-line-height);
+  letter-spacing: var(--cds-label-01-letter-spacing);
+  color: var(--cds-text-secondary);
+}
+
+/* Adjacent buttons share a border: each is shifted by its thickness, the group restores the shift. */
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  padding-inline-start: 1px;
+}
+
+.button {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  border: 1px solid var(--cds-border-strong-01);
+  background: var(--cds-background);
+  color: var(--cds-text-secondary);
+  cursor: pointer;
+  font-family: var(--torch-font-sans);
+  margin-inline-start: -1px;
+
+  &:hover {
+    background: var(--cds-background-hover);
+    color: var(--cds-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+    position: relative;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--cds-background-inverse);
+    background: var(--cds-background-inverse);
+    color: var(--cds-text-inverse);
+  }
+}
+
+.groupSm .button {
+  block-size: var(--cds-spacing-07);
+  padding-inline: var(--cds-spacing-04);
+}
+
+.groupMd .button {
+  block-size: var(--cds-spacing-08);
+  padding-inline: var(--cds-spacing-05);
+}

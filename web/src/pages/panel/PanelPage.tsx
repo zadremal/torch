@@ -5,7 +5,7 @@ import { api } from "../../lib/api.ts";
 import { useApi } from "../../lib/useApi.ts";
 import { panelSelection, timelineHref } from "./address.ts";
 import { PanelContainer } from "./PanelContainer.tsx";
-import "./PanelPage.scss";
+import styles from "./PanelPage.module.css";
 
 export function PanelPage() {
   const { id = "" } = useParams();
@@ -16,7 +16,7 @@ export function PanelPage() {
   const session = useApi(() => api.session(id), [id]);
 
   return (
-    <main className="torch-panel-page">
+    <main className={styles.root}>
       <PanelContainer
         sessionId={id}
         selection={selection}

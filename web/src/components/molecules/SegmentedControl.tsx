@@ -1,7 +1,9 @@
 // Molecule: a row of buttons with one selected value — the Agents buckets in the session list,
 // the dashboard range, timeline density and zoom.
 import { useId } from "react";
-import "./SegmentedControl.scss";
+import styles from "./SegmentedControl.module.css";
+
+const GROUP_CLASS = { sm: `${styles.group} ${styles.groupSm}`, md: `${styles.group} ${styles.groupMd}` };
 
 export interface SegmentedOption<T extends string | number> {
   value: T;
@@ -29,15 +31,15 @@ export function SegmentedControl<T extends string | number>({
 }: SegmentedControlProps<T>) {
   const labelId = useId();
   return (
-    <div className="torch-segmented">
+    <div className={styles.root}>
       {showLabel && (
-        <span id={labelId} className="torch-segmented__label">
+        <span id={labelId} className={styles.label}>
           {label}
         </span>
       )}
       <div
         role="group"
-        className={`torch-segmented__group torch-segmented__group--${size}`}
+        className={GROUP_CLASS[size]}
         aria-label={showLabel ? undefined : label}
         aria-labelledby={showLabel ? labelId : undefined}
       >
@@ -45,7 +47,7 @@ export function SegmentedControl<T extends string | number>({
           <button
             key={option.value}
             type="button"
-            className="torch-segmented__button"
+            className={styles.button}
             aria-pressed={option.value === value}
             onClick={() => onChange(option.value)}
           >
