@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dashboard</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/carbon/components/bundle.css">
+<script src="ds/carbon/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{--background:#ffffff;--background-hover:rgba(141, 141, 141, 0.12);--background-active:rgba(141, 141, 141, 0.5);--background-selected:rgba(141, 141, 141, 0.2);--background-inverse:#393939;--background-brand:#0f62fe;--layer-01:#f4f4f4;--layer-02:#ffffff;--layer-03:#f4f4f4;--layer-hover-01:#e8e8e8;--layer-active-01:#c6c6c6;--layer-selected-01:#e0e0e0;--layer-accent-01:#e0e0e0;--field-01:#f4f4f4;--field-02:#ffffff;--field-hover-01:#e8e8e8;--border-subtle-00:#e0e0e0;--border-subtle-01:#c6c6c6;--border-strong-01:#8d8d8d;--border-interactive:#0f62fe;--border-inverse:#161616;--text-primary:#161616;--text-secondary:#525252;--text-helper:#6f6f6f;--text-placeholder:rgba(22, 22, 22, 0.4);--text-on-color:#ffffff;--text-on-color-disabled:#8d8d8d;--text-inverse:#ffffff;--text-disabled:rgba(22, 22, 22, 0.25);--text-error:#da1e28;--link-primary:#0f62fe;--link-primary-hover:#0043ce;--link-visited:#8a3ffc;--icon-primary:#161616;--icon-secondary:#525252;--icon-on-color:#ffffff;--icon-inverse:#ffffff;--interactive:#0f62fe;--button-primary:#0f62fe;--button-primary-hover:#0050e6;--button-primary-active:#002d9c;--button-secondary:#393939;--button-secondary-hover:#474747;--button-secondary-active:#6f6f6f;--button-tertiary:#0f62fe;--button-tertiary-hover:#0050e6;--button-tertiary-active:#002d9c;--button-danger-primary:#da1e28;--button-danger-hover:#b81921;--button-danger-active:#750e13;--button-danger-secondary:#da1e28;--button-disabled:#c6c6c6;--support-error:#da1e28;--support-success:#24a148;--support-warning:#f1c21b;--support-info:#0043ce;--notification-background-error:#fff1f1;--notification-background-success:#defbe6;--notification-background-warning:#fcf4d6;--notification-background-info:#edf5ff;--focus:#0f62fe;--focus-inset:#ffffff;--toggle-off:#8d8d8d;--skeleton-background:#e8e8e8;--skeleton-element:#c6c6c6;--overlay:rgba(22, 22, 22, 0.5);--tag-background-red:#ffd7d9;--tag-color-red:#a2191f;--tag-background-purple:#e8daff;--tag-color-purple:#6929c4;--tag-background-blue:#d0e2ff;--tag-color-blue:#0043ce;--tag-background-cyan:#bae6ff;--tag-color-cyan:#00539a;--tag-background-teal:#9ef0f0;--tag-color-teal:#005d5d;--tag-background-green:#a7f0ba;--tag-color-green:#0e6027;--tag-background-gray:#e0e0e0;--tag-color-gray:#161616;--blue-10:#edf5ff;--blue-20:#d0e2ff;--blue-40:#78a9ff;--blue-60:#0f62fe;--blue-80:#002d9c;--cyan-40:#33b1ff;--teal-50:#009d9a;--purple-60:#8a3ffc;--gray-10:#f4f4f4;--gray-20:#e0e0e0;--gray-50:#8d8d8d;--gray-80:#393939;--gray-100:#161616;--spacing-01:0.125rem;--spacing-02:0.25rem;--spacing-03:0.5rem;--spacing-04:0.75rem;--spacing-05:1rem;--spacing-06:1.5rem;--spacing-07:2rem;--spacing-08:2.5rem;--spacing-09:3rem;--spacing-10:4rem;--spacing-11:5rem;--spacing-12:6rem;--spacing-13:10rem;--radius-none:0;--radius-checkbox:1px;--radius-pill:1rem;--shadow-overlay:0 2px 6px rgba(0, 0, 0, 0.3);--size-xs:1.5rem;--size-sm:2rem;--size-md:2.5rem;--size-lg:3rem;--size-xl:4rem;--size-2xl:5rem;--font-sans:"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;--font-mono:"IBM Plex Mono", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Courier, monospace}
+[data-theme="g100"]{--background:#161616;--background-hover:rgba(141, 141, 141, 0.16);--background-active:rgba(141, 141, 141, 0.4);--background-selected:rgba(141, 141, 141, 0.24);--layer-01:#262626;--layer-hover-01:#333333;--border-subtle-00:#393939;--border-subtle-01:#525252;--border-interactive:#4589ff;--text-primary:#f4f4f4;--text-secondary:#c6c6c6;--text-helper:#a8a8a8;--link-primary:#78a9ff;--icon-primary:#f4f4f4;--icon-secondary:#c6c6c6;--focus:#ffffff;--focus-inset:#161616;color:var(--text-primary)}
+body{margin:0;background:#ffffff;font-family:"IBM Plex Sans", system-ui, sans-serif;color:#161616}
+a{color:#0f62fe}a:hover{color:#0043ce}
+.nav{display:flex;align-items:center;height:48px;box-sizing:border-box;padding:0 16px;font-size:14px;line-height:18px;letter-spacing:0.16px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid transparent}
+.nav:hover{background:var(--background-hover);color:var(--text-primary)}
+.nav:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.nav[aria-current="page"]{color:var(--text-primary);border-bottom-color:var(--border-interactive)}
+.seg{height:40px;padding:0 16px;border:1px solid var(--border-strong-01);margin-left:-1px;background:var(--background);color:var(--text-secondary);font-family:var(--font-sans);font-size:14px;cursor:pointer}
+.seg:hover{background:var(--background-hover);color:var(--text-primary)}
+.seg:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;position:relative}
+.seg[aria-pressed="true"]{background:var(--background-inverse);color:var(--text-inverse);border-color:var(--background-inverse)}
+.bar{position:relative;flex:1 1 0;min-width:4px;display:flex;align-items:flex-end;height:100%}
+.bar>i{display:block;width:100%;border-radius:4px 4px 0 0}
+.bar:hover>i{filter:brightness(0.85)}
+.bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--background-inverse);color:var(--text-inverse);font-size:12px;line-height:16px;padding:4px 8px;box-shadow:var(--shadow-overlay);z-index:2;pointer-events:none}
+.lb a{color:var(--link-primary);text-decoration:none}
+.lb a:hover{text-decoration:underline}
+.cds--text-input{width:160px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--background);color:var(--text-primary);font-family:var(--font-sans)">
+<header data-theme="g100" style="display:flex;flex-wrap:wrap;align-items:center;min-height:48px;background:var(--background);border-bottom:1px solid var(--border-subtle-01);padding:0 0 0 16px">
+<span style="font-size:14px;line-height:18px;font-weight:600;padding-right:32px">Session debugger</span>
+<nav aria-label="Main" style="display:flex;flex-grow:1">
+<a class="nav" href="Dashboard.dc.html" aria-current="page">Dashboard</a>
+<a class="nav" href="Main.dc.html">Sessions</a>
+</nav>
+<x-import component-from-global-scope="Carbon.IconButton" icon="settings" label="Settings" kind="ghost"></x-import>
+</header>
+<main style="max-width:1440px;margin:0 auto;box-sizing:border-box;padding:32px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-end">
+<div style="display:flex;flex-direction:column;gap:8px">
+<h1 style="margin:0;font-size:28px;line-height:36px;font-weight:400">Dashboard</h1>
+<p style="margin:0;font-size:14px;line-height:20px;color:var(--text-secondary)">Model calls, tool calls and cost across your sessions · {{rangeLabel}}</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+<sc-if value="{{isCustom}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;gap:8px;align-items:flex-end">
+<x-import component-from-global-scope="Carbon.TextInput" type="date" label-text="From" default-value="2026-10-01"></x-import>
+<x-import component-from-global-scope="Carbon.TextInput" type="date" label-text="To" default-value="2026-10-31"></x-import>
+</div>
+</sc-if>
+<div role="group" aria-label="Time range" style="display:flex;padding-left:1px;flex-wrap:wrap">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="5">
+<button type="button" class="seg" aria-pressed="{{r.pressed}}" onClick="{{r.pick}}">{{r.label}}</button>
+</sc-for>
+</div>
+</div>
+</div>
+
+<section aria-label="Totals" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border-subtle-00);border:1px solid var(--border-subtle-00)">
+<sc-for list="{{totals}}" as="t" hint-placeholder-count="6">
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px;box-sizing:border-box">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">{{t.label}}</span>
+<span style="font-size:32px;line-height:40px;font-weight:300;font-variant-numeric:tabular-nums">{{t.value}}</span>
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-helper)">{{t.sub}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-label="Activity" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:24px">
+<sc-for list="{{charts}}" as="c" hint-placeholder-count="2">
+<div style="border:1px solid var(--border-subtle-00);padding:16px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;gap:16px;align-items:baseline;flex-wrap:wrap">
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:600">{{c.title}}</h2>
+<span style="font-size:14px;line-height:18px;color:var(--text-secondary)">{{c.total}} total · peak {{c.peak}}</span>
+</div>
+<div style="display:flex;gap:8px">
+<div aria-hidden="true" style="display:flex;flex-direction:column;justify-content:space-between;height:200px;font-size:12px;line-height:16px;color:var(--text-helper);text-align:right;min-width:32px;margin-top:-8px">
+<span>{{c.max}}</span><span>{{c.mid}}</span><span>0</span>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+<div role="img" aria-label="{{c.aria}}" style="height:192px;display:flex;align-items:flex-end;gap:2px;border-bottom:1px solid var(--border-strong-01);background:linear-gradient(var(--border-subtle-00) 1px,transparent 1px) 0 0/100% 50%">
+<sc-for list="{{c.bars}}" as="b" hint-placeholder-count="12">
+<div class="bar" data-tip="{{b.tip}}"><i style="height:{{b.h}};background:{{c.color}}"></i></div>
+</sc-for>
+</div>
+<div aria-hidden="true" style="display:flex;justify-content:space-between;font-size:12px;line-height:16px;color:var(--text-helper)">
+<span>{{c.first}}</span><span>{{c.last}}</span>
+</div>
+</div>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section aria-label="Token mix" style="border:1px solid var(--border-subtle-00);padding:16px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;gap:16px;align-items:baseline;flex-wrap:wrap">
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:600">Token mix</h2>
+<span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Cache hit rate {{cacheHit}} of input</span>
+</div>
+<div role="img" aria-label="{{mixAria}}" style="display:flex;gap:2px;height:24px">
+<sc-for list="{{mix}}" as="m" hint-placeholder-count="4">
+<div title="{{m.label}} {{m.value}}" style="flex:{{m.flex}} 1 0;background:{{m.color}};min-width:4px"></div>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px 32px">
+<sc-for list="{{mix}}" as="m" hint-placeholder-count="4">
+<div style="display:flex;gap:8px;align-items:center;font-size:14px;line-height:18px">
+<span aria-hidden="true" style="width:12px;height:12px;background:{{m.color}};display:inline-block"></span>
+<span style="color:var(--text-secondary)">{{m.label}}</span>
+<span style="font-weight:600;font-variant-numeric:tabular-nums">{{m.value}}</span>
+<span style="color:var(--text-helper)">{{m.pct}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="ins-h" style="display:flex;flex-direction:column;gap:16px">
+<h2 id="ins-h" style="margin:0;font-size:20px;line-height:28px;font-weight:400">Insights</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:24px">
+<sc-for list="{{boards}}" as="bd" hint-placeholder-count="5">
+<div class="lb" style="background:var(--layer-01);display:flex;flex-direction:column">
+<div style="padding:16px 16px 8px;display:flex;justify-content:space-between;gap:12px;align-items:baseline">
+<h3 style="margin:0;font-size:14px;line-height:18px;font-weight:600">{{bd.title}}</h3>
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-helper)">{{bd.metric}}</span>
+</div>
+<ol style="list-style:none;margin:0;padding:0 0 8px">
+<sc-for list="{{bd.items}}" as="it" hint-placeholder-count="5">
+<li style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 16px;border-top:1px solid var(--border-subtle-01)">
+<span style="font-size:12px;line-height:16px;color:var(--text-helper);font-variant-numeric:tabular-nums">{{it.rank}}</span>
+<span style="display:flex;flex-direction:column;min-width:0">
+<a href="SessionDetail.dc.html" style="font-size:14px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{it.name}}</a>
+<span style="font-family:var(--font-mono);font-size:12px;line-height:16px;color:var(--text-helper)">{{it.id}} · {{it.project}}</span>
+</span>
+<span style="font-size:14px;line-height:18px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">{{it.value}}</span>
+</li>
+</sc-for>
+</ol>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:600">Tool calls by tool</h2>
+<div style="overflow-x:auto">
+<div role="table" aria-label="Tool calls by tool" style="min-width:520px;font-size:14px;line-height:18px">
+<div role="row" style="display:grid;grid-template-columns:140px minmax(0,1fr) 90px 100px;align-items:center;background:var(--layer-accent-01);height:48px">
+<div role="columnheader" style="padding:0 16px;font-weight:600">Tool</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600">Calls</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600;text-align:right">Errors</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600;text-align:right">Error rate</div>
+</div>
+<sc-for list="{{tools}}" as="tl" hint-placeholder-count="9">
+<div role="row" style="display:grid;grid-template-columns:140px minmax(0,1fr) 90px 100px;align-items:center;height:40px;border-bottom:1px solid var(--border-subtle-00)">
+<div role="cell" style="padding:0 16px;font-family:var(--font-mono);font-size:13px">{{tl.name}}</div>
+<div role="cell" style="padding:0 16px;display:flex;align-items:center;gap:8px"><span aria-hidden="true" style="height:8px;width:{{tl.w}};max-width:70%;background:var(--blue-60);border-radius:0 4px 4px 0"></span><span style="font-variant-numeric:tabular-nums">{{tl.calls}}</span></div>
+<div role="cell" style="padding:0 16px;text-align:right;font-variant-numeric:tabular-nums">{{tl.errors}}</div>
+<div role="cell" style="padding:0 16px;text-align:right;font-variant-numeric:tabular-nums;color:{{tl.rateColor}}">{{tl.rate}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:600">Model calls by model</h2>
+<div style="overflow-x:auto">
+<div role="table" aria-label="Model calls by model" style="min-width:520px;font-size:14px;line-height:18px">
+<div role="row" style="display:grid;grid-template-columns:minmax(0,1fr) 110px 110px 120px;align-items:center;background:var(--layer-accent-01);height:48px">
+<div role="columnheader" style="padding:0 16px;font-weight:600">Model</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600;text-align:right">Calls</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600;text-align:right">Tokens</div>
+<div role="columnheader" style="padding:0 16px;font-weight:600;text-align:right">Cost</div>
+</div>
+<sc-for list="{{models}}" as="md" hint-placeholder-count="3">
+<div role="row" style="display:grid;grid-template-columns:minmax(0,1fr) 110px 110px 120px;align-items:center;height:40px;border-bottom:1px solid var(--border-subtle-00)">
+<div role="cell" style="padding:0 16px;font-family:var(--font-mono);font-size:13px">{{md.name}}</div>
+<div role="cell" style="padding:0 16px;text-align:right;font-variant-numeric:tabular-nums">{{md.calls}}</div>
+<div role="cell" style="padding:0 16px;text-align:right;font-variant-numeric:tabular-nums">{{md.tokens}}</div>
+<div role="cell" style="padding:0 16px;text-align:right;font-variant-numeric:tabular-nums">{{md.cost}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"range":{"editor":"enum","options":["day","week","month","year","custom"],"default":"week","section":"View"},"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { range: null }; }
+  renderVals() {
+    var self = this;
+    var range = this.state.range || this.props.range || 'week';
+    var S = [
+      ['s-0142', 'Migrate billing API client to openapi-ts', 'billing-web', 31, 1122, 5, 2184300, 186, 7, 18.42],
+      ['s-0141', 'Fix flaky checkout e2e test', 'storefront', 31, 534, 2, 612400, 64, 3, 4.10],
+      ['s-0140', 'Add Zod validation to webhook handlers', 'billing-web', 30, 1488, 3, 1402900, 121, 1, 11.06],
+      ['s-0139', 'Upgrade to Next.js 16 and React 19.2', 'storefront', 30, 3260, 6, 4910200, 402, 19, 41.77],
+      ['s-0138', 'Explain caching in the county population loader', 'county-pop', 30, 212, 1, 88100, 9, 0, 0.61],
+      ['s-0137', 'Write Bun tests for parcel scoring', 'land-tools', 29, 1910, 4, 1870500, 233, 11, 14.93],
+      ['s-0136', 'Draft PR description for auth refactor', 'billing-web', 29, 145, 1, 41700, 4, 0, 0.29],
+      ['s-0135', 'Set up MCP server for the Teams bot', 'agent-harness', 28, 2702, 5, 3311800, 298, 14, 27.35],
+      ['s-0134', 'Investigate slow Neon queries', 'county-pop', 28, 960, 2, 702300, 77, 2, 5.12],
+      ['s-0133', 'Generate OpenAPI client for Langfuse', 'api-webapp', 27, 1344, 3, 1120600, 109, 4, 8.84],
+      ['s-0132', 'Rename env vars across services', 'agent-harness', 27, 402, 1, 190800, 38, 0, 1.37],
+      ['s-0131', 'Refactor timeline renderer', 'session-debugger', 26, 2210, 4, 2604000, 251, 6, 21.08],
+      ['s-0118', 'Port orchestration harness to AWS Lambda', 'agent-harness', 19, 5420, 7, 7120400, 611, 23, 63.90],
+      ['s-0112', 'Build Neon schema for county population', 'county-pop', 14, 2988, 4, 3402100, 344, 9, 30.12],
+      ['s-0104', 'Audit dependencies and upgrade to Bun 1.3', 'storefront', 9, 1802, 3, 1710900, 197, 12, 13.44],
+      ['s-0097', 'Add Langfuse tracing to API routes', 'api-webapp', 4, 2406, 5, 2990300, 276, 5, 24.81]
+    ];
+    var cfg = {
+      day: { label: 'Last day', sub: 'Oct 31, 2026', pool: function (s) { return s[3] === 31; }, extra: [0, 0, 0, 0, 0], n: 12, first: '00:00', last: '22:00', unit: 'Two-hour bucket', delta: ['+1 vs Oct 30', '+8%', '−4%', '+11%', '+6%', '−2'] },
+      week: { label: 'Last week', sub: 'Oct 25 – Oct 31, 2026', pool: function (s) { return s[3] >= 25; }, extra: [0, 0, 0, 0, 0], n: 7, first: 'Oct 25', last: 'Oct 31', unit: 'Day', delta: ['+3 vs prior week', '+14%', '+9%', '+18%', '+15%', '+5'] },
+      month: { label: 'Last month', sub: 'Oct 1 – Oct 31, 2026', pool: function () { return true; }, extra: [41, 31402000, 3820, 96, 262.4], n: 31, first: 'Oct 1', last: 'Oct 31', unit: 'Day', delta: ['+12 vs September', '+21%', '+17%', '+24%', '+19%', '−11'] },
+      year: { label: 'Last year', sub: 'Nov 2025 – Oct 2026', pool: function () { return true; }, extra: [512, 402880000, 48210, 1288, 3391.7], n: 12, first: 'Nov', last: 'Oct', unit: 'Month', delta: ['first full year', '—', '—', '—', '—', '—'] },
+      custom: { label: 'Custom', sub: 'Oct 1 – Oct 31, 2026 (custom)', pool: function () { return true; }, extra: [41, 31402000, 3820, 96, 262.4], n: 31, first: 'Oct 1', last: 'Oct 31', unit: 'Day', delta: ['custom range', '', '', '', '', ''] }
+    }[range];
+    var pool = S.filter(cfg.pool);
+    function sum(i) { return pool.reduce(function (a, s) { return a + s[i]; }, 0); }
+    var sessions = pool.length + cfg.extra[0];
+    var tokens = sum(6) + cfg.extra[1];
+    var tools = sum(7) + cfg.extra[2];
+    var errors = sum(8) + cfg.extra[3];
+    var cost = sum(9) + cfg.extra[4];
+    var modelCalls = Math.round(tools * 0.71 + sessions * 6);
+    function fmt(n) { return n >= 1e9 ? (n / 1e9).toFixed(2) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1e4 ? (n / 1e3).toFixed(1) + 'K' : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function money(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function dur(s) { var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h ? h + 'h ' + m + 'm' : m + 'm ' + (s % 60) + 's'; }
+    var d = cfg.delta;
+    var totals = [
+      { label: 'Sessions', value: fmt(sessions), sub: d[0] },
+      { label: 'Model calls', value: fmt(modelCalls), sub: d[1] ? d[1] + ' vs previous period' : '' },
+      { label: 'Tool calls', value: fmt(tools), sub: d[2] ? d[2] + ' vs previous period' : '' },
+      { label: 'Total tokens', value: fmt(tokens), sub: d[3] ? d[3] + ' vs previous period' : '' },
+      { label: 'Cost', value: money(cost), sub: d[4] ? d[4] + ' vs previous period' : '' },
+      { label: 'Errors', value: fmt(errors), sub: (tools ? (errors / tools * 100).toFixed(1) : '0') + '% of tool calls' + (d[5] ? ' · ' + d[5] : '') }
+    ];
+    function spread(total, n, seed) {
+      var w = [], t = 0;
+      for (var i = 0; i < n; i++) { var x = 0.35 + Math.abs(Math.sin((i + 1) * 12.9898 + seed) * 43758.5453 % 1); if (range === 'day' && (i < 4 || i > 10)) x *= 0.15; w.push(x); t += x; }
+      return w.map(function (x) { return Math.round(x / t * total); });
+    }
+    function chart(title, total, color, seed) {
+      var vals = spread(total, cfg.n, seed);
+      var mx = Math.max.apply(null, vals) || 1;
+      var top = Math.ceil(mx / 10) * 10 || 10;
+      var labels = [];
+      for (var i = 0; i < cfg.n; i++) {
+        if (range === 'day') labels.push((i * 2 < 10 ? '0' : '') + i * 2 + ':00');
+        else if (range === 'week') labels.push('Oct ' + (25 + i));
+        else if (range === 'year') labels.push(['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'][i]);
+        else labels.push('Oct ' + (i + 1));
+      }
+      return {
+        title: title, total: fmt(total), peak: fmt(mx), color: color, max: fmt(top), mid: fmt(top / 2), first: cfg.first, last: cfg.last,
+        aria: title + ' per ' + cfg.unit.toLowerCase() + ', ' + cfg.first + ' to ' + cfg.last + ', peak ' + fmt(mx),
+        bars: vals.map(function (v, i) { return { h: (v / top * 100).toFixed(1) + '%', tip: labels[i] + ' · ' + fmt(v) }; })
+      };
+    }
+    var charts = [chart('Model calls', modelCalls, 'var(--purple-60)', 1), chart('Tool calls', tools, 'var(--blue-60)', 7)];
+    var parts = [['Input', 0.08, 'var(--purple-60)'], ['Output', 0.05, 'var(--cyan-40)'], ['Cache read', 0.79, 'var(--blue-60)'], ['Cache write', 0.08, 'var(--teal-50)']];
+    var mix = parts.map(function (p) { return { label: p[0], value: fmt(tokens * p[1]), pct: Math.round(p[1] * 100) + '%', flex: Math.round(p[1] * 100), color: p[2] }; });
+    function top(idx, f) {
+      return pool.slice().sort(function (a, b) { return b[idx] - a[idx]; }).slice(0, 5).map(function (s, i) { return { rank: i + 1, id: s[0], name: s[1], project: s[2], value: f(s[idx]) }; });
+    }
+    var boards = [
+      { title: 'Most expensive sessions', metric: 'Cost', items: top(9, money) },
+      { title: 'Longest sessions', metric: 'Duration', items: top(4, dur) },
+      { title: 'Most tokens used', metric: 'Tokens', items: top(6, fmt) },
+      { title: 'Most tool calls', metric: 'Tool calls', items: top(7, fmt) },
+      { title: 'Most errors', metric: 'Errors', items: top(8, fmt) }
+    ];
+    var T = [['Read', 0.31, 0.06], ['Bash', 0.22, 0.46], ['Edit', 0.17, 0.21], ['Grep', 0.10, 0.02], ['Glob', 0.06, 0], ['Write', 0.05, 0.03], ['Task', 0.04, 0.04], ['WebFetch', 0.03, 0.18], ['TodoWrite', 0.02, 0]];
+    var tl = T.map(function (t) { var c = Math.round(tools * t[1]), e = Math.round(errors * t[2]); return { name: t[0], calls: fmt(c), errors: fmt(e), rate: c ? (e / c * 100).toFixed(1) + '%' : '0%', rateColor: c && e / c > 0.05 ? 'var(--text-error)' : 'var(--text-primary)', w: Math.max(2, Math.round(t[1] / 0.31 * 100)) + '%' }; });
+    var M = [['claude-opus-5-5', 0.58, 0.64, 0.78], ['claude-sonnet-4-5', 0.27, 0.26, 0.17], ['claude-haiku-4-5', 0.15, 0.10, 0.05]];
+    var models = M.map(function (m) { return { name: m[0], calls: fmt(modelCalls * m[1]), tokens: fmt(tokens * m[2]), cost: money(cost * m[3]) }; });
+    var ranges = [['day', 'Last day'], ['week', 'Last week'], ['month', 'Last month'], ['year', 'Last year'], ['custom', 'Custom']].map(function (r) {
+      return { label: r[1], pressed: r[0] === range, pick: function () { self.setState({ range: r[0] }); } };
+    });
+    return {
+      ranges: ranges, rangeLabel: cfg.sub, isCustom: range === 'custom', totals: totals, charts: charts, mix: mix,
+      mixAria: 'Token mix: ' + mix.map(function (m) { return m.label + ' ' + m.pct; }).join(', '),
+      cacheHit: Math.round(0.79 / (0.79 + 0.08 + 0.08) * 100) + '%', boards: boards, tools: tl, models: models
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/mixins' as *;
+@use '../../styles/variables' as *;
+
+.torch-key-value-list {
+  display: grid;
+  margin: 0;
+  gap: $spacing-04 $spacing-05;
+  grid-template-columns: repeat(auto-fill, minmax($key-value-min-width, 1fr));
+}
+
+.torch-key-value__label {
+  @include caption;
+}
+
+.torch-key-value__value {
+  @include type-style('body-compact-01');
+
+  margin: $spacing-01 0 0;
+  word-break: break-word;
+}
+
+.torch-key-value__value--error {
+  color: $text-error;
+}

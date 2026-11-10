@@ -1,0 +1,55 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/mixins' as *;
+
+// Theme tokens inside the header come from the g100 zone set by the Theme component.
+.torch-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background: $background;
+  border-block-end: 1px solid $border-subtle-01;
+  color: $text-primary;
+  min-block-size: $spacing-09;
+  padding-inline-start: $spacing-05;
+}
+
+.torch-header__name {
+  @include type-style('heading-compact-01');
+
+  padding-inline-end: $spacing-07;
+}
+
+.torch-header__nav {
+  display: flex;
+  flex-grow: 1;
+}
+
+.torch-header__link {
+  @include type-style('body-compact-01');
+
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  block-size: $spacing-09;
+  border-block-end: 2px solid transparent;
+  color: $text-secondary;
+  padding-inline: $spacing-05;
+  text-decoration: none;
+
+  &:hover {
+    background: $background-hover;
+    color: $text-primary;
+  }
+
+  &:focus-visible {
+    @include focus-inset;
+  }
+
+  // NavLink sets aria-current="page" on the active link.
+  &[aria-current='page'] {
+    border-block-end-color: $border-interactive;
+    color: $text-primary;
+  }
+}

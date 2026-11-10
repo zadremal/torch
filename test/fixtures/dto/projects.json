@@ -1,0 +1,32 @@
+{
+ "projects": [
+  {
+   "name": "agent-harness",
+   "sessions": 3
+  },
+  {
+   "name": "api-webapp",
+   "sessions": 2
+  },
+  {
+   "name": "billing-web",
+   "sessions": 3
+  },
+  {
+   "name": "county-pop",
+   "sessions": 3
+  },
+  {
+   "name": "land-tools",
+   "sessions": 1
+  },
+  {
+   "name": "session-debugger",
+   "sessions": 1
+  },
+  {
+   "name": "storefront",
+   "sessions": 3
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.torch-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-05;
+}
+
+.torch-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-05;
+}
+
+.torch-section__title {
+  @include type-style('heading-03');
+
+  margin: 0;
+  font-weight: 400;
+}
+
+.torch-section__aside {
+  @include type-style('body-compact-01');
+
+  color: $text-secondary;
+}

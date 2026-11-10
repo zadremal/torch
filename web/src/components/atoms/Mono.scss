@@ -1,0 +1,36 @@
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/variables' as *;
+
+.torch-mono {
+  font-family: font-family('mono');
+}
+
+.torch-mono--sm {
+  @include type-style('code-01');
+}
+
+.torch-mono--md {
+  font-size: $font-size-13;
+  line-height: $line-height-13;
+}
+
+.torch-mono--primary {
+  color: $text-primary;
+}
+
+.torch-mono--secondary {
+  color: $text-secondary;
+}
+
+.torch-mono--helper {
+  color: $text-helper;
+}
+
+.torch-mono--truncate {
+  display: block;
+  overflow: hidden;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

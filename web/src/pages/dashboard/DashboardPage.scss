@@ -1,0 +1,29 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+// Two charts in a row, one under the other in a narrow window.
+.torch-dashboard__charts {
+  display: grid;
+  gap: $spacing-06;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+}
+
+.torch-dashboard__boards {
+  display: grid;
+  gap: $spacing-06;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+
+.torch-dashboard__tables {
+  display: grid;
+  gap: $spacing-06;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+}
+
+.torch-dashboard__loading {
+  @include type-style('body-compact-01');
+
+  margin: 0;
+  color: $text-secondary;
+}

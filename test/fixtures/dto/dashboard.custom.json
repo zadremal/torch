@@ -1,0 +1,525 @@
+{
+ "range": "custom",
+ "from": 1790812800000,
+ "to": 1793491200000,
+ "prevFrom": 1788134400000,
+ "prevTo": 1790812800000,
+ "bucket": "day",
+ "totals": {
+  "sessions": {
+   "value": 16,
+   "prev": 0
+  },
+  "modelCalls": {
+   "value": 2385,
+   "prev": 0
+  },
+  "toolCalls": {
+   "value": 3220,
+   "prev": 0
+  },
+  "tokens": {
+   "value": 41617615,
+   "prev": 0
+  },
+  "costUsd": {
+   "value": 277.27,
+   "prev": 0
+  },
+  "errors": {
+   "value": 116,
+   "prev": 0
+  }
+ },
+ "series": {
+  "modelCalls": [
+   {
+    "start": 1790812800000,
+    "value": 0
+   },
+   {
+    "start": 1790899200000,
+    "value": 0
+   },
+   {
+    "start": 1790985600000,
+    "value": 0
+   },
+   {
+    "start": 1791072000000,
+    "value": 202
+   },
+   {
+    "start": 1791158400000,
+    "value": 0
+   },
+   {
+    "start": 1791244800000,
+    "value": 0
+   },
+   {
+    "start": 1791331200000,
+    "value": 0
+   },
+   {
+    "start": 1791417600000,
+    "value": 0
+   },
+   {
+    "start": 1791504000000,
+    "value": 146
+   },
+   {
+    "start": 1791590400000,
+    "value": 0
+   },
+   {
+    "start": 1791676800000,
+    "value": 0
+   },
+   {
+    "start": 1791763200000,
+    "value": 0
+   },
+   {
+    "start": 1791849600000,
+    "value": 0
+   },
+   {
+    "start": 1791936000000,
+    "value": 250
+   },
+   {
+    "start": 1792022400000,
+    "value": 0
+   },
+   {
+    "start": 1792108800000,
+    "value": 0
+   },
+   {
+    "start": 1792195200000,
+    "value": 0
+   },
+   {
+    "start": 1792281600000,
+    "value": 0
+   },
+   {
+    "start": 1792368000000,
+    "value": 440
+   },
+   {
+    "start": 1792454400000,
+    "value": 0
+   },
+   {
+    "start": 1792540800000,
+    "value": 0
+   },
+   {
+    "start": 1792627200000,
+    "value": 0
+   },
+   {
+    "start": 1792713600000,
+    "value": 0
+   },
+   {
+    "start": 1792800000000,
+    "value": 0
+   },
+   {
+    "start": 1792886400000,
+    "value": 0
+   },
+   {
+    "start": 1792972800000,
+    "value": 184
+   },
+   {
+    "start": 1793059200000,
+    "value": 116
+   },
+   {
+    "start": 1793145600000,
+    "value": 279
+   },
+   {
+    "start": 1793232000000,
+    "value": 180
+   },
+   {
+    "start": 1793318400000,
+    "value": 395
+   },
+   {
+    "start": 1793404800000,
+    "value": 193
+   }
+  ],
+  "toolCalls": [
+   {
+    "start": 1790812800000,
+    "value": 0
+   },
+   {
+    "start": 1790899200000,
+    "value": 0
+   },
+   {
+    "start": 1790985600000,
+    "value": 0
+   },
+   {
+    "start": 1791072000000,
+    "value": 276
+   },
+   {
+    "start": 1791158400000,
+    "value": 0
+   },
+   {
+    "start": 1791244800000,
+    "value": 0
+   },
+   {
+    "start": 1791331200000,
+    "value": 0
+   },
+   {
+    "start": 1791417600000,
+    "value": 0
+   },
+   {
+    "start": 1791504000000,
+    "value": 197
+   },
+   {
+    "start": 1791590400000,
+    "value": 0
+   },
+   {
+    "start": 1791676800000,
+    "value": 0
+   },
+   {
+    "start": 1791763200000,
+    "value": 0
+   },
+   {
+    "start": 1791849600000,
+    "value": 0
+   },
+   {
+    "start": 1791936000000,
+    "value": 344
+   },
+   {
+    "start": 1792022400000,
+    "value": 0
+   },
+   {
+    "start": 1792108800000,
+    "value": 0
+   },
+   {
+    "start": 1792195200000,
+    "value": 0
+   },
+   {
+    "start": 1792281600000,
+    "value": 0
+   },
+   {
+    "start": 1792368000000,
+    "value": 611
+   },
+   {
+    "start": 1792454400000,
+    "value": 0
+   },
+   {
+    "start": 1792540800000,
+    "value": 0
+   },
+   {
+    "start": 1792627200000,
+    "value": 0
+   },
+   {
+    "start": 1792713600000,
+    "value": 0
+   },
+   {
+    "start": 1792800000000,
+    "value": 0
+   },
+   {
+    "start": 1792886400000,
+    "value": 0
+   },
+   {
+    "start": 1792972800000,
+    "value": 251
+   },
+   {
+    "start": 1793059200000,
+    "value": 147
+   },
+   {
+    "start": 1793145600000,
+    "value": 375
+   },
+   {
+    "start": 1793232000000,
+    "value": 237
+   },
+   {
+    "start": 1793318400000,
+    "value": 532
+   },
+   {
+    "start": 1793404800000,
+    "value": 250
+   }
+  ]
+ },
+ "tokenMix": {
+  "input": 2568299,
+  "output": 1741813,
+  "cacheRead": 34317030,
+  "cacheWrite": 2990473,
+  "thinking": 327565,
+  "total": 41617615
+ },
+ "top": {
+  "cost": [
+   {
+    "sessionId": "8f3c1aa4-61b0-4c7e-9d2a-000000000118",
+    "name": "Port orchestration harness to AWS Lambda",
+    "project": "agent-harness",
+    "value": 63.9
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 41.77
+   },
+   {
+    "sessionId": "8f3c1a9e-61b0-4c7e-9d2a-000000000112",
+    "name": "Build Neon schema for county population",
+    "project": "county-pop",
+    "value": 30.12
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 27.35
+   },
+   {
+    "sessionId": "8f3c1a8f-61b0-4c7e-9d2a-000000000097",
+    "name": "Add Langfuse tracing to API routes",
+    "project": "api-webapp",
+    "value": 24.81
+   }
+  ],
+  "duration": [
+   {
+    "sessionId": "8f3c1aa4-61b0-4c7e-9d2a-000000000118",
+    "name": "Port orchestration harness to AWS Lambda",
+    "project": "agent-harness",
+    "value": 5420000
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 3260000
+   },
+   {
+    "sessionId": "8f3c1a9e-61b0-4c7e-9d2a-000000000112",
+    "name": "Build Neon schema for county population",
+    "project": "county-pop",
+    "value": 2988000
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 2702000
+   },
+   {
+    "sessionId": "8f3c1a8f-61b0-4c7e-9d2a-000000000097",
+    "name": "Add Langfuse tracing to API routes",
+    "project": "api-webapp",
+    "value": 2406000
+   }
+  ],
+  "tokens": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 9538615
+   },
+   {
+    "sessionId": "8f3c1aa4-61b0-4c7e-9d2a-000000000118",
+    "name": "Port orchestration harness to AWS Lambda",
+    "project": "agent-harness",
+    "value": 7120400
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 4910200
+   },
+   {
+    "sessionId": "8f3c1a9e-61b0-4c7e-9d2a-000000000112",
+    "name": "Build Neon schema for county population",
+    "project": "county-pop",
+    "value": 3402100
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 3311800
+   }
+  ],
+  "toolCalls": [
+   {
+    "sessionId": "8f3c1aa4-61b0-4c7e-9d2a-000000000118",
+    "name": "Port orchestration harness to AWS Lambda",
+    "project": "agent-harness",
+    "value": 611
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 402
+   },
+   {
+    "sessionId": "8f3c1a9e-61b0-4c7e-9d2a-000000000112",
+    "name": "Build Neon schema for county population",
+    "project": "county-pop",
+    "value": 344
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 298
+   },
+   {
+    "sessionId": "8f3c1a8f-61b0-4c7e-9d2a-000000000097",
+    "name": "Add Langfuse tracing to API routes",
+    "project": "api-webapp",
+    "value": 276
+   }
+  ],
+  "errors": [
+   {
+    "sessionId": "8f3c1aa4-61b0-4c7e-9d2a-000000000118",
+    "name": "Port orchestration harness to AWS Lambda",
+    "project": "agent-harness",
+    "value": 23
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 19
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 14
+   },
+   {
+    "sessionId": "8f3c1a96-61b0-4c7e-9d2a-000000000104",
+    "name": "Audit dependencies and upgrade to Bun 1.3",
+    "project": "storefront",
+    "value": 12
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 11
+   }
+  ]
+ },
+ "tools": [
+  {
+   "name": "Read",
+   "calls": 1000,
+   "errors": 41
+  },
+  {
+   "name": "Bash",
+   "calls": 703,
+   "errors": 27
+  },
+  {
+   "name": "Edit",
+   "calls": 548,
+   "errors": 19
+  },
+  {
+   "name": "Grep",
+   "calls": 334,
+   "errors": 12
+  },
+  {
+   "name": "Glob",
+   "calls": 199,
+   "errors": 6
+  },
+  {
+   "name": "Write",
+   "calls": 149,
+   "errors": 2
+  },
+  {
+   "name": "Agent",
+   "calls": 124,
+   "errors": 5
+  },
+  {
+   "name": "WebFetch",
+   "calls": 97,
+   "errors": 2
+  },
+  {
+   "name": "TodoWrite",
+   "calls": 66,
+   "errors": 2
+  }
+ ],
+ "models": [
+  {
+   "model": "claude-opus-5-5",
+   "calls": 1367,
+   "tokens": 23867538,
+   "costUsd": 161.63
+  },
+  {
+   "model": "claude-sonnet-4-5",
+   "calls": 659,
+   "tokens": 12107571,
+   "costUsd": 74.94
+  },
+  {
+   "model": "claude-haiku-4-5",
+   "calls": 359,
+   "tokens": 5642506,
+   "costUsd": 40.69
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+// Shared styling techniques of torch components.
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+// Label above a field, a button group or a value: 12px, secondary color.
+@mixin caption {
+  @include type-style('label-01');
+
+  color: $text-secondary;
+}
+
+// Focus frame inside an element, as in Carbon components.
+@mixin focus-inset {
+  outline: 2px solid $focus;
+  outline-offset: -2px;
+}
+
+// Numbers in columns do not change width from digit to digit.
+@mixin tabular {
+  font-variant-numeric: tabular-nums;
+}

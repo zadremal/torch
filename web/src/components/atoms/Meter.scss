@@ -1,0 +1,25 @@
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/theme' as *;
+@use '../../styles/variables' as *;
+
+.torch-meter {
+  display: block;
+  background: $layer-accent-01;
+  block-size: $meter-height;
+  inline-size: 100%;
+}
+
+.torch-meter__fill {
+  display: block;
+  background: colors.$blue-60;
+  block-size: 100%;
+}
+
+.torch-meter--bare {
+  background: transparent;
+
+  .torch-meter__fill {
+    border-start-end-radius: $meter-radius;
+    border-end-end-radius: $meter-radius;
+  }
+}

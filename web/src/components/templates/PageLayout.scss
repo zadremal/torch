@@ -1,0 +1,49 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/variables' as *;
+
+.torch-page {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: $spacing-07;
+  margin-inline: auto;
+  gap: $spacing-07;
+  inline-size: 100%;
+  max-inline-size: $page-max-width;
+}
+
+.torch-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-06;
+}
+
+.torch-page__heading {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-03;
+}
+
+.torch-page__title {
+  @include type-style('heading-04');
+
+  margin: 0;
+}
+
+.torch-page__description {
+  @include type-style('body-01');
+
+  margin: 0;
+  color: $text-secondary;
+}
+
+.torch-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: $spacing-05;
+}

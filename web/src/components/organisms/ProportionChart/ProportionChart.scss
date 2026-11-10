@@ -1,0 +1,17 @@
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/variables' as *;
+
+// Carbon Charts without a height parameter takes the parent's height.
+.torch-proportion-chart {
+  block-size: $proportion-chart-height;
+  min-inline-size: 0;
+}
+
+.torch-proportion-chart--empty {
+  @include type-style('body-compact-01');
+
+  margin: 0;
+  block-size: auto;
+  color: $text-secondary;
+}

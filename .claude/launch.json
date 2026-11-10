@@ -1,0 +1,44 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-fixtures",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "run",
+        "--cwd",
+        "web",
+        "dev:fixtures"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "api-seed",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "run",
+        "dev:seed"
+      ],
+      "port": 4820
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "run",
+        "dev:web"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "torch",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": [
+        "src/cli.ts",
+        "start",
+        "--no-open"
+      ],
+      "port": 4820
+    }
+  ]
+}

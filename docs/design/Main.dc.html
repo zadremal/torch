@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sessions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/carbon/components/bundle.css">
+<script src="ds/carbon/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{--background:#ffffff;--background-hover:rgba(141, 141, 141, 0.12);--background-active:rgba(141, 141, 141, 0.5);--background-selected:rgba(141, 141, 141, 0.2);--background-inverse:#393939;--background-brand:#0f62fe;--layer-01:#f4f4f4;--layer-02:#ffffff;--layer-03:#f4f4f4;--layer-hover-01:#e8e8e8;--layer-active-01:#c6c6c6;--layer-selected-01:#e0e0e0;--layer-accent-01:#e0e0e0;--field-01:#f4f4f4;--field-02:#ffffff;--field-hover-01:#e8e8e8;--border-subtle-00:#e0e0e0;--border-subtle-01:#c6c6c6;--border-strong-01:#8d8d8d;--border-interactive:#0f62fe;--border-inverse:#161616;--text-primary:#161616;--text-secondary:#525252;--text-helper:#6f6f6f;--text-placeholder:rgba(22, 22, 22, 0.4);--text-on-color:#ffffff;--text-on-color-disabled:#8d8d8d;--text-inverse:#ffffff;--text-disabled:rgba(22, 22, 22, 0.25);--text-error:#da1e28;--link-primary:#0f62fe;--link-primary-hover:#0043ce;--link-visited:#8a3ffc;--icon-primary:#161616;--icon-secondary:#525252;--icon-on-color:#ffffff;--icon-inverse:#ffffff;--interactive:#0f62fe;--button-primary:#0f62fe;--button-primary-hover:#0050e6;--button-primary-active:#002d9c;--button-secondary:#393939;--button-secondary-hover:#474747;--button-secondary-active:#6f6f6f;--button-tertiary:#0f62fe;--button-tertiary-hover:#0050e6;--button-tertiary-active:#002d9c;--button-danger-primary:#da1e28;--button-danger-hover:#b81921;--button-danger-active:#750e13;--button-danger-secondary:#da1e28;--button-disabled:#c6c6c6;--support-error:#da1e28;--support-success:#24a148;--support-warning:#f1c21b;--support-info:#0043ce;--notification-background-error:#fff1f1;--notification-background-success:#defbe6;--notification-background-warning:#fcf4d6;--notification-background-info:#edf5ff;--focus:#0f62fe;--focus-inset:#ffffff;--toggle-off:#8d8d8d;--skeleton-background:#e8e8e8;--skeleton-element:#c6c6c6;--overlay:rgba(22, 22, 22, 0.5);--tag-background-red:#ffd7d9;--tag-color-red:#a2191f;--tag-background-purple:#e8daff;--tag-color-purple:#6929c4;--tag-background-blue:#d0e2ff;--tag-color-blue:#0043ce;--tag-background-cyan:#bae6ff;--tag-color-cyan:#00539a;--tag-background-teal:#9ef0f0;--tag-color-teal:#005d5d;--tag-background-green:#a7f0ba;--tag-color-green:#0e6027;--tag-background-gray:#e0e0e0;--tag-color-gray:#161616;--blue-10:#edf5ff;--blue-20:#d0e2ff;--blue-40:#78a9ff;--blue-60:#0f62fe;--blue-80:#002d9c;--cyan-40:#33b1ff;--teal-50:#009d9a;--purple-60:#8a3ffc;--gray-10:#f4f4f4;--gray-20:#e0e0e0;--gray-50:#8d8d8d;--gray-80:#393939;--gray-100:#161616;--spacing-01:0.125rem;--spacing-02:0.25rem;--spacing-03:0.5rem;--spacing-04:0.75rem;--spacing-05:1rem;--spacing-06:1.5rem;--spacing-07:2rem;--spacing-08:2.5rem;--spacing-09:3rem;--spacing-10:4rem;--spacing-11:5rem;--spacing-12:6rem;--spacing-13:10rem;--radius-none:0;--radius-checkbox:1px;--radius-pill:1rem;--shadow-overlay:0 2px 6px rgba(0, 0, 0, 0.3);--size-xs:1.5rem;--size-sm:2rem;--size-md:2.5rem;--size-lg:3rem;--size-xl:4rem;--size-2xl:5rem;--font-sans:"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;--font-mono:"IBM Plex Mono", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Courier, monospace}
+[data-theme="g100"]{--background:#161616;--background-hover:rgba(141, 141, 141, 0.16);--background-active:rgba(141, 141, 141, 0.4);--background-selected:rgba(141, 141, 141, 0.24);--layer-01:#262626;--layer-hover-01:#333333;--border-subtle-00:#393939;--border-subtle-01:#525252;--border-interactive:#4589ff;--text-primary:#f4f4f4;--text-secondary:#c6c6c6;--text-helper:#a8a8a8;--link-primary:#78a9ff;--icon-primary:#f4f4f4;--icon-secondary:#c6c6c6;--focus:#ffffff;--focus-inset:#161616;color:var(--text-primary)}
+body{margin:0;background:#ffffff;font-family:"IBM Plex Sans", system-ui, sans-serif;color:#161616}
+a{color:#0f62fe}a:hover{color:#0043ce}
+.nav{display:flex;align-items:center;height:48px;box-sizing:border-box;padding:0 16px;font-size:14px;line-height:18px;letter-spacing:0.16px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid transparent}
+.nav:hover{background:var(--background-hover);color:var(--text-primary)}
+.nav:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.nav[aria-current="page"]{color:var(--text-primary);border-bottom-color:var(--border-interactive)}
+.chip{height:32px;padding:0 12px;border:1px solid var(--border-strong-01);margin-left:-1px;background:var(--background);color:var(--text-secondary);font-family:var(--font-sans);font-size:14px;cursor:pointer}
+.chip:hover{background:var(--background-hover);color:var(--text-primary)}
+.chip:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;position:relative}
+.chip[aria-pressed="true"]{background:var(--background-inverse);color:var(--text-inverse);border-color:var(--background-inverse)}
+.row{display:grid;grid-template-columns:minmax(300px,3fr) 140px 110px 80px 110px 100px 90px 90px;align-items:center;min-height:56px;border-bottom:1px solid var(--border-subtle-00)}
+.row:hover{background:var(--layer-hover-01)}
+.cell{padding:8px 16px;font-size:14px;line-height:18px}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.slink{color:var(--link-primary);text-decoration:none;font-size:14px;line-height:18px}
+.slink:hover{text-decoration:underline;color:var(--link-primary-hover)}
+.slink:focus-visible{outline:2px solid var(--focus)}
+.cds--text-input{width:88px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--background);color:var(--text-primary);font-family:var(--font-sans)">
+<header data-theme="g100" style="display:flex;flex-wrap:wrap;align-items:center;min-height:48px;background:var(--background);border-bottom:1px solid var(--border-subtle-01);padding:0 0 0 16px">
+<span style="font-size:14px;line-height:18px;font-weight:600;padding-right:32px">Session debugger</span>
+<nav aria-label="Main" style="display:flex;flex-grow:1">
+<a class="nav" href="Dashboard.dc.html">Dashboard</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Sessions</a>
+</nav>
+<x-import component-from-global-scope="Carbon.IconButton" icon="settings" label="Settings" kind="ghost"></x-import>
+</header>
+<main style="max-width:1440px;margin:0 auto;box-sizing:border-box;padding:32px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<h1 style="margin:0;font-size:28px;line-height:36px;font-weight:400">Sessions</h1>
+<p style="margin:0;font-size:14px;line-height:20px;color:var(--text-secondary)">Claude Code sessions read from your local history. Select a session to see its agents, tokens and timeline.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<x-import component-from-global-scope="Carbon.Search" size="lg" label-text="Search sessions by name" placeholder="Search by session name" value="{{q}}" on-change="{{onSearch}}" on-clear="{{onClear}}"></x-import>
+<div style="display:flex;flex-wrap:wrap;gap:24px 32px;align-items:flex-end">
+<fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+<legend style="padding:0;margin-bottom:8px;font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Agents</legend>
+<div style="display:flex;padding-left:1px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+<button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}</button>
+</sc-for>
+</div>
+</fieldset>
+<fieldset style="border:0;margin:0;padding:0">
+<legend style="padding:0;margin-bottom:8px;font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Tool calls</legend>
+<div style="display:flex;gap:8px;align-items:flex-end">
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Min" placeholder="0" value="{{f.tcMin}}" on-change="{{set.tcMin}}"></x-import>
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Max" placeholder="Any" value="{{f.tcMax}}" on-change="{{set.tcMax}}"></x-import>
+</div>
+</fieldset>
+<fieldset style="border:0;margin:0;padding:0">
+<legend style="padding:0;margin-bottom:8px;font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Errors</legend>
+<div style="display:flex;gap:8px;align-items:flex-end">
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Min" placeholder="0" value="{{f.erMin}}" on-change="{{set.erMin}}"></x-import>
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Max" placeholder="Any" value="{{f.erMax}}" on-change="{{set.erMax}}"></x-import>
+</div>
+</fieldset>
+<fieldset style="border:0;margin:0;padding:0">
+<legend style="padding:0;margin-bottom:8px;font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Total tokens (K)</legend>
+<div style="display:flex;gap:8px;align-items:flex-end">
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Min" placeholder="0" value="{{f.tkMin}}" on-change="{{set.tkMin}}"></x-import>
+<x-import component-from-global-scope="Carbon.TextInput" size="sm" type="number" min="0" label-text="Max" placeholder="Any" value="{{f.tkMax}}" on-change="{{set.tkMax}}"></x-import>
+</div>
+</fieldset>
+<x-import component-from-global-scope="Carbon.Button" kind="ghost" size="sm" on-click="{{reset}}">Reset filters</x-import>
+</div>
+</div>
+<section aria-label="Session list" style="display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--layer-01);padding:12px 16px">
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:600">All sessions</h2>
+<span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Showing {{count}} of {{total}} sessions</span>
+</div>
+<div style="overflow-x:auto">
+<div role="table" aria-label="Sessions" style="min-width:1100px">
+<div role="row" class="row" style="background:var(--layer-accent-01);min-height:48px;border-bottom:0">
+<div role="columnheader" class="cell" style="font-weight:600">Session</div>
+<div role="columnheader" class="cell" style="font-weight:600">Started</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Duration</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Agents</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Tokens</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Tool calls</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Errors</div>
+<div role="columnheader" class="cell num" style="font-weight:600">Cost</div>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div role="row" class="row">
+<div role="cell" class="cell" style="display:flex;flex-direction:column;gap:2px">
+<a class="slink" href="SessionDetail.dc.html">{{r.name}}</a>
+<span style="font-family:var(--font-mono);font-size:12px;line-height:16px;color:var(--text-helper)">{{r.id}} · {{r.project}}</span>
+</div>
+<div role="cell" class="cell" style="color:var(--text-secondary)">{{r.started}}</div>
+<div role="cell" class="cell num">{{r.dur}}</div>
+<div role="cell" class="cell num">{{r.agents}}</div>
+<div role="cell" class="cell num">{{r.tok}}</div>
+<div role="cell" class="cell num">{{r.tools}}</div>
+<div role="cell" class="cell num">
+<sc-if value="{{r.hasErr}}" hint-placeholder-val="{{true}}">
+<span style="display:inline-flex;align-items:center;gap:6px;color:var(--text-error)"><x-import component-from-global-scope="Carbon.Icon" name="error--filled" style="color:var(--support-error)"></x-import>{{r.errors}}</span>
+</sc-if>
+<sc-if value="{{r.noErr}}" hint-placeholder-val="{{false}}">
+<span style="color:var(--text-helper)">0</span>
+</sc-if>
+</div>
+<div role="cell" class="cell num">{{r.cost}}</div>
+</div>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<div style="padding:48px 16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;border-bottom:1px solid var(--border-subtle-00)">
+<p style="margin:0;font-size:16px;line-height:22px;font-weight:600">No sessions match these filters</p>
+<p style="margin:0;font-size:14px;line-height:20px;color:var(--text-secondary)">Widen a range or clear the search to see more sessions.</p>
+</div>
+</sc-if>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { q: '', agents: 'any', tcMin: '', tcMax: '', erMin: '', erMax: '', tkMin: '', tkMax: '' };
+  }
+  renderVals() {
+    var S = [
+      ['s-0142', 'Migrate billing API client to openapi-ts', 'billing-web', 'Oct 31, 14:02', 1122, 5, 2184300, 186, 7, 18.42],
+      ['s-0141', 'Fix flaky checkout e2e test', 'storefront', 'Oct 31, 10:47', 534, 2, 612400, 64, 3, 4.10],
+      ['s-0140', 'Add Zod validation to webhook handlers', 'billing-web', 'Oct 30, 17:20', 1488, 3, 1402900, 121, 1, 11.06],
+      ['s-0139', 'Upgrade to Next.js 16 and React 19.2', 'storefront', 'Oct 30, 13:05', 3260, 6, 4910200, 402, 19, 41.77],
+      ['s-0138', 'Explain caching in the county population loader', 'county-pop', 'Oct 30, 09:12', 212, 1, 88100, 9, 0, 0.61],
+      ['s-0137', 'Write Bun tests for parcel scoring', 'land-tools', 'Oct 29, 16:40', 1910, 4, 1870500, 233, 11, 14.93],
+      ['s-0136', 'Draft PR description for auth refactor', 'billing-web', 'Oct 29, 11:03', 145, 1, 41700, 4, 0, 0.29],
+      ['s-0135', 'Set up MCP server for the Teams bot', 'agent-harness', 'Oct 28, 19:55', 2702, 5, 3311800, 298, 14, 27.35],
+      ['s-0134', 'Investigate slow Neon queries', 'county-pop', 'Oct 28, 14:18', 960, 2, 702300, 77, 2, 5.12],
+      ['s-0133', 'Generate OpenAPI client for Langfuse', 'api-webapp', 'Oct 27, 21:30', 1344, 3, 1120600, 109, 4, 8.84],
+      ['s-0132', 'Rename env vars across services', 'agent-harness', 'Oct 27, 10:02', 402, 1, 190800, 38, 0, 1.37],
+      ['s-0131', 'Refactor timeline renderer', 'session-debugger', 'Oct 26, 15:44', 2210, 4, 2604000, 251, 6, 21.08]
+    ];
+    var st = this.state;
+    var self = this;
+    function dur(s) { var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + 'h ' : '') + (h || m ? m + 'm ' : '') + x + 's'; }
+    function tok(n) { return n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : (n / 1e3).toFixed(1) + 'K'; }
+    function num(v) { return v === '' || v == null ? null : Number(v); }
+    function inRange(v, a, b) { a = num(a); b = num(b); return (a === null || v >= a) && (b === null || v <= b); }
+    var q = st.q.trim().toLowerCase();
+    var buckets = { any: function () { return true; }, one: function (n) { return n === 1; }, few: function (n) { return n >= 2 && n <= 3; }, many: function (n) { return n >= 4; } };
+    var rows = S.filter(function (s) {
+      return (!q || s[1].toLowerCase().indexOf(q) >= 0) && buckets[st.agents](s[5]) &&
+        inRange(s[7], st.tcMin, st.tcMax) && inRange(s[8], st.erMin, st.erMax) && inRange(s[6] / 1000, st.tkMin, st.tkMax);
+    }).map(function (s) {
+      return { id: s[0], name: s[1], project: s[2], started: s[3], dur: dur(s[4]), agents: s[5], tok: tok(s[6]), tools: s[7], errors: s[8], hasErr: s[8] > 0, noErr: s[8] === 0, cost: '$' + s[9].toFixed(2) };
+    });
+    var chips = [['any', 'Any'], ['one', '1'], ['few', '2–3'], ['many', '4+']].map(function (c) {
+      return { label: c[1], pressed: st.agents === c[0], pick: function () { self.setState({ agents: c[0] }); } };
+    });
+    function setter(k) { return function (e) { var o = {}; o[k] = e.target.value; self.setState(o); }; }
+    return {
+      q: st.q, rows: rows, count: rows.length, total: S.length, empty: rows.length === 0, chips: chips,
+      f: st,
+      set: { tcMin: setter('tcMin'), tcMax: setter('tcMax'), erMin: setter('erMin'), erMax: setter('erMax'), tkMin: setter('tkMin'), tkMax: setter('tkMax') },
+      onSearch: function (e) { self.setState({ q: e.target.value }); },
+      onClear: function () { self.setState({ q: '' }); },
+      reset: function () { self.setState({ q: '', agents: 'any', tcMin: '', tcMax: '', erMin: '', erMax: '', tkMin: '', tkMax: '' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

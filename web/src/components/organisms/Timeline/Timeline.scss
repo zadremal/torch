@@ -1,0 +1,281 @@
+// Session timeline: markup and styles from the Timeline artboard. Layout sizes (label column width,
+// row heights, mark positions) arrive from model.ts as element props;
+// the look of the marks is set by the TimelineMark atom.
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/variables' as *;
+
+// Artboard values that are not in the Carbon tokens or in styles/_variables.scss.
+// Second line of a lane label: 11px/14px.
+$caption-font-size: 0.6875rem;
+$caption-line-height: 0.875rem;
+// An axis tick label is offset from the top of the row.
+$tick-offset: 8px;
+
+.torch-timeline {
+  --torch-timeline-grid-color: #{$border-subtle-00};
+
+  overflow: auto;
+  // The layers of the axis, labels and cursor do not compete with the rest of the page.
+  isolation: isolate;
+  min-block-size: 0;
+  min-inline-size: 0;
+  // Focus that moved to a mark at the edge does not hide under the sticky axis and labels.
+  scroll-padding-block-start: var(--torch-timeline-axis);
+  scroll-padding-inline-start: var(--torch-timeline-label);
+}
+
+// A mark at the right edge is wider than the rest of the lane: its tail is clipped rather than adding scroll.
+// `clip`, not `hidden`: no scroll container is created, the axis and labels stick as before.
+.torch-timeline__content {
+  position: relative;
+  overflow-x: clip;
+}
+
+// ── Axis ────────────────────────────────────────────────────────────────────────────────────
+
+.torch-timeline__axis {
+  position: sticky;
+  z-index: 5;
+  display: grid;
+  box-sizing: border-box;
+  background: $background;
+  border-block-end: 1px solid $border-strong-01;
+  grid-template-columns: var(--torch-timeline-label) minmax(0, 1fr);
+  inset-block-start: 0;
+}
+
+.torch-timeline__ticks {
+  position: relative;
+  overflow: hidden;
+}
+
+.torch-timeline__tick {
+  @include type-style('label-01');
+
+  position: absolute;
+  border-inline-start: 1px solid $border-strong-01;
+  color: $text-helper;
+  inset-block-start: $tick-offset;
+  letter-spacing: 0;
+  padding-inline-start: $spacing-02;
+  white-space: nowrap;
+}
+
+// A gap label sits above its band and covers the tick labels that fall under it.
+.torch-timeline__gap-label {
+  @include type-style('label-01');
+
+  position: absolute;
+  display: flex;
+  overflow: hidden;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  background: $layer-01;
+  border-inline: 1px dashed $border-strong-01;
+  color: $text-secondary;
+  inset-block: 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+// ── Rows ────────────────────────────────────────────────────────────────────────────────────
+
+// Rows sit at their own offsets: the DOM contains only those that fall into the scroll window.
+.torch-timeline__rows {
+  position: relative;
+}
+
+.torch-timeline__lane,
+.torch-timeline__group {
+  position: absolute;
+  box-sizing: border-box;
+  border-block-end: 1px solid $border-subtle-00;
+  inset-inline: 0;
+}
+
+.torch-timeline__lane {
+  display: grid;
+  grid-template-columns: var(--torch-timeline-label) minmax(0, 1fr);
+}
+
+.torch-timeline__lane--active {
+  background: colors.$blue-10;
+}
+
+.torch-timeline__group {
+  background: $layer-01;
+}
+
+.torch-timeline__group-title {
+  @include type-style('label-01');
+
+  position: sticky;
+  display: inline-block;
+  padding: $spacing-03 $spacing-05 $spacing-02;
+  color: $text-secondary;
+  inset-inline-start: 0;
+}
+
+// The label column sticks to the left edge and covers marks that have moved under it.
+.torch-timeline__label {
+  position: sticky;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: $spacing-02 $spacing-04 $spacing-02 $spacing-05;
+  background: $background;
+  border-inline-end: 1px solid $border-subtle-01;
+  font-size: $font-size-13;
+  inset-inline-start: 0;
+  line-height: $line-height-13;
+  min-inline-size: 0;
+}
+
+.torch-timeline__lane--active .torch-timeline__label {
+  background: colors.$blue-10;
+}
+
+.torch-timeline__label--axis {
+  @include type-style('label-01');
+
+  color: $text-secondary;
+  letter-spacing: 0;
+}
+
+.torch-timeline__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.torch-timeline__title--strong {
+  font-weight: font-weight('semibold');
+}
+
+.torch-timeline__title--secondary {
+  color: $text-secondary;
+}
+
+.torch-timeline__title--mono {
+  font-family: font-family('mono');
+  font-size: type-scale(1);
+}
+
+.torch-timeline__caption {
+  overflow: hidden;
+  color: $text-helper;
+  font-family: font-family('mono');
+  font-size: $caption-font-size;
+  line-height: $caption-line-height;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A lane is its own layer: the stacking order of marks does not go beyond it, so the selected mark
+// does not cover the sticky label column. Tick lines are the lane background.
+.torch-timeline__track {
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+  isolation: isolate;
+
+  // An error is visible above neighboring marks; hover and selection stay above.
+  :where(.torch-mark--error) {
+    z-index: 1;
+  }
+}
+
+// A button mark. The kind (size, color, border, offset) is set by the atom classes `torch-mark--<kind>`;
+// the base repeats the base of the `.torch-mark` atom, except the `::before` pseudo-element, with which the atom
+// extends the click area: with the shared Carbon styles, style calculation for an element with a pseudo-element
+// costs about 0.1 ms, and on thousands of marks it alone took hundreds of milliseconds. The click area
+// is extended by the lane itself (LaneRow). The specificity of the base is lower than the kind classes: they refine it.
+button:where(.torch-timeline__mark) {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  inset-block-start: 50%;
+  // Focus that moved to a mark does not press it against the window edge.
+  scroll-margin: $spacing-03 $spacing-06;
+  transform: translateY(-50%);
+
+  &:hover {
+    z-index: 2;
+    filter: brightness(0.8);
+  }
+
+  &:focus-visible,
+  &[aria-pressed='true'] {
+    z-index: 4;
+    outline: 2px solid $focus;
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    box-shadow: 0 0 0 2px $background;
+  }
+
+  // A dimmed mark with focus is fully visible: opacity would dim the focus outline too.
+  &:focus-visible {
+    opacity: 1;
+  }
+}
+
+// ── On top of lanes: gap bands and the selected mark cursor ──────────────────────────────────
+
+.torch-timeline__overlay {
+  position: absolute;
+  z-index: 2;
+  inset-block: 0;
+  inset-inline: var(--torch-timeline-label) 0;
+  pointer-events: none;
+}
+
+// A gap band strikes through all lanes, including the session and agent bars running across the idle time.
+.torch-timeline__gap {
+  position: absolute;
+  box-sizing: border-box;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$layer-accent-01} 70%, transparent) 0 4px,
+    color-mix(in srgb, #{$background} 85%, transparent) 4px 8px
+  );
+  border-inline: 1px dashed $border-strong-01;
+  inset-block: 0;
+}
+
+.torch-timeline__cursor {
+  position: absolute;
+  border-inline-start: 1px dashed $focus;
+  inline-size: 0;
+  inset-block: 0;
+}
+
+// ── Legend ──────────────────────────────────────────────────────────────────────────────────
+
+.torch-timeline-legend {
+  @include type-style('label-01');
+
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+  color: $text-secondary;
+  gap: $spacing-03 ($spacing-05 + $spacing-02);
+  letter-spacing: 0;
+  list-style: none;
+}
+
+.torch-timeline-legend__item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-02 + $spacing-01;
+}

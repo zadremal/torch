@@ -1,0 +1,18 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.torch-slist-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: $spacing-03 $spacing-05;
+  gap: $spacing-03;
+}
+
+.torch-slist-pager__status {
+  @include type-style('body-compact-01');
+
+  color: $text-secondary;
+  margin-inline-end: $spacing-03;
+}

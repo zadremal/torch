@@ -1,0 +1,333 @@
+{
+ "range": "week",
+ "from": 1792886400000,
+ "to": 1793491200000,
+ "prevFrom": 1792281600000,
+ "prevTo": 1792886400000,
+ "bucket": "day",
+ "totals": {
+  "sessions": {
+   "value": 12,
+   "prev": 1
+  },
+  "modelCalls": {
+   "value": 1347,
+   "prev": 440
+  },
+  "toolCalls": {
+   "value": 1792,
+   "prev": 611
+  },
+  "tokens": {
+   "value": 26393915,
+   "prev": 7120400
+  },
+  "costUsd": {
+   "value": 145,
+   "prev": 63.9
+  },
+  "errors": {
+   "value": 67,
+   "prev": 23
+  }
+ },
+ "series": {
+  "modelCalls": [
+   {
+    "start": 1792886400000,
+    "value": 0
+   },
+   {
+    "start": 1792972800000,
+    "value": 184
+   },
+   {
+    "start": 1793059200000,
+    "value": 116
+   },
+   {
+    "start": 1793145600000,
+    "value": 279
+   },
+   {
+    "start": 1793232000000,
+    "value": 180
+   },
+   {
+    "start": 1793318400000,
+    "value": 395
+   },
+   {
+    "start": 1793404800000,
+    "value": 193
+   }
+  ],
+  "toolCalls": [
+   {
+    "start": 1792886400000,
+    "value": 0
+   },
+   {
+    "start": 1792972800000,
+    "value": 251
+   },
+   {
+    "start": 1793059200000,
+    "value": 147
+   },
+   {
+    "start": 1793145600000,
+    "value": 375
+   },
+   {
+    "start": 1793232000000,
+    "value": 237
+   },
+   {
+    "start": 1793318400000,
+    "value": 532
+   },
+   {
+    "start": 1793404800000,
+    "value": 250
+   }
+  ]
+ },
+ "tokenMix": {
+  "input": 1350403,
+  "output": 980628,
+  "cacheRead": 22290307,
+  "cacheWrite": 1772577,
+  "thinking": 175328,
+  "total": 26393915
+ },
+ "top": {
+  "cost": [
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 41.77
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 27.35
+   },
+   {
+    "sessionId": "8f3c1ab1-61b0-4c7e-9d2a-000000000131",
+    "name": "Refactor timeline renderer",
+    "project": "session-debugger",
+    "value": 21.08
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 14.93
+   },
+   {
+    "sessionId": "8f3c1aba-61b0-4c7e-9d2a-000000000140",
+    "name": "Add Zod validation to webhook handlers",
+    "project": "billing-web",
+    "value": 11.06
+   }
+  ],
+  "duration": [
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 3260000
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 2702000
+   },
+   {
+    "sessionId": "8f3c1ab1-61b0-4c7e-9d2a-000000000131",
+    "name": "Refactor timeline renderer",
+    "project": "session-debugger",
+    "value": 2210000
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 1910000
+   },
+   {
+    "sessionId": "8f3c1aba-61b0-4c7e-9d2a-000000000140",
+    "name": "Add Zod validation to webhook handlers",
+    "project": "billing-web",
+    "value": 1488000
+   }
+  ],
+  "tokens": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 9538615
+   },
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 4910200
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 3311800
+   },
+   {
+    "sessionId": "8f3c1ab1-61b0-4c7e-9d2a-000000000131",
+    "name": "Refactor timeline renderer",
+    "project": "session-debugger",
+    "value": 2604000
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 1870500
+   }
+  ],
+  "toolCalls": [
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 402
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 298
+   },
+   {
+    "sessionId": "8f3c1ab1-61b0-4c7e-9d2a-000000000131",
+    "name": "Refactor timeline renderer",
+    "project": "session-debugger",
+    "value": 251
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 233
+   },
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 186
+   }
+  ],
+  "errors": [
+   {
+    "sessionId": "8f3c1ab9-61b0-4c7e-9d2a-000000000139",
+    "name": "Upgrade to Next.js 16 and React 19.2",
+    "project": "storefront",
+    "value": 19
+   },
+   {
+    "sessionId": "8f3c1ab5-61b0-4c7e-9d2a-000000000135",
+    "name": "Set up MCP server for the Teams bot",
+    "project": "agent-harness",
+    "value": 14
+   },
+   {
+    "sessionId": "8f3c1ab7-61b0-4c7e-9d2a-000000000137",
+    "name": "Write Bun tests for parcel scoring",
+    "project": "land-tools",
+    "value": 11
+   },
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 7
+   },
+   {
+    "sessionId": "8f3c1ab1-61b0-4c7e-9d2a-000000000131",
+    "name": "Refactor timeline renderer",
+    "project": "session-debugger",
+    "value": 6
+   }
+  ]
+ },
+ "tools": [
+  {
+   "name": "Read",
+   "calls": 559,
+   "errors": 21
+  },
+  {
+   "name": "Bash",
+   "calls": 387,
+   "errors": 15
+  },
+  {
+   "name": "Edit",
+   "calls": 307,
+   "errors": 12
+  },
+  {
+   "name": "Grep",
+   "calls": 190,
+   "errors": 8
+  },
+  {
+   "name": "Glob",
+   "calls": 111,
+   "errors": 4
+  },
+  {
+   "name": "Write",
+   "calls": 81,
+   "errors": 1
+  },
+  {
+   "name": "Agent",
+   "calls": 67,
+   "errors": 3
+  },
+  {
+   "name": "WebFetch",
+   "calls": 53,
+   "errors": 1
+  },
+  {
+   "name": "TodoWrite",
+   "calls": 37,
+   "errors": 2
+  }
+ ],
+ "models": [
+  {
+   "model": "claude-opus-5-5",
+   "calls": 765,
+   "tokens": 15036077,
+   "costUsd": 84.9
+  },
+  {
+   "model": "claude-sonnet-4-5",
+   "calls": 378,
+   "tokens": 7988512,
+   "costUsd": 39.15
+  },
+  {
+   "model": "claude-haiku-4-5",
+   "calls": 204,
+   "tokens": 3369326,
+   "costUsd": 20.94
+  }
+ ]
+}

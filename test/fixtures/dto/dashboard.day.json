@@ -1,0 +1,283 @@
+{
+ "range": "day",
+ "from": 1793404800000,
+ "to": 1793491200000,
+ "prevFrom": 1793318400000,
+ "prevTo": 1793404800000,
+ "bucket": "hours",
+ "totals": {
+  "sessions": {
+   "value": 2,
+   "prev": 3
+  },
+  "modelCalls": {
+   "value": 193,
+   "prev": 395
+  },
+  "toolCalls": {
+   "value": 250,
+   "prev": 532
+  },
+  "tokens": {
+   "value": 10151015,
+   "prev": 6401200
+  },
+  "costUsd": {
+   "value": 12.58,
+   "prev": 53.44
+  },
+  "errors": {
+   "value": 10,
+   "prev": 20
+  }
+ },
+ "series": {
+  "modelCalls": [
+   {
+    "start": 1793404800000,
+    "value": 0
+   },
+   {
+    "start": 1793412000000,
+    "value": 0
+   },
+   {
+    "start": 1793419200000,
+    "value": 0
+   },
+   {
+    "start": 1793426400000,
+    "value": 0
+   },
+   {
+    "start": 1793433600000,
+    "value": 0
+   },
+   {
+    "start": 1793440800000,
+    "value": 51
+   },
+   {
+    "start": 1793448000000,
+    "value": 0
+   },
+   {
+    "start": 1793455200000,
+    "value": 142
+   },
+   {
+    "start": 1793462400000,
+    "value": 0
+   },
+   {
+    "start": 1793469600000,
+    "value": 0
+   },
+   {
+    "start": 1793476800000,
+    "value": 0
+   },
+   {
+    "start": 1793484000000,
+    "value": 0
+   }
+  ],
+  "toolCalls": [
+   {
+    "start": 1793404800000,
+    "value": 0
+   },
+   {
+    "start": 1793412000000,
+    "value": 0
+   },
+   {
+    "start": 1793419200000,
+    "value": 0
+   },
+   {
+    "start": 1793426400000,
+    "value": 0
+   },
+   {
+    "start": 1793433600000,
+    "value": 0
+   },
+   {
+    "start": 1793440800000,
+    "value": 64
+   },
+   {
+    "start": 1793448000000,
+    "value": 0
+   },
+   {
+    "start": 1793455200000,
+    "value": 186
+   },
+   {
+    "start": 1793462400000,
+    "value": 0
+   },
+   {
+    "start": 1793469600000,
+    "value": 0
+   },
+   {
+    "start": 1793476800000,
+    "value": 0
+   },
+   {
+    "start": 1793484000000,
+    "value": 0
+   }
+  ]
+ },
+ "tokenMix": {
+  "input": 50971,
+  "output": 168483,
+  "cacheRead": 9458416,
+  "cacheWrite": 473145,
+  "thinking": 12899,
+  "total": 10151015
+ },
+ "top": {
+  "cost": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 8.479631099999999
+   },
+   {
+    "sessionId": "8f3c1abb-61b0-4c7e-9d2a-000000000141",
+    "name": "Fix flaky checkout e2e test",
+    "project": "storefront",
+    "value": 4.1
+   }
+  ],
+  "duration": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 1116000
+   },
+   {
+    "sessionId": "8f3c1abb-61b0-4c7e-9d2a-000000000141",
+    "name": "Fix flaky checkout e2e test",
+    "project": "storefront",
+    "value": 534000
+   }
+  ],
+  "tokens": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 9538615
+   },
+   {
+    "sessionId": "8f3c1abb-61b0-4c7e-9d2a-000000000141",
+    "name": "Fix flaky checkout e2e test",
+    "project": "storefront",
+    "value": 612400
+   }
+  ],
+  "toolCalls": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 186
+   },
+   {
+    "sessionId": "8f3c1abb-61b0-4c7e-9d2a-000000000141",
+    "name": "Fix flaky checkout e2e test",
+    "project": "storefront",
+    "value": 64
+   }
+  ],
+  "errors": [
+   {
+    "sessionId": "8f3c1a2e-61b0-4c7e-9d2a-000000000142",
+    "name": "Migrate billing API client to openapi-ts",
+    "project": "billing-web",
+    "value": 7
+   },
+   {
+    "sessionId": "8f3c1abb-61b0-4c7e-9d2a-000000000141",
+    "name": "Fix flaky checkout e2e test",
+    "project": "storefront",
+    "value": 3
+   }
+  ]
+ },
+ "tools": [
+  {
+   "name": "Read",
+   "calls": 80,
+   "errors": 1
+  },
+  {
+   "name": "Edit",
+   "calls": 51,
+   "errors": 4
+  },
+  {
+   "name": "Bash",
+   "calls": 44,
+   "errors": 4
+  },
+  {
+   "name": "Grep",
+   "calls": 34,
+   "errors": 1
+  },
+  {
+   "name": "Glob",
+   "calls": 14,
+   "errors": 0
+  },
+  {
+   "name": "Write",
+   "calls": 10,
+   "errors": 0
+  },
+  {
+   "name": "Agent",
+   "calls": 7,
+   "errors": 0
+  },
+  {
+   "name": "TodoWrite",
+   "calls": 6,
+   "errors": 0
+  },
+  {
+   "name": "WebFetch",
+   "calls": 4,
+   "errors": 0
+  }
+ ],
+ "models": [
+  {
+   "model": "claude-opus-5-5",
+   "calls": 97,
+   "tokens": 5628359,
+   "costUsd": 8.2
+  },
+  {
+   "model": "claude-sonnet-4-5",
+   "calls": 68,
+   "tokens": 3623202,
+   "costUsd": 3.57
+  },
+  {
+   "model": "claude-haiku-4-5",
+   "calls": 28,
+   "tokens": 899454,
+   "costUsd": 0.81
+  }
+ ]
+}

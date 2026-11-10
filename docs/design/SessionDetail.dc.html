@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/carbon/components/bundle.css">
+<script src="ds/carbon/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{--background:#ffffff;--background-hover:rgba(141, 141, 141, 0.12);--background-active:rgba(141, 141, 141, 0.5);--background-selected:rgba(141, 141, 141, 0.2);--background-inverse:#393939;--background-brand:#0f62fe;--layer-01:#f4f4f4;--layer-02:#ffffff;--layer-03:#f4f4f4;--layer-hover-01:#e8e8e8;--layer-active-01:#c6c6c6;--layer-selected-01:#e0e0e0;--layer-accent-01:#e0e0e0;--field-01:#f4f4f4;--field-02:#ffffff;--field-hover-01:#e8e8e8;--border-subtle-00:#e0e0e0;--border-subtle-01:#c6c6c6;--border-strong-01:#8d8d8d;--border-interactive:#0f62fe;--border-inverse:#161616;--text-primary:#161616;--text-secondary:#525252;--text-helper:#6f6f6f;--text-placeholder:rgba(22, 22, 22, 0.4);--text-on-color:#ffffff;--text-on-color-disabled:#8d8d8d;--text-inverse:#ffffff;--text-disabled:rgba(22, 22, 22, 0.25);--text-error:#da1e28;--link-primary:#0f62fe;--link-primary-hover:#0043ce;--link-visited:#8a3ffc;--icon-primary:#161616;--icon-secondary:#525252;--icon-on-color:#ffffff;--icon-inverse:#ffffff;--interactive:#0f62fe;--button-primary:#0f62fe;--button-primary-hover:#0050e6;--button-primary-active:#002d9c;--button-secondary:#393939;--button-secondary-hover:#474747;--button-secondary-active:#6f6f6f;--button-tertiary:#0f62fe;--button-tertiary-hover:#0050e6;--button-tertiary-active:#002d9c;--button-danger-primary:#da1e28;--button-danger-hover:#b81921;--button-danger-active:#750e13;--button-danger-secondary:#da1e28;--button-disabled:#c6c6c6;--support-error:#da1e28;--support-success:#24a148;--support-warning:#f1c21b;--support-info:#0043ce;--notification-background-error:#fff1f1;--notification-background-success:#defbe6;--notification-background-warning:#fcf4d6;--notification-background-info:#edf5ff;--focus:#0f62fe;--focus-inset:#ffffff;--toggle-off:#8d8d8d;--skeleton-background:#e8e8e8;--skeleton-element:#c6c6c6;--overlay:rgba(22, 22, 22, 0.5);--tag-background-red:#ffd7d9;--tag-color-red:#a2191f;--tag-background-purple:#e8daff;--tag-color-purple:#6929c4;--tag-background-blue:#d0e2ff;--tag-color-blue:#0043ce;--tag-background-cyan:#bae6ff;--tag-color-cyan:#00539a;--tag-background-teal:#9ef0f0;--tag-color-teal:#005d5d;--tag-background-green:#a7f0ba;--tag-color-green:#0e6027;--tag-background-gray:#e0e0e0;--tag-color-gray:#161616;--blue-10:#edf5ff;--blue-20:#d0e2ff;--blue-40:#78a9ff;--blue-60:#0f62fe;--blue-80:#002d9c;--cyan-40:#33b1ff;--teal-50:#009d9a;--purple-60:#8a3ffc;--gray-10:#f4f4f4;--gray-20:#e0e0e0;--gray-50:#8d8d8d;--gray-80:#393939;--gray-100:#161616;--spacing-01:0.125rem;--spacing-02:0.25rem;--spacing-03:0.5rem;--spacing-04:0.75rem;--spacing-05:1rem;--spacing-06:1.5rem;--spacing-07:2rem;--spacing-08:2.5rem;--spacing-09:3rem;--spacing-10:4rem;--spacing-11:5rem;--spacing-12:6rem;--spacing-13:10rem;--radius-none:0;--radius-checkbox:1px;--radius-pill:1rem;--shadow-overlay:0 2px 6px rgba(0, 0, 0, 0.3);--size-xs:1.5rem;--size-sm:2rem;--size-md:2.5rem;--size-lg:3rem;--size-xl:4rem;--size-2xl:5rem;--font-sans:"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;--font-mono:"IBM Plex Mono", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Courier, monospace}
+[data-theme="g100"]{--background:#161616;--background-hover:rgba(141, 141, 141, 0.16);--background-active:rgba(141, 141, 141, 0.4);--background-selected:rgba(141, 141, 141, 0.24);--layer-01:#262626;--layer-hover-01:#333333;--border-subtle-00:#393939;--border-subtle-01:#525252;--border-interactive:#4589ff;--text-primary:#f4f4f4;--text-secondary:#c6c6c6;--text-helper:#a8a8a8;--link-primary:#78a9ff;--icon-primary:#f4f4f4;--icon-secondary:#c6c6c6;--focus:#ffffff;--focus-inset:#161616;color:var(--text-primary)}
+body{margin:0;background:#ffffff;font-family:"IBM Plex Sans", system-ui, sans-serif;color:#161616}
+a{color:#0f62fe}a:hover{color:#0043ce}
+.nav{display:flex;align-items:center;height:48px;box-sizing:border-box;padding:0 16px;font-size:14px;line-height:18px;letter-spacing:0.16px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid transparent}
+.nav:hover{background:var(--background-hover);color:var(--text-primary)}
+.nav:focus-visible,.tab:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.nav[aria-current="page"]{color:var(--text-primary);border-bottom-color:var(--border-interactive)}
+.tab{display:flex;align-items:center;height:40px;padding:0 16px;font-size:14px;line-height:18px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid var(--border-subtle-01)}
+.tab:hover{color:var(--text-primary);border-bottom-color:var(--border-strong-01)}
+.tab[aria-current="page"]{color:var(--text-primary);font-weight:600;border-bottom-color:var(--border-interactive)}
+.at th{background:var(--layer-accent-01);height:48px;padding:0 16px;font-size:14px;font-weight:600;text-align:left;white-space:nowrap}
+.at td{padding:12px 16px;font-size:14px;line-height:18px;border-bottom:1px solid var(--border-subtle-00);vertical-align:top}
+.at tbody tr:hover{background:var(--layer-hover-01)}
+.at .n{text-align:right;font-variant-numeric:tabular-nums}
+.meter{height:8px;background:var(--layer-accent-01);margin-top:6px;width:120px}
+.meter>i{display:block;height:100%;background:var(--blue-60)}
+.mono{font-family:var(--font-mono);font-size:12px;line-height:16px;color:var(--text-helper)}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--background);color:var(--text-primary);font-family:var(--font-sans)">
+<header data-theme="g100" style="display:flex;flex-wrap:wrap;align-items:center;min-height:48px;background:var(--background);border-bottom:1px solid var(--border-subtle-01);padding:0 0 0 16px">
+<span style="font-size:14px;line-height:18px;font-weight:600;padding-right:32px">Session debugger</span>
+<nav aria-label="Main" style="display:flex;flex-grow:1">
+<a class="nav" href="Dashboard.dc.html">Dashboard</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Sessions</a>
+</nav>
+<x-import component-from-global-scope="Carbon.IconButton" icon="settings" label="Settings" kind="ghost"></x-import>
+</header>
+<main style="max-width:1440px;margin:0 auto;box-sizing:border-box;padding:24px 32px 48px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<nav aria-label="Breadcrumb" style="font-size:14px;line-height:18px;display:flex;gap:8px;color:var(--text-secondary)">
+<a href="Main.dc.html" style="color:var(--link-primary);text-decoration:none">Sessions</a><span aria-hidden="true">/</span><span>s-0142</span>
+</nav>
+<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+<h1 style="margin:0;font-size:28px;line-height:36px;font-weight:400">Migrate billing API client to openapi-ts</h1>
+<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:14px;line-height:18px;color:var(--text-secondary)">
+<x-import component-from-global-scope="Carbon.Tag" type="green" size="sm">Completed</x-import>
+<span>billing-web</span><span aria-hidden="true">·</span><span>Oct 31, 2026, 14:02:11 – 14:20:53</span><span aria-hidden="true">·</span><span style="font-family:var(--font-mono);font-size:13px">claude-opus-5-5</span><span aria-hidden="true">·</span><span style="font-family:var(--font-mono);font-size:13px">8f3c1a2e-61b0-4c7e</span>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap">
+<x-import component-from-global-scope="Carbon.Button" kind="ghost" size="md" render-icon="download">Export JSON</x-import>
+<x-import component-from-global-scope="Carbon.Button" kind="primary" size="md" render-icon="arrow--right" href="Timeline.dc.html">Open timeline</x-import>
+</div>
+</div>
+<nav aria-label="Session views" style="display:flex;flex-wrap:wrap">
+<a class="tab" href="SessionDetail.dc.html" aria-current="page">Overview</a>
+<a class="tab" href="Timeline.dc.html">Timeline</a>
+<span style="flex:1;border-bottom:2px solid var(--border-subtle-01)"></span>
+</nav>
+</div>
+
+<section aria-label="Session summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border-subtle-00);border:1px solid var(--border-subtle-00)">
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Duration</span><span style="font-size:32px;line-height:40px;font-weight:300">18m 42s</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">11m 08s of model time</span></div>
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Total tokens</span><span style="font-size:32px;line-height:40px;font-weight:300">2.18M</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">79% served from cache</span></div>
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Errors</span><span style="font-size:32px;line-height:40px;font-weight:300;display:flex;align-items:center;gap:8px"><x-import component-from-global-scope="Carbon.Icon" name="error--filled" size="{{iconSize}}" style="color:var(--support-error)"></x-import>7</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">3.8% of 186 tool calls</span></div>
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Agents</span><span style="font-size:32px;line-height:40px;font-weight:300">5</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">1 main, 4 subagents</span></div>
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Model calls</span><span style="font-size:32px;line-height:40px;font-weight:300">142</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">186 tool calls</span></div>
+<div style="background:var(--layer-01);padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Cost</span><span style="font-size:32px;line-height:40px;font-weight:300">$18.42</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">Estimated at list prices</span></div>
+</section>
+
+<section aria-labelledby="tok-h" style="display:flex;flex-direction:column;gap:16px">
+<h2 id="tok-h" style="margin:0;font-size:20px;line-height:28px;font-weight:400">Token usage</h2>
+<div role="img" aria-label="Token usage: input 168.2K, output 109.4K, cache read 1.72M, cache write 186.7K" style="display:flex;gap:2px;height:24px">
+<div style="flex:8 1 0;background:var(--purple-60)"></div>
+<div style="flex:5 1 0;background:var(--cyan-40)"></div>
+<div style="flex:79 1 0;background:var(--blue-60)"></div>
+<div style="flex:8 1 0;background:var(--teal-50)"></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+<div style="display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--purple-60);padding-top:12px"><span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Input</span><span style="font-size:20px;line-height:28px">168.2K</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">8% · uncached prompt tokens</span></div>
+<div style="display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--cyan-40);padding-top:12px"><span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Output</span><span style="font-size:20px;line-height:28px">109.4K</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">5% · incl. 31.2K thinking</span></div>
+<div style="display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--blue-60);padding-top:12px"><span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Cache read</span><span style="font-size:20px;line-height:28px">1.72M</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">79% · input served from cache</span></div>
+<div style="display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--teal-50);padding-top:12px"><span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Cache write</span><span style="font-size:20px;line-height:28px">186.7K</span><span style="font-size:12px;line-height:16px;color:var(--text-helper)">8% · input written to cache</span></div>
+</div>
+</section>
+
+<section aria-labelledby="prompt-h" style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline">
+<h2 id="prompt-h" style="margin:0;font-size:20px;line-height:28px;font-weight:400">Original prompt</h2>
+<span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Sent 14:02:11 · 412 tokens · 1 attachment: openapi.yaml</span>
+</div>
+<div style="background:var(--layer-01);padding:16px;font-family:var(--font-mono);font-size:14px;line-height:20px;white-space:pre-wrap;border-left:0">Replace the hand-written fetch wrapper in src/api/billing with a client generated by openapi-ts from openapi.yaml. Keep the public function names so call sites don’t change, validate every response with Zod, and move the tests to Bun’s test runner. Run the full test suite before you finish and summarise anything you couldn’t migrate.</div>
+<details style="font-size:14px;line-height:20px">
+<summary style="cursor:pointer;color:var(--link-primary)">2 follow-up prompts</summary>
+<ol style="margin:12px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px;color:var(--text-secondary)">
+<li><span class="mono">14:10:43</span> — Use bun test, not vitest. Don’t add new dev dependencies.</li>
+<li><span class="mono">14:18:59</span> — Also update the README section on regenerating the client.</li>
+</ol>
+</details>
+</section>
+
+<section aria-labelledby="agents-h" style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline">
+<h2 id="agents-h" style="margin:0;font-size:20px;line-height:28px;font-weight:400">Agents</h2>
+<span style="font-size:14px;line-height:18px;color:var(--text-secondary)">Context window: 200K tokens</span>
+</div>
+<div style="overflow-x:auto">
+<table class="at" style="width:100%;min-width:1080px;border-collapse:collapse">
+<thead><tr><th scope="col">Agent</th><th scope="col">Model</th><th scope="col">Peak context</th><th scope="col" class="n">Run duration</th><th scope="col">Tool usage</th><th scope="col" class="n">Files read</th><th scope="col" class="n">Errors</th></tr></thead>
+<tbody>
+<tr>
+<td><a href="Timeline.dc.html" style="text-decoration:none">Main agent</a><div class="mono">main · orchestrator</div></td>
+<td class="mono" style="color:var(--text-primary)">claude-opus-5-5</td>
+<td>148.2K · 74%<div class="meter"><i style="width:74%"></i></div></td>
+<td class="n">18m 42s</td>
+<td>61 calls<div class="mono">Read 18 · Edit 14 · Bash 11 · Task 4</div></td>
+<td class="n">14</td>
+<td class="n" style="color:var(--text-error)">2</td>
+</tr>
+<tr>
+<td><a href="Timeline.dc.html" style="text-decoration:none">Explore</a><div class="mono">explore-1 · Map existing API client usage</div></td>
+<td class="mono" style="color:var(--text-primary)">claude-haiku-4-5</td>
+<td>61.4K · 31%<div class="meter"><i style="width:31%"></i></div></td>
+<td class="n">2m 26s</td>
+<td>38 calls<div class="mono">Grep 16 · Read 15 · Glob 7</div></td>
+<td class="n">27</td>
+<td class="n" style="color:var(--text-helper)">0</td>
+</tr>
+<tr>
+<td><a href="Timeline.dc.html" style="text-decoration:none">Plan</a><div class="mono">plan-1 · Design migration plan</div></td>
+<td class="mono" style="color:var(--text-primary)">claude-opus-5-5</td>
+<td>52.9K · 26%<div class="meter"><i style="width:26%"></i></div></td>
+<td class="n">2m 00s</td>
+<td>12 calls<div class="mono">Read 9 · WebFetch 2 · TodoWrite 1</div></td>
+<td class="n">9</td>
+<td class="n" style="color:var(--text-helper)">0</td>
+</tr>
+<tr>
+<td><a href="Timeline.dc.html" style="text-decoration:none">general-purpose</a><div class="mono">gp-1 · Rewrite tests with bun test</div></td>
+<td class="mono" style="color:var(--text-primary)">claude-sonnet-4-5</td>
+<td>112.7K · 56%<div class="meter"><i style="width:56%"></i></div></td>
+<td class="n">4m 55s</td>
+<td>49 calls<div class="mono">Bash 18 · Edit 15 · Read 11 · Write 5</div></td>
+<td class="n">11</td>
+<td class="n" style="color:var(--text-error)">4</td>
+</tr>
+<tr>
+<td><a href="Timeline.dc.html" style="text-decoration:none">general-purpose</a><div class="mono">gp-2 · Update call sites in src/billing</div></td>
+<td class="mono" style="color:var(--text-primary)">claude-sonnet-4-5</td>
+<td>97.3K · 49%<div class="meter"><i style="width:49%"></i></div></td>
+<td class="n">3m 00s</td>
+<td>26 calls<div class="mono">Edit 12 · Read 8 · Grep 6</div></td>
+<td class="n">8</td>
+<td class="n" style="color:var(--text-error)">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1480}}'>
+class Component extends DCLogic {
+  renderVals() { return { iconSize: 24 }; }
+}
+</script>
+</body>
+</html>

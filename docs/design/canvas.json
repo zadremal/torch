@@ -1,0 +1,93 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Dashboard.dc.html": {
+      "expand": "fill",
+      "h": 1640,
+      "is_interactive": true,
+      "title": "Dashboard",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "DetailPanel.dc.html": {
+      "expand": "fill",
+      "h": 2200,
+      "is_interactive": true,
+      "title": "Detail panel (detached tab)",
+      "w": 720,
+      "x": 1520,
+      "y": 2060
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Sessions list",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "SessionDetail.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "title": "Session detail",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Timeline.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "is_interactive": true,
+      "title": "Session timeline + docked panel",
+      "w": 1440,
+      "x": -102,
+      "y": 2082
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-31T21:10:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/code/artifact/bd4fdee0-b10a-452c-838f-f41f7f952b7c",
+      "copiedAt": "2026-10-31T21:10:00Z",
+      "namespace": "carbon",
+      "title": "Carbon",
+      "version": "1793479184-dd16"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "row1": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Dashboard → sessions → session detail",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "row2": {
+      "kind": "title1",
+      "maxW": 2240,
+      "text": "Timeline and detail panel",
+      "w": 240,
+      "x": 0,
+      "y": 1760
+    }
+  },
+  "order": [
+    "Dashboard.dc.html",
+    "Main.dc.html",
+    "SessionDetail.dc.html",
+    "DetailPanel.dc.html",
+    "Timeline.dc.html"
+  ],
+  "pages": [],
+  "title": "Session debugger"
+}

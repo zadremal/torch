@@ -1,0 +1,47 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/mixins' as *;
+@use '../../styles/variables' as *;
+
+// A 1px gap between tiles shows the grid background: this gives a shared border with dividers.
+.torch-stat-tiles {
+  display: grid;
+  border: 1px solid $border-subtle-00;
+  background: $border-subtle-00;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax($stat-tile-min-width, 1fr));
+}
+
+.torch-stat-tile {
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-05;
+  background: $layer-01;
+  gap: $spacing-03;
+}
+
+.torch-stat-tile__label {
+  @include caption;
+}
+
+.torch-stat-tile__value {
+  @include type-style('heading-05');
+  @include tabular;
+
+  display: flex;
+  align-items: center;
+  font-weight: $stat-value-weight;
+  gap: $spacing-03;
+}
+
+.torch-stat-tile__icon {
+  flex: none;
+  fill: $support-error;
+}
+
+.torch-stat-tile__helper {
+  @include type-style('label-01');
+
+  color: $text-helper;
+}

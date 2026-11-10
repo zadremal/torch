@@ -1,0 +1,73 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/mixins' as *;
+
+// Artboard columns: the name and the bar stretch, the numbers are fixed.
+$tools-columns: 140px minmax(0, 1fr) 90px 100px;
+$models-columns: minmax(0, 1fr) 110px 110px 120px;
+
+.torch-dash-table__scroll {
+  overflow-x: auto;
+}
+
+.torch-dash-table {
+  min-inline-size: 520px;
+}
+
+.torch-dash-table__row {
+  display: grid;
+  min-block-size: 2.5rem;
+  align-items: center;
+  border-block-end: 1px solid $border-subtle-00;
+
+  .torch-dash-table--tools & {
+    grid-template-columns: $tools-columns;
+  }
+
+  .torch-dash-table--models & {
+    grid-template-columns: $models-columns;
+  }
+}
+
+.torch-dash-table__row--head {
+  min-block-size: 3rem;
+  border-block-end: 0;
+  background: $layer-accent-01;
+  font-weight: 600;
+}
+
+.torch-dash-table__cell {
+  @include type-style('body-compact-01');
+  @include tabular;
+
+  padding: $spacing-03 $spacing-05;
+}
+
+.torch-dash-table__cell--num {
+  text-align: end;
+}
+
+.torch-dash-table__cell--error {
+  color: $text-error;
+}
+
+.torch-dash-table__calls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+}
+
+// The bar takes no more than 70% of the column: room is left next to it for the number.
+.torch-dash-table__meter {
+  flex: 0 1 70%;
+  min-inline-size: 0;
+}
+
+.torch-dash-table__empty {
+  @include type-style('body-compact-01');
+
+  padding: $spacing-05;
+  margin: 0;
+  color: $text-helper;
+}

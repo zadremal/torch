@@ -1,0 +1,55 @@
+{
+ "prices": {
+  "source": "https://example.com/reference-prices",
+  "updated": "2026-10-31",
+  "contextWindows": [
+   200000,
+   1000000
+  ],
+  "models": {
+   "claude-opus-5-5": {
+    "input": 5,
+    "output": 25,
+    "cacheRead": 0.5,
+    "cacheWrite5m": 6.25,
+    "cacheWrite1h": 10,
+    "contextWindow": 200000
+   },
+   "claude-sonnet-4-5": {
+    "input": 3,
+    "output": 15,
+    "cacheRead": 0.3,
+    "cacheWrite5m": 3.75,
+    "cacheWrite1h": 6,
+    "contextWindow": 200000
+   },
+   "claude-haiku-4-5": {
+    "input": 1,
+    "output": 5,
+    "cacheRead": 0.1,
+    "cacheWrite5m": 1.25,
+    "cacheWrite1h": 2,
+    "contextWindow": 200000
+   }
+  }
+ },
+ "paths": {
+  "dataDir": "/Users/dev/.torch",
+  "db": "/Users/dev/.torch/torch.db",
+  "transcripts": "/Users/dev/.claude/projects",
+  "desktopSessions": "/Users/dev/Library/Application Support/Claude/claude-code-sessions",
+  "spool": "/Users/dev/.torch/spool",
+  "claudeSettings": "/Users/dev/.claude/settings.json"
+ },
+ "channels": {
+  "otel": {
+   "configured": true,
+   "lastEventAt": 1793456453000
+  },
+  "hooks": {
+   "configured": false,
+   "lastEventAt": null
+  }
+ },
+ "cleanupPeriodDays": 365
+}

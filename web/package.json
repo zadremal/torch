@@ -1,0 +1,31 @@
+{
+  "name": "torch-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:fixtures": "VITE_TORCH_FIXTURES=1 vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@carbon/charts": "^1.27.27",
+    "@carbon/charts-react": "^1.27.27",
+    "@carbon/colors": "^11.62.0",
+    "@carbon/icons-react": "^11.92.0",
+    "@carbon/react": "^1.120.0",
+    "@ibm/plex": "^6.4.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "sass": "^1.108.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  }
+}

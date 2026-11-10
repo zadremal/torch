@@ -1,0 +1,161 @@
+// Mark colors come from the mockup (references.md §2), Carbon palette tokens.
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/variables' as *;
+
+.torch-mark {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+
+  // The click area is larger than the visible mark.
+  &::before {
+    position: absolute;
+    content: '';
+    inset: -6px -2px;
+  }
+
+  &:hover {
+    z-index: 2;
+    filter: brightness(0.8);
+  }
+
+  &:focus-visible,
+  &[aria-pressed='true'] {
+    z-index: 4;
+    outline: 2px solid $focus;
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    box-shadow: 0 0 0 2px $background;
+  }
+}
+
+// Session and agent-run bar: with text inside.
+.torch-mark--session,
+.torch-mark--agent {
+  @include type-style('label-01');
+
+  overflow: hidden;
+  border: 1px solid colors.$blue-60;
+  background: colors.$blue-20;
+  block-size: $mark-bar-height;
+  color: colors.$blue-80;
+  font-family: font-family('sans');
+  letter-spacing: 0;
+  padding-inline: $spacing-02 + $spacing-01;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.torch-mark--session {
+  border-color: colors.$gray-100;
+  background: colors.$gray-80;
+  color: $text-on-color;
+}
+
+// Agent run in Compact mode: several rows in one lane, the row is set by `top`.
+.torch-mark--agent-compact {
+  border: 1px solid colors.$blue-60;
+  background: colors.$blue-20;
+  block-size: $mark-agent-compact-height;
+  transform: none;
+}
+
+.torch-mark--tool {
+  background: colors.$teal-50;
+  block-size: $mark-tool-height;
+}
+
+// Prompt — a diamond centered on the point in time.
+.torch-mark--prompt {
+  background: colors.$gray-100;
+  block-size: $mark-prompt-size;
+  inline-size: $mark-prompt-size;
+  transform: translate(-50%, -50%) rotate(45deg);
+
+  &[aria-pressed='true'] {
+    outline-offset: 3px;
+  }
+}
+
+// File read — an outline, edit and write — a fill.
+.torch-mark--file-read,
+.torch-mark--file-write {
+  block-size: $mark-file-height;
+  inline-size: $mark-file-width;
+  transform: translate(-50%, -50%);
+}
+
+.torch-mark--file-read {
+  border: 2px solid colors.$blue-60;
+  background: $background;
+}
+
+.torch-mark--file-write {
+  background: colors.$blue-60;
+}
+
+.torch-mark--model {
+  background: colors.$purple-60;
+  block-size: $mark-model-height;
+  inline-size: $mark-model-width;
+}
+
+.torch-mark--external {
+  border: 1px solid colors.$blue-80;
+  background: colors.$cyan-40;
+  block-size: $mark-external-height;
+  inline-size: $mark-external-width;
+}
+
+// An error overrides the kind color: it comes after it.
+.torch-mark--error {
+  border-color: $support-error;
+  background: $support-error;
+}
+
+.torch-mark--dimmed {
+  opacity: $mark-dimmed-opacity;
+}
+
+// Sample for the legend: inline in the text flow, not clickable.
+.torch-mark--sample {
+  position: static;
+  display: inline-block;
+  flex: none;
+  padding: 0;
+  cursor: default;
+  transform: none;
+
+  &::before {
+    content: none;
+  }
+
+  &:hover {
+    filter: none;
+  }
+
+  &.torch-mark--prompt {
+    transform: rotate(45deg);
+  }
+
+  &.torch-mark--session,
+  &.torch-mark--agent,
+  &.torch-mark--agent-compact {
+    inline-size: $spacing-05;
+  }
+
+  &.torch-mark--tool {
+    inline-size: $mark-external-width;
+  }
+}

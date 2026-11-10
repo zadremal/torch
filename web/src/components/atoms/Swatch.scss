@@ -1,0 +1,8 @@
+@use '../../styles/variables' as *;
+
+.torch-swatch {
+  display: inline-block;
+  flex: none;
+  block-size: $swatch-size;
+  inline-size: $swatch-size;
+}

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Detail panel</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/carbon/components/bundle.css">
+<script src="ds/carbon/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{--background:#ffffff;--background-hover:rgba(141, 141, 141, 0.12);--background-active:rgba(141, 141, 141, 0.5);--background-selected:rgba(141, 141, 141, 0.2);--background-inverse:#393939;--background-brand:#0f62fe;--layer-01:#f4f4f4;--layer-02:#ffffff;--layer-03:#f4f4f4;--layer-hover-01:#e8e8e8;--layer-active-01:#c6c6c6;--layer-selected-01:#e0e0e0;--layer-accent-01:#e0e0e0;--field-01:#f4f4f4;--field-02:#ffffff;--field-hover-01:#e8e8e8;--border-subtle-00:#e0e0e0;--border-subtle-01:#c6c6c6;--border-strong-01:#8d8d8d;--border-interactive:#0f62fe;--border-inverse:#161616;--text-primary:#161616;--text-secondary:#525252;--text-helper:#6f6f6f;--text-placeholder:rgba(22, 22, 22, 0.4);--text-on-color:#ffffff;--text-on-color-disabled:#8d8d8d;--text-inverse:#ffffff;--text-disabled:rgba(22, 22, 22, 0.25);--text-error:#da1e28;--link-primary:#0f62fe;--link-primary-hover:#0043ce;--link-visited:#8a3ffc;--icon-primary:#161616;--icon-secondary:#525252;--icon-on-color:#ffffff;--icon-inverse:#ffffff;--interactive:#0f62fe;--button-primary:#0f62fe;--button-primary-hover:#0050e6;--button-primary-active:#002d9c;--button-secondary:#393939;--button-secondary-hover:#474747;--button-secondary-active:#6f6f6f;--button-tertiary:#0f62fe;--button-tertiary-hover:#0050e6;--button-tertiary-active:#002d9c;--button-danger-primary:#da1e28;--button-danger-hover:#b81921;--button-danger-active:#750e13;--button-danger-secondary:#da1e28;--button-disabled:#c6c6c6;--support-error:#da1e28;--support-success:#24a148;--support-warning:#f1c21b;--support-info:#0043ce;--notification-background-error:#fff1f1;--notification-background-success:#defbe6;--notification-background-warning:#fcf4d6;--notification-background-info:#edf5ff;--focus:#0f62fe;--focus-inset:#ffffff;--toggle-off:#8d8d8d;--skeleton-background:#e8e8e8;--skeleton-element:#c6c6c6;--overlay:rgba(22, 22, 22, 0.5);--tag-background-red:#ffd7d9;--tag-color-red:#a2191f;--tag-background-purple:#e8daff;--tag-color-purple:#6929c4;--tag-background-blue:#d0e2ff;--tag-color-blue:#0043ce;--tag-background-cyan:#bae6ff;--tag-color-cyan:#00539a;--tag-background-teal:#9ef0f0;--tag-color-teal:#005d5d;--tag-background-green:#a7f0ba;--tag-color-green:#0e6027;--tag-background-gray:#e0e0e0;--tag-color-gray:#161616;--blue-10:#edf5ff;--blue-20:#d0e2ff;--blue-40:#78a9ff;--blue-60:#0f62fe;--blue-80:#002d9c;--cyan-40:#33b1ff;--teal-50:#009d9a;--purple-60:#8a3ffc;--gray-10:#f4f4f4;--gray-20:#e0e0e0;--gray-50:#8d8d8d;--gray-80:#393939;--gray-100:#161616;--spacing-01:0.125rem;--spacing-02:0.25rem;--spacing-03:0.5rem;--spacing-04:0.75rem;--spacing-05:1rem;--spacing-06:1.5rem;--spacing-07:2rem;--spacing-08:2.5rem;--spacing-09:3rem;--spacing-10:4rem;--spacing-11:5rem;--spacing-12:6rem;--spacing-13:10rem;--radius-none:0;--radius-checkbox:1px;--radius-pill:1rem;--shadow-overlay:0 2px 6px rgba(0, 0, 0, 0.3);--size-xs:1.5rem;--size-sm:2rem;--size-md:2.5rem;--size-lg:3rem;--size-xl:4rem;--size-2xl:5rem;--font-sans:"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;--font-mono:"IBM Plex Mono", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Courier, monospace}
+body{margin:0;background:#ffffff;font-family:"IBM Plex Sans", system-ui, sans-serif;color:#161616}
+a{color:#0f62fe}a:hover{color:#0043ce}
+.dp-sec{display:flex;flex-direction:column;gap:12px;padding:16px;border-bottom:1px solid var(--border-subtle-00)}
+.dp-h{margin:0;font-size:14px;line-height:18px;font-weight:600}
+.dp-dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 16px;margin:0}
+.dp-dl dt{font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)}
+.dp-dl dd{margin:2px 0 0;font-size:14px;line-height:18px;word-break:break-word}
+.dp-pre{margin:0;background:var(--layer-01);padding:12px 16px;font-family:var(--font-mono);font-size:12px;line-height:18px;white-space:pre-wrap;word-break:break-word;max-height:280px;overflow:auto}
+.dp-ico{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:0;background:transparent;color:var(--icon-primary);cursor:pointer;padding:0;text-decoration:none}
+.dp-ico:hover{background:var(--background-hover)}
+.dp-ico:focus-visible,.dp-row:focus-visible,.dp-lnk:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.dp-ico[aria-pressed="true"]{background:var(--layer-selected-01)}
+.dp-row{display:grid;grid-template-columns:64px 88px minmax(0,1fr) 56px 20px;gap:8px;align-items:center;width:100%;min-height:36px;padding:6px 16px;border:0;border-bottom:1px solid var(--border-subtle-00);background:transparent;text-align:left;font-family:var(--font-sans);font-size:13px;line-height:16px;color:var(--text-primary);cursor:pointer}
+.dp-row:hover{background:var(--layer-hover-01)}
+.dp-row.err{background:var(--notification-background-error);color:var(--text-error)}
+.dp-row.err:hover{background:#ffd7d9}
+.dp-row.cur{box-shadow:inset 3px 0 0 var(--border-interactive)}
+.dp-lnk{border:0;background:none;padding:0;font:inherit;color:var(--link-primary);cursor:pointer;text-align:left}
+.dp-lnk:hover{text-decoration:underline;color:var(--link-primary-hover)}
+.dp-m{font-family:var(--font-mono);font-size:12px;line-height:16px}
+.dp-trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>
+</helmet>
+<div style="background:var(--background);color:var(--text-primary);font-family:var(--font-sans);display:flex;flex-direction:column;min-height:100%">
+
+<div style="display:flex;align-items:center;gap:4px;min-height:48px;padding:0 8px 0 16px;border-bottom:1px solid var(--border-subtle-01);background:var(--layer-01);flex-wrap:wrap">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary);flex-grow:1">Details · s-0142</span>
+<sc-if value="{{embedded}}" hint-placeholder-val="{{true}}">
+<div role="group" aria-label="Dock panel" style="display:flex">
+<sc-for list="{{docks}}" as="d" hint-placeholder-count="3">
+<button type="button" class="dp-ico" aria-label="{{d.label}}" title="{{d.label}}" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11"></rect><rect x="{{d.x}}" y="{{d.y}}" width="{{d.w}}" height="{{d.h}}" fill="currentColor" stroke="none"></rect></svg>
+</button>
+</sc-for>
+</div>
+<a class="dp-ico" href="DetailPanel.dc.html" aria-label="Open in new tab" title="Open in new tab">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5 7.5 8.5M12.5 9.5v4h-10v-10h4"></path></svg>
+</a>
+<x-import component-from-global-scope="Carbon.IconButton" icon="close" label="Close panel" kind="ghost" size="sm" on-click="{{close}}"></x-import>
+</sc-if>
+<sc-if value="{{detached}}" hint-placeholder-val="{{false}}">
+<a href="Timeline.dc.html" style="font-size:14px;line-height:18px;text-decoration:none;padding:0 8px">Back to timeline</a>
+</sc-if>
+</div>
+
+<sc-if value="{{canBack}}" hint-placeholder-val="{{false}}">
+<div style="padding:8px 8px 0">
+<button type="button" class="dp-lnk" onClick="{{back}}" style="display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0 8px;font-size:14px">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><polygon points="6.7,3.7 2.9,7.5 15,7.5 15,8.5 2.9,8.5 6.7,12.3 6,13 1,8 6,3"></polygon></svg>Back to {{backLabel}}
+</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isAgent}}" hint-placeholder-val="{{true}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Agent</span>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<h2 style="margin:0;font-size:20px;line-height:28px;font-weight:400">{{ag.name}}</h2>
+<x-import component-from-global-scope="Carbon.Tag" type="blue" size="sm">{{ag.model}}</x-import>
+<sc-if value="{{ag.hasErr}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="Carbon.Tag" type="red" size="sm">{{ag.errors}} errors</x-import></sc-if>
+</div>
+<p style="margin:0;font-size:14px;line-height:20px;color:var(--text-secondary)">{{ag.desc}}</p>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">Basic information</h3>
+<dl class="dp-dl">
+<div><dt>ID</dt><dd class="dp-m">{{ag.id}}</dd></div>
+<div><dt>Type</dt><dd>{{ag.type}}</dd></div>
+<div><dt>Model</dt><dd class="dp-m">{{ag.model}}</dd></div>
+<div><dt>Start</dt><dd>{{ag.start}}</dd></div>
+<div><dt>End</dt><dd>{{ag.end}}</dd></div>
+<div><dt>Duration</dt><dd>{{ag.dur}}</dd></div>
+<div><dt>API calls</dt><dd>{{ag.api}}</dd></div>
+<div><dt>Tokens</dt><dd>{{ag.tokens}}</dd></div>
+<div><dt>Cost</dt><dd>{{ag.cost}}</dd></div>
+</dl>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">Input prompt</h3>
+<pre class="dp-pre">{{ag.prompt}}</pre>
+</div>
+<div class="dp-sec">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 class="dp-h">Context</h3><span style="font-size:12px;line-height:16px;color:var(--text-helper)">of 200K window</span></div>
+<sc-for list="{{ag.ctx}}" as="c" hint-placeholder-count="3">
+<div style="display:grid;grid-template-columns:110px minmax(0,1fr) 92px;gap:12px;align-items:center;font-size:14px;line-height:18px">
+<span style="color:var(--text-secondary)">{{c.label}}</span>
+<span aria-hidden="true" style="height:8px;background:var(--layer-accent-01);display:block"><i style="display:block;height:100%;width:{{c.pct}};background:{{c.color}}"></i></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums">{{c.value}}</span>
+</div>
+</sc-for>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">What was in the context at peak</h3>
+<div role="img" aria-label="{{ag.mixAria}}" style="display:flex;gap:2px;height:16px">
+<sc-for list="{{ag.mix}}" as="m" hint-placeholder-count="5"><span title="{{m.label}} {{m.value}}" style="flex:{{m.flex}} 1 0;background:{{m.color}};min-width:3px"></span></sc-for>
+</div>
+<div style="display:flex;flex-direction:column">
+<sc-for list="{{ag.mix}}" as="m" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:12px minmax(0,1fr) auto 44px;gap:8px;align-items:center;font-size:14px;line-height:18px;padding:6px 0;border-bottom:1px solid var(--border-subtle-00)">
+<span aria-hidden="true" style="width:12px;height:12px;background:{{m.color}}"></span>
+<span>{{m.label}}</span>
+<span style="font-variant-numeric:tabular-nums">{{m.value}}</span>
+<span style="text-align:right;color:var(--text-helper);font-variant-numeric:tabular-nums">{{m.pct}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">Instructions loaded</h3>
+<div style="display:flex;flex-direction:column">
+<sc-for list="{{ag.instr}}" as="ins" hint-placeholder-count="3">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:8px 0;border-bottom:1px solid var(--border-subtle-00)">
+<span class="dp-m dp-trunc" style="font-size:13px">{{ins.path}}</span>
+<span style="font-size:12px;line-height:16px;color:var(--text-secondary);text-align:right">{{ins.tokens}}</span>
+<span style="font-size:12px;line-height:16px;color:var(--text-helper)">{{ins.kind}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div class="dp-sec">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 class="dp-h">Tool usage</h3><span style="font-size:12px;line-height:16px;color:var(--text-helper)">{{ag.toolCount}} calls</span></div>
+<sc-for list="{{ag.usage}}" as="u" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:88px minmax(0,1fr) 64px;gap:12px;align-items:center;font-size:13px;line-height:16px">
+<span class="dp-m" style="font-size:13px">{{u.name}}</span>
+<span aria-hidden="true" style="height:8px;display:block"><i style="display:block;height:100%;width:{{u.w}};background:var(--teal-50);border-radius:0 4px 4px 0"></i></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums">{{u.count}}<sc-if value="{{u.hasErr}}" hint-placeholder-val="{{false}}"><span style="color:var(--text-error)"> · {{u.err}}✕</span></sc-if></span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 16px 8px;flex-wrap:wrap">
+<h3 class="dp-h">Tool calls <span style="font-weight:400;color:var(--text-secondary)">({{ag.listCount}})</span></h3>
+<x-import component-from-global-scope="Carbon.Checkbox" label-text="{{errLabel}}" checked="{{errorsOnly}}" on-change="{{toggleErr}}"></x-import>
+</div>
+<div role="list" style="display:flex;flex-direction:column;border-top:1px solid var(--border-subtle-00)">
+<sc-for list="{{ag.calls}}" as="r" hint-placeholder-count="8">
+<div role="listitem">
+<button type="button" class="{{r.cls}}" onClick="{{r.pick}}" aria-label="{{r.aria}}">
+<span class="dp-m" style="color:inherit;opacity:0.8">{{r.time}}</span>
+<span class="dp-m" style="font-size:13px;font-weight:600">{{r.name}}</span>
+<span class="dp-m dp-trunc">{{r.target}}</span>
+<span class="dp-m" style="text-align:right">{{r.dur}}</span>
+<sc-if value="{{r.err}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="Carbon.Icon" name="error--filled" style="color:var(--support-error)"></x-import></sc-if>
+</button>
+</div>
+</sc-for>
+<sc-if value="{{ag.none}}" hint-placeholder-val="{{false}}">
+<p style="margin:0;padding:16px;font-size:14px;line-height:20px;color:var(--text-secondary)">No tool calls failed for this agent.</p>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isTool}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Tool call</span>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<h2 style="margin:0;font-size:20px;line-height:28px;font-weight:400;font-family:var(--font-mono)">{{tl.name}}</h2>
+<sc-if value="{{tl.err}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="Carbon.Tag" type="red" size="sm" render-icon="error--filled">Error</x-import></sc-if>
+<sc-if value="{{tl.ok}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="Carbon.Tag" type="green" size="sm" render-icon="checkmark--filled">Success</x-import></sc-if>
+</div>
+<span class="dp-m dp-trunc" style="font-size:13px;color:var(--text-secondary)">{{tl.target}}</span>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">Basic information</h3>
+<dl class="dp-dl">
+<div><dt>Call ID</dt><dd class="dp-m">{{tl.id}}</dd></div>
+<div><dt>Agent</dt><dd><button type="button" class="dp-lnk" onClick="{{tl.openAgent}}">{{tl.agentName}}</button></dd></div>
+<div><dt>Started</dt><dd>{{tl.start}}</dd></div>
+<div><dt>Duration</dt><dd>{{tl.dur}}</dd></div>
+<div><dt>Model turn</dt><dd>#{{tl.turn}}</dd></div>
+<div><dt>Permission</dt><dd>{{tl.perm}}</dd></div>
+</dl>
+</div>
+<sc-if value="{{tl.err}}" hint-placeholder-val="{{true}}">
+<div style="padding:16px 16px 0">
+<x-import component-from-global-scope="Carbon.InlineNotification" kind="error" title="{{tl.errTitle}}" subtitle="{{tl.errHint}}" hide-close-button="{{yes}}"></x-import>
+</div>
+</sc-if>
+<div class="dp-sec">
+<h3 class="dp-h">Input</h3>
+<pre class="dp-pre">{{tl.input}}</pre>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">{{tl.outLabel}}</h3>
+<pre class="dp-pre" style="color:{{tl.outColor}}">{{tl.output}}</pre>
+</div>
+<sc-if value="{{tl.hasFile}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec">
+<h3 class="dp-h">File</h3>
+<button type="button" class="dp-lnk dp-m" style="font-size:13px" onClick="{{tl.openFile}}">{{tl.target}}</button>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isPrompt}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">User prompt</span>
+<h2 style="margin:0;font-size:20px;line-height:28px;font-weight:400">{{pr.title}}</h2>
+</div>
+<div class="dp-sec">
+<dl class="dp-dl">
+<div><dt>Sent</dt><dd>{{pr.time}}</dd></div>
+<div><dt>Tokens</dt><dd>{{pr.tokens}}</dd></div>
+<div><dt>Received by</dt><dd><button type="button" class="dp-lnk" onClick="{{pr.openAgent}}">Main agent</button></dd></div>
+<div><dt>Attachments</dt><dd>{{pr.att}}</dd></div>
+</dl>
+</div>
+<div class="dp-sec"><h3 class="dp-h">Prompt</h3><pre class="dp-pre" style="font-size:13px;line-height:20px">{{pr.text}}</pre></div>
+</sc-if>
+
+<sc-if value="{{isFile}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">File</span>
+<h2 style="margin:0;font-size:16px;line-height:22px;font-weight:400;font-family:var(--font-mono);word-break:break-all">{{fl.path}}</h2>
+</div>
+<div class="dp-sec">
+<dl class="dp-dl">
+<div><dt>Reads</dt><dd>{{fl.reads}}</dd></div>
+<div><dt>Edits</dt><dd>{{fl.edits}}</dd></div>
+<div><dt>Writes</dt><dd>{{fl.writes}}</dd></div>
+<div><dt>Lines changed</dt><dd>{{fl.lines}}</dd></div>
+<div><dt>Agents</dt><dd>{{fl.agents}}</dd></div>
+</dl>
+</div>
+<div style="display:flex;flex-direction:column">
+<h3 class="dp-h" style="padding:16px 16px 8px">Operations</h3>
+<div role="list" style="border-top:1px solid var(--border-subtle-00)">
+<sc-for list="{{fl.ops}}" as="r" hint-placeholder-count="4">
+<div role="listitem"><button type="button" class="{{r.cls}}" onClick="{{r.pick}}" aria-label="{{r.aria}}">
+<span class="dp-m" style="opacity:0.8">{{r.time}}</span>
+<span class="dp-m" style="font-size:13px;font-weight:600">{{r.name}}</span>
+<span class="dp-trunc" style="font-size:13px">{{r.agentName}}</span>
+<span class="dp-m" style="text-align:right">{{r.dur}}</span>
+<sc-if value="{{r.err}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="Carbon.Icon" name="error--filled" style="color:var(--support-error)"></x-import></sc-if>
+</button></div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isNet}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Network call</span>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<x-import component-from-global-scope="Carbon.Tag" type="gray" size="sm">{{nw.method}}</x-import>
+<sc-if value="{{nw.ok}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="Carbon.Tag" type="green" size="sm" render-icon="checkmark--filled">{{nw.status}}</x-import></sc-if>
+<sc-if value="{{nw.failed}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="Carbon.Tag" type="red" size="sm" render-icon="error--filled">{{nw.status}}</x-import></sc-if>
+</div>
+<span class="dp-m" style="font-size:13px;word-break:break-all">{{nw.url}}</span>
+</div>
+<sc-if value="{{nw.failed}}" hint-placeholder-val="{{false}}">
+<div style="padding:16px 16px 0">
+<x-import component-from-global-scope="Carbon.InlineNotification" kind="error" title="{{nw.errTitle}}" subtitle="{{nw.errHint}}" hide-close-button="{{yes}}"></x-import>
+</div>
+</sc-if>
+<div class="dp-sec">
+<dl class="dp-dl">
+<div><dt>Agent</dt><dd><button type="button" class="dp-lnk" onClick="{{nw.openAgent}}">{{nw.agentName}}</button></dd></div>
+<div><dt>Started</dt><dd>{{nw.start}}</dd></div>
+<div><dt>Latency</dt><dd>{{nw.dur}}</dd></div>
+<div><dt>Request</dt><dd>{{nw.req}}</dd></div>
+<div><dt>Response</dt><dd>{{nw.res}}</dd></div>
+<sc-for list="{{nw.extra}}" as="x" hint-placeholder-count="4"><div><dt>{{x.k}}</dt><dd>{{x.v}}</dd></div></sc-for>
+</dl>
+</div>
+<div class="dp-sec"><h3 class="dp-h">{{nw.previewLabel}}</h3><pre class="dp-pre" style="color:{{nw.previewColor}}">{{nw.preview}}</pre></div>
+</sc-if>
+
+<sc-if value="{{isSession}}" hint-placeholder-val="{{false}}">
+<div class="dp-sec" style="gap:8px">
+<span style="font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary)">Session</span>
+<h2 style="margin:0;font-size:20px;line-height:28px;font-weight:400">Migrate billing API client to openapi-ts</h2>
+</div>
+<div class="dp-sec">
+<dl class="dp-dl">
+<div><dt>ID</dt><dd class="dp-m">s-0142</dd></div>
+<div><dt>Start</dt><dd>14:02:11</dd></div>
+<div><dt>End</dt><dd>14:20:53</dd></div>
+<div><dt>Duration</dt><dd>18m 42s</dd></div>
+<div><dt>Agents</dt><dd>5</dd></div>
+<div><dt>Model calls</dt><dd>142</dd></div>
+<div><dt>Tool calls</dt><dd>186</dd></div>
+<div><dt>Errors</dt><dd style="color:var(--text-error)">10 (7 tool, 3 network)</dd></div>
+<div><dt>Tokens</dt><dd>2.18M</dd></div>
+<div><dt>Cost</dt><dd>$18.42</dd></div>
+</dl>
+</div>
+<div class="dp-sec">
+<h3 class="dp-h">Agents</h3>
+<sc-for list="{{agentLinks}}" as="a" hint-placeholder-count="5">
+<button type="button" class="dp-lnk" onClick="{{a.pick}}" style="font-size:14px;line-height:20px">{{a.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sel":{"editor":null},"onOpen":{"editor":null},"onBack":{"editor":null},"canBack":{"editor":null},"backLabel":{"editor":null},"dock":{"editor":null},"onDock":{"editor":null},"onClose":{"editor":null},"$preview":{"width":720,"height":2200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { errorsOnly: false, stack: [{ kind: 'agent', id: 'gp-1' }] };
+  }
+  data() {
+    if (this._d) return this._d;
+    var seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    var T0 = 14 * 3600 + 2 * 60 + 11;
+    function clock(t) { var s = T0 + Math.round(t); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); }
+    function rel(t) { t = Math.round(t); return '+' + Math.floor(t / 60) + ':' + pad(t % 60); }
+    var USER = 'Replace the hand-written fetch wrapper in src/api/billing with a client generated by openapi-ts from openapi.yaml. Keep the public function names so call sites don’t change, validate every response with Zod, and move the tests to Bun’s test runner. Run the full test suite before you finish and summarise anything you couldn’t migrate.';
+    var AG = [
+      { id: 'main', name: 'Main agent', type: 'Main', desc: 'Top-level agent that received the user prompt and delegated to 4 subagents.', model: 'claude-opus-5-5', s: 0, e: 1122, api: 58, tok: 1012400, cost: 9.86, c0: 18400, c1: 131000, pk: 148200,
+        prompt: USER, mix: { Read: 18, Edit: 14, Bash: 11, Task: 4, Grep: 6, Write: 3, TodoWrite: 3, Glob: 2 },
+        instr: [['~/.claude/CLAUDE.md', 'User memory', '1.2K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['.claude/skills/openapi-client/SKILL.md', 'Skill', '2.1K'], ['System prompt and output style', 'Built-in', '3.1K']] },
+      { id: 'explore-1', name: 'Explore', type: 'Subagent · Explore', desc: 'Map existing API client usage', model: 'claude-haiku-4-5', s: 64, e: 210, api: 21, tok: 288100, cost: 0.41, c0: 12100, c1: 58900, pk: 61400,
+        prompt: 'Find every import of src/api/billing and every call to billingFetch(). Report file paths, the function used and any response fields read. Thoroughness: medium.', mix: { Grep: 16, Read: 15, Glob: 7 },
+        instr: [['Explore agent definition', 'Built-in', '0.9K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K']] },
+      { id: 'plan-1', name: 'Plan', type: 'Subagent · Plan', desc: 'Design migration plan', model: 'claude-opus-5-5', s: 220, e: 340, api: 9, tok: 214600, cost: 2.31, c0: 14800, c1: 52900, pk: 52900,
+        prompt: 'Using the explore report, write a step-by-step plan to move from the fetch wrapper to an openapi-ts client with Zod validation. Keep public function names stable.', mix: { Read: 9, WebFetch: 2, TodoWrite: 1 },
+        instr: [['Plan agent definition', 'Built-in', '1.1K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K']] },
+      { id: 'gp-1', name: 'general-purpose', type: 'Subagent · general-purpose', desc: 'Rewrite tests with bun test', model: 'claude-sonnet-4-5', s: 610, e: 905, api: 34, tok: 402700, cost: 3.92, c0: 16200, c1: 104500, pk: 112700,
+        prompt: 'Move tests/ from vitest to bun test. Replace vi.fn with mock() from bun:test, keep the fixtures, and run bun test until it is green.', mix: { Bash: 18, Edit: 15, Read: 11, Write: 5 },
+        instr: [['general-purpose agent definition', 'Built-in', '0.8K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['~/.claude/CLAUDE.md', 'User memory', '1.2K']] },
+      { id: 'gp-2', name: 'general-purpose', type: 'Subagent · general-purpose', desc: 'Update call sites in src/billing', model: 'claude-sonnet-4-5', s: 640, e: 820, api: 20, tok: 266500, cost: 1.92, c0: 15900, c1: 97300, pk: 97300,
+        prompt: 'Update call sites in src/billing to the generated client. Function names are unchanged; adjust imports and response types only.', mix: { Edit: 12, Read: 8, Grep: 6 },
+        instr: [['general-purpose agent definition', 'Built-in', '0.8K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['~/.claude/CLAUDE.md', 'User memory', '1.2K']] }
+    ];
+    var POOL = {
+      Read: ['src/api/billing/index.ts', 'src/api/billing/client.ts', 'openapi.yaml', 'src/api/billing/types.ts', 'tests/invoices.test.ts', 'package.json', 'src/billing/checkout.ts', 'src/billing/invoices.ts', 'tests/setup.ts', 'README.md', 'openapi-ts.config.ts', 'src/api/billing/schemas.ts'],
+      Edit: ['src/api/billing/index.ts', 'src/billing/checkout.ts', 'src/billing/invoices.ts', 'tests/invoices.test.ts', 'tests/setup.ts', 'package.json', 'src/api/billing/schemas.ts'],
+      Write: ['openapi-ts.config.ts', 'src/api/billing/schemas.ts', 'tests/subscriptions.test.ts', 'tests/helpers/mock-fetch.ts'],
+      Bash: ['bun install', 'bun run generate:client', 'bun test', 'bunx tsc --noEmit', 'git status --short', 'bun run lint'],
+      Grep: ['billingFetch\\(', 'from "@/api/billing"', 'fetchInvoices', 'vi\\.fn', 'z\\.object'],
+      Glob: ['src/**/*.ts', 'tests/**/*.test.ts'],
+      WebFetch: ['https://heyapi.dev/openapi-ts/get-started', 'https://bun.sh/docs/cli/test'],
+      TodoWrite: ['5 todos'], Task: ['']
+    };
+    var DUR = { Read: [0.1, 0.5], Edit: [0.2, 0.7], Write: [0.2, 0.4], Bash: [1.5, 22], Grep: [0.3, 1.1], Glob: [0.2, 0.4], WebFetch: [2, 5], TodoWrite: [0.05, 0.1] };
+    var ERR = [
+      { a: 'main', n: 'Bash', t: 372, d: 4.2, x: 'bun run generate:client', title: 'Command failed with exit code 1', hint: 'The --zod flag was removed in openapi-ts 0.8x; the agent switched to the zod plugin in openapi-ts.config.ts at 06:31.', out: "$ openapi-ts -i openapi.yaml -o src/api/billing/gen --zod\nerror: unknown option '--zod'\n    at parseArgs (node_modules/@hey-api/openapi-ts/bin/index.js:41:11)\nexit code 1" },
+      { a: 'main', n: 'Edit', t: 455, d: 0.3, x: 'src/api/billing/index.ts', title: 'old_string not found in file', hint: 'The file had changed since it was last read. The agent re-read it and retried 4 s later.', out: 'Error: String to replace not found in file.\nString: export async function billingFetch<T>(path: string' },
+      { a: 'gp-1', n: 'Bash', t: 700, d: 18.4, x: 'bun test', title: '3 tests failed', hint: 'invoices.test.ts still imports vi from vitest.', out: "bun test v1.3.1\n\ntests/invoices.test.ts:\n✗ lists invoices for a customer [2.10ms]\n  ReferenceError: vi is not defined\n✗ retries on 503 [0.88ms]\n✗ validates totals with Zod [1.02ms]\n\n 41 pass\n 3 fail\nRan 44 tests across 9 files. [1.84s]" },
+      { a: 'gp-1', n: 'Bash', t: 742, d: 6.1, x: 'bun test tests/invoices.test.ts', title: '1 test failed', hint: 'mock() was not reset between tests; fixed by adding mock.restore() in afterEach.', out: "tests/invoices.test.ts:\n✓ lists invoices for a customer\n✗ retries on 503\n  expect(received).toHaveBeenCalledTimes(expected)\n  Expected: 2  Received: 4\n\n 2 pass\n 1 fail" },
+      { a: 'gp-1', n: 'Edit', t: 768, d: 0.2, x: 'tests/setup.ts', title: 'File has not been read yet', hint: 'Edit requires a Read of the file first in this agent. The agent read it and retried.', out: 'Error: File has not been read yet. Read it first before writing to it.' },
+      { a: 'gp-1', n: 'Bash', t: 850, d: 120, x: 'bun test --watch', title: 'Command timed out after 120000 ms', hint: 'Watch mode never exits. Run bun test without --watch inside agents.', out: 'bun test v1.3.1 [watching]\n...\nCommand timed out after 2m 0s' },
+      { a: 'gp-2', n: 'Edit', t: 702, d: 0.3, x: 'src/billing/checkout.ts', title: 'old_string matches 3 locations', hint: 'Provide more surrounding context or use replace_all.', out: 'Error: Found 3 matches of the string to replace, but replace_all is false.' }
+    ];
+    var tools = [], byAgent = {};
+    var subs = AG.slice(1);
+    AG.forEach(function (a) {
+      var names = [];
+      Object.keys(a.mix).forEach(function (k) { for (var i = 0; i < a.mix[k]; i++) names.push(k); });
+      var forced = ERR.filter(function (e) { return e.a === a.id; });
+      forced.forEach(function (e) { var i = names.indexOf(e.n); if (i >= 0) names.splice(i, 1); });
+      if (a.id === 'main') { names = names.filter(function (n) { return n !== 'Task'; }); }
+      for (var i = names.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var tmp = names[i]; names[i] = names[j]; names[j] = tmp; }
+      var list = [], span = a.e - a.s - 10;
+      names.forEach(function (n, i) {
+        var dr = DUR[n], d = dr[0] + rnd() * (dr[1] - dr[0]);
+        var pool = POOL[n];
+        list.push({ n: n, t: a.s + 5 + (i + 0.3 + rnd() * 0.4) * span / names.length, d: d, x: pool[Math.floor(rnd() * pool.length)] });
+      });
+      forced.forEach(function (e) { list.push({ n: e.n, t: e.t, d: e.d, x: e.x, err: e }); });
+      if (a.id === 'main') subs.forEach(function (s) { list.push({ n: 'Task', t: s.s, d: s.e - s.s, x: s.desc, sub: s.id }); });
+      list.sort(function (p, q) { return p.t - q.t; });
+      byAgent[a.id] = [];
+      list.forEach(function (c, i) {
+        var id = a.id + '-t' + pad(i + 1);
+        var tool = { id: id, agent: a.id, name: c.n, t: c.t, d: c.d, target: c.x, err: c.err || null, sub: c.sub || null, turn: Math.max(1, Math.round((c.t - a.s) / (a.e - a.s) * a.api)) };
+        tools.push(tool); byAgent[a.id].push(tool);
+      });
+    });
+    var files = {};
+    tools.forEach(function (t) {
+      if (t.name === 'Read' || t.name === 'Edit' || t.name === 'Write') {
+        if (!files[t.target]) files[t.target] = { path: t.target, ops: [] };
+        files[t.target].ops.push(t);
+      }
+    });
+    var net = [];
+    AG.forEach(function (a) {
+      for (var i = 0; i < a.api; i++) {
+        var t = a.s + 1 + i * (a.e - a.s - 4) / a.api, d = 1.6 + rnd() * 6;
+        var inTok = Math.round(a.c0 + (a.pk - a.c0) * (i / a.api));
+        net.push({ id: a.id + '-n' + pad(i + 1), agent: a.id, kind: 'model', t: t, d: d, method: 'POST', url: 'https://api.anthropic.com/v1/messages', status: '200 OK',
+          req: (inTok * 4 / 1024).toFixed(0) + ' KB', res: (2 + rnd() * 9).toFixed(1) + ' KB', inTok: inTok, outTok: Math.round(180 + rnd() * 1600), stop: rnd() > 0.15 ? 'tool_use' : 'end_turn' });
+      }
+    });
+    var NETERR = {
+      'explore-1-n07': ['Connection error', 'API not reachable', 'ECONNRESET after 30 s. Claude Code retried 3 times with backoff and the third attempt succeeded.', 'Error: Connection error.\n  cause: ECONNRESET socket hang up\n  at api.anthropic.com:443\nretry 1/3 in 1.2 s · retry 2/3 in 2.6 s · retry 3/3 succeeded'],
+      'main-n23': ['529 Overloaded', 'Model API overloaded', 'The API was temporarily overloaded. Claude Code retried after 2.1 s and the retry succeeded.', '{\n  "type": "error",\n  "error": {\n    "type": "overloaded_error",\n    "message": "Overloaded"\n  }\n}'],
+      'gp-1-n12': ['500 Internal Server Error', 'Model API returned an error', 'An internal server error on the API side. Retried once; no tokens were billed for the failed request.', '{\n  "type": "error",\n  "error": {\n    "type": "api_error",\n    "message": "Internal server error"\n  }\n}']
+    };
+    net.forEach(function (n) { var e = NETERR[n.id]; if (e) { n.status = e[0]; n.err = { title: e[1], hint: e[2], body: e[3] }; n.res = '0.2 KB'; } });
+    tools.forEach(function (t) {
+      if (t.name === 'WebFetch') net.push({ id: t.id + '-net', agent: t.agent, kind: 'ext', t: t.t, d: t.d, method: 'GET', url: t.target, status: '200 OK', req: '0.4 KB', res: '86.2 KB', tool: t.id });
+      if (t.name === 'Bash' && t.target === 'bun install') net.push({ id: t.id + '-net', agent: t.agent, kind: 'ext', t: t.t + 0.4, d: Math.min(t.d, 3.2), method: 'GET', url: 'https://registry.npmjs.org/@hey-api%2fopenapi-ts', status: '200 OK', req: '0.3 KB', res: '412 KB', tool: t.id });
+    });
+    var prompts = [
+      { id: 'p1', t: 0, title: 'Original prompt', text: USER, tokens: 412, att: 'openapi.yaml' },
+      { id: 'p2', t: 512, title: 'Follow-up prompt', text: 'Use bun test, not vitest. Don’t add new dev dependencies.', tokens: 19, att: 'None' },
+      { id: 'p3', t: 1008, title: 'Follow-up prompt', text: 'Also update the README section on regenerating the client.', tokens: 14, att: 'None' }
+    ];
+    var agentById = {}; AG.forEach(function (a) { agentById[a.id] = a; });
+    var toolById = {}; tools.forEach(function (t) { toolById[t.id] = t; });
+    var netById = {}; net.forEach(function (n) { netById[n.id] = n; });
+    this._d = { AG: AG, agentById: agentById, tools: tools, toolById: toolById, byAgent: byAgent, files: files, net: net, netById: netById, prompts: prompts, clock: clock, rel: rel, total: 1122 };
+    return this._d;
+  }
+  renderVals() {
+    var self = this, D = this.data();
+    var controlled = typeof this.props.onOpen === 'function';
+    var stack = this.state.stack;
+    var sel = controlled ? (this.props.sel || { kind: 'agent', id: 'gp-1' }) : stack[stack.length - 1];
+    function open(kind, id) {
+      if (controlled) self.props.onOpen(kind, id);
+      else self.setState({ stack: self.state.stack.concat([{ kind: kind, id: id }]) });
+    }
+    function label(s) {
+      if (!s) return '';
+      if (s.kind === 'agent') { var a = D.agentById[s.id]; return a.id === 'main' ? 'Main agent' : a.name + ' (' + a.id + ')'; }
+      if (s.kind === 'tool') return D.toolById[s.id].name + ' call';
+      if (s.kind === 'file') return 'file';
+      if (s.kind === 'prompt') return 'prompt';
+      if (s.kind === 'net') return 'network call';
+      return 'session';
+    }
+    var canBack = controlled ? !!this.props.canBack : stack.length > 1;
+    var backLabel = controlled ? (this.props.backLabel || '') : label(stack[stack.length - 2]);
+    function fmtTok(n) { return n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : (n / 1e3).toFixed(1) + 'K'; }
+    function fmtDur(s) { if (s < 1) return Math.round(s * 1000) + ' ms'; if (s < 60) return s.toFixed(1) + ' s'; return Math.floor(s / 60) + 'm ' + String(Math.round(s % 60)).padStart(2, '0') + 's'; }
+    function agentName(id) { var a = D.agentById[id]; return a.id === 'main' ? 'Main agent' : a.name + ' · ' + a.id; }
+    function row(t, cur) {
+      return { time: D.rel(t.t), name: t.name, target: t.target, dur: fmtDur(t.d), err: !!t.err, agentName: agentName(t.agent),
+        cls: 'dp-row' + (t.err ? ' err' : '') + (cur ? ' cur' : ''), aria: t.name + ' ' + t.target + (t.err ? ', failed' : ''), pick: function () { open('tool', t.id); } };
+    }
+    var empty = { mix: [], ctx: [], instr: [], usage: [], calls: [] };
+    var ag = empty, tl = {}, pr = {}, fl = { ops: [] }, nw = { extra: [] };
+    var errorsOnly = this.state.errorsOnly, errCount = 0;
+    if (sel.kind === 'agent') {
+      var a = D.agentById[sel.id];
+      var calls = D.byAgent[a.id];
+      errCount = calls.filter(function (t) { return t.err; }).length;
+      var netFail = D.net.filter(function (n) { return n.agent === a.id && n.err; }).length;
+      var shown = errorsOnly ? calls.filter(function (t) { return t.err; }) : calls;
+      var counts = {}, errs = {};
+      calls.forEach(function (t) { counts[t.name] = (counts[t.name] || 0) + 1; if (t.err) errs[t.name] = (errs[t.name] || 0) + 1; });
+      var maxC = Math.max.apply(null, Object.keys(counts).map(function (k) { return counts[k]; }));
+      var parts = [['System prompt', 0.02, 'var(--gray-50)'], ['Tool definitions', 0.10, 'var(--purple-60)'], ['Instructions', 0.04, 'var(--cyan-40)'], ['Messages', 0.28, 'var(--blue-60)'], ['Tool results', 0.56, 'var(--teal-50)']];
+      var mix = parts.map(function (p) { return { label: p[0], value: fmtTok(a.pk * p[1]), pct: Math.round(p[1] * 100) + '%', flex: Math.round(p[1] * 100), color: p[2] }; });
+      ag = {
+        id: a.id, name: a.id === 'main' ? 'Main agent' : a.name, type: a.type, desc: a.desc, model: a.model, start: D.clock(a.s), end: D.clock(a.e), dur: fmtDur(a.e - a.s),
+        api: a.api + (netFail ? ' (' + netFail + ' failed)' : ''), tokens: fmtTok(a.tok), cost: '$' + a.cost.toFixed(2), prompt: a.prompt, errors: errCount + netFail, hasErr: errCount + netFail > 0,
+        ctx: [
+          { label: 'First call', value: fmtTok(a.c0), pct: (a.c0 / 2000).toFixed(1) + '%', color: 'var(--blue-40)' },
+          { label: 'Last call', value: fmtTok(a.c1), pct: (a.c1 / 2000).toFixed(1) + '%', color: 'var(--blue-60)' },
+          { label: 'Peak', value: fmtTok(a.pk) + ' · ' + Math.round(a.pk / 2000) + '%', pct: (a.pk / 2000).toFixed(1) + '%', color: 'var(--blue-80)' }
+        ],
+        mix: mix, mixAria: 'Context at peak: ' + mix.map(function (m) { return m.label + ' ' + m.pct; }).join(', '),
+        instr: a.instr.map(function (i) { return { path: i[0], kind: i[1], tokens: i[2] + ' tokens' }; }),
+        usage: Object.keys(counts).sort(function (p, q) { return counts[q] - counts[p]; }).map(function (k) { return { name: k, count: counts[k], err: errs[k] || 0, hasErr: !!errs[k], w: Math.round(counts[k] / maxC * 100) + '%' }; }),
+        toolCount: calls.length, listCount: shown.length, none: shown.length === 0,
+        calls: shown.map(function (t) { return row(t, false); })
+      };
+    } else if (sel.kind === 'tool') {
+      var t = D.toolById[sel.id];
+      var input, output;
+      if (t.name === 'Bash') input = JSON.stringify({ command: t.target, description: 'Run ' + t.target.split(' ').slice(0, 2).join(' '), timeout: 120000 }, null, 2);
+      else if (t.name === 'Read') input = JSON.stringify({ file_path: '/Users/anton/code/billing-web/' + t.target }, null, 2);
+      else if (t.name === 'Edit') input = JSON.stringify({ file_path: '/Users/anton/code/billing-web/' + t.target, old_string: 'import { billingFetch } from "./client";', new_string: 'import { client } from "./gen/client.gen";\nimport { InvoiceSchema } from "./schemas";' }, null, 2);
+      else if (t.name === 'Write') input = JSON.stringify({ file_path: '/Users/anton/code/billing-web/' + t.target, content: '[124 lines]' }, null, 2);
+      else if (t.name === 'Grep') input = JSON.stringify({ pattern: t.target, path: 'src', output_mode: 'files_with_matches' }, null, 2);
+      else if (t.name === 'Glob') input = JSON.stringify({ pattern: t.target }, null, 2);
+      else if (t.name === 'WebFetch') input = JSON.stringify({ url: t.target, prompt: 'How do I enable the Zod plugin?' }, null, 2);
+      else if (t.name === 'Task') input = JSON.stringify({ subagent_type: D.agentById[t.sub].name, description: t.target, prompt: D.agentById[t.sub].prompt }, null, 2);
+      else input = JSON.stringify({ todos: '[5 items]' }, null, 2);
+      if (t.err) output = t.err.out;
+      else if (t.name === 'Read') output = 'Read 214 lines (6.8 KB)';
+      else if (t.name === 'Edit') output = 'Applied 1 edit to ' + t.target + ' (+6 −3)';
+      else if (t.name === 'Write') output = 'Wrote 124 lines to ' + t.target;
+      else if (t.name === 'Bash') output = '$ ' + t.target + '\n' + (t.target === 'bun test' ? 'Ran 44 tests across 9 files.\n 44 pass\n 0 fail' : 'exit code 0');
+      else if (t.name === 'Grep') output = 'Found 12 matches in 7 files';
+      else if (t.name === 'Glob') output = '23 files';
+      else if (t.name === 'WebFetch') output = 'Fetched 86.2 KB, summarised to 1.4K tokens';
+      else if (t.name === 'Task') output = 'Subagent ' + t.sub + ' finished in ' + fmtDur(t.d) + ' and returned its report (2.1K tokens).';
+      else output = 'Todos updated';
+      tl = {
+        id: t.id, name: t.name, target: t.target, err: !!t.err, ok: !t.err, agentName: agentName(t.agent), start: D.clock(t.t) + ' (' + D.rel(t.t) + ')', dur: fmtDur(t.d), turn: t.turn,
+        perm: t.name === 'Bash' ? 'Allowed by settings rule Bash(bun:*)' : 'Auto-allowed',
+        errTitle: t.err ? t.err.title : '', errHint: t.err ? t.err.hint : '', input: input, output: output, outLabel: t.err ? 'Error output' : 'Output',
+        outColor: t.err ? 'var(--text-error)' : 'var(--text-primary)', hasFile: !!D.files[t.target],
+        openAgent: function () { open('agent', t.agent); }, openFile: function () { open('file', t.target); }
+      };
+      if (t.sub) tl.openAgent = function () { open('agent', t.agent); };
+    } else if (sel.kind === 'prompt') {
+      var p = D.prompts.filter(function (x) { return x.id === sel.id; })[0];
+      pr = { title: p.title, text: p.text, tokens: p.tokens, att: p.att, time: D.clock(p.t), openAgent: function () { open('agent', 'main'); } };
+    } else if (sel.kind === 'file') {
+      var f = D.files[sel.id];
+      var r = 0, e = 0, w = 0, ags = {};
+      f.ops.forEach(function (o) { if (o.name === 'Read') r++; if (o.name === 'Edit') e++; if (o.name === 'Write') w++; ags[o.agent] = 1; });
+      fl = { path: f.path, reads: r, edits: e, writes: w, lines: e || w ? '+' + (e * 6 + w * 124) + ' −' + (e * 3) : 'None', agents: Object.keys(ags).join(', '), ops: f.ops.map(function (o) { return row(o, false); }) };
+    } else if (sel.kind === 'net') {
+      var n = D.netById[sel.id];
+      nw = { method: n.method, status: n.status, url: n.url, agentName: agentName(n.agent), start: D.clock(n.t), dur: fmtDur(n.d), req: n.req, res: n.res, openAgent: function () { open('agent', n.agent); },
+        extra: n.kind === 'model' ? [{ k: 'Model', v: D.agentById[n.agent].model }, { k: 'Input tokens', v: fmtTok(n.inTok) + ' (' + Math.round(n.inTok * 0.86 / 1000) + 'K cached)' }, { k: 'Output tokens', v: n.outTok }, { k: 'Stop reason', v: n.stop }] : [{ k: 'Triggered by', v: n.tool }],
+        ok: !n.err, failed: !!n.err, errTitle: n.err ? n.err.title : '', errHint: n.err ? n.err.hint : '',
+        previewLabel: n.err ? 'Error response' : 'Response preview', previewColor: n.err ? 'var(--text-error)' : 'var(--text-primary)',
+        preview: n.err ? n.err.body : n.kind === 'model' ? '{\n  "type": "message",\n  "model": "' + D.agentById[n.agent].model + '",\n  "stop_reason": "' + n.stop + '",\n  "usage": {\n    "input_tokens": ' + Math.round(n.inTok * 0.14) + ',\n    "cache_read_input_tokens": ' + Math.round(n.inTok * 0.86) + ',\n    "output_tokens": ' + n.outTok + '\n  }\n}' : 'HTTP/2 200\ncontent-type: text/html; charset=utf-8\ncontent-length: 88268' };
+    }
+    var docks = [['left', 'Dock left', 2, 3, 4, 10], ['bottom', 'Dock bottom', 2, 9, 12, 4], ['right', 'Dock right', 10, 3, 4, 10]].map(function (d) {
+      return { label: d[1], pressed: self.props.dock === d[0], x: d[2], y: d[3], w: d[4], h: d[5], pick: function () { if (self.props.onDock) self.props.onDock(d[0]); } };
+    });
+    return {
+      embedded: controlled, detached: !controlled, docks: docks, canBack: canBack, backLabel: backLabel, yes: true,
+      back: function () { if (controlled) { if (self.props.onBack) self.props.onBack(); } else self.setState({ stack: self.state.stack.slice(0, -1) }); },
+      close: function () { if (self.props.onClose) self.props.onClose(); },
+      isAgent: sel.kind === 'agent', isTool: sel.kind === 'tool', isPrompt: sel.kind === 'prompt', isFile: sel.kind === 'file', isNet: sel.kind === 'net', isSession: sel.kind === 'session',
+      ag: ag, tl: tl, pr: pr, fl: fl, nw: nw, errorsOnly: errorsOnly, errLabel: 'Errors only (' + errCount + ')',
+      toggleErr: function () { self.setState({ errorsOnly: !self.state.errorsOnly }); },
+      agentLinks: D.AG.map(function (a) { return { label: agentName(a.id), pick: function () { open('agent', a.id); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

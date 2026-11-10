@@ -1,0 +1,9 @@
+// Global styles: all of Carbon (reset, white theme, theme zones, components) and the IBM Plex fonts
+// from the @ibm/plex package. Carbon Charts styles are imported separately, in main.tsx.
+@use '@carbon/react' with (
+  $font-path: '@ibm/plex'
+);
+
+#root {
+  min-height: 100vh;
+}

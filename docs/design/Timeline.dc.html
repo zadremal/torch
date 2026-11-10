@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session timeline</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/carbon/components/bundle.css">
+<script src="ds/carbon/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{--background:#ffffff;--background-hover:rgba(141, 141, 141, 0.12);--background-active:rgba(141, 141, 141, 0.5);--background-selected:rgba(141, 141, 141, 0.2);--background-inverse:#393939;--background-brand:#0f62fe;--layer-01:#f4f4f4;--layer-02:#ffffff;--layer-03:#f4f4f4;--layer-hover-01:#e8e8e8;--layer-active-01:#c6c6c6;--layer-selected-01:#e0e0e0;--layer-accent-01:#e0e0e0;--field-01:#f4f4f4;--field-02:#ffffff;--field-hover-01:#e8e8e8;--border-subtle-00:#e0e0e0;--border-subtle-01:#c6c6c6;--border-strong-01:#8d8d8d;--border-interactive:#0f62fe;--border-inverse:#161616;--text-primary:#161616;--text-secondary:#525252;--text-helper:#6f6f6f;--text-placeholder:rgba(22, 22, 22, 0.4);--text-on-color:#ffffff;--text-on-color-disabled:#8d8d8d;--text-inverse:#ffffff;--text-disabled:rgba(22, 22, 22, 0.25);--text-error:#da1e28;--link-primary:#0f62fe;--link-primary-hover:#0043ce;--link-visited:#8a3ffc;--icon-primary:#161616;--icon-secondary:#525252;--icon-on-color:#ffffff;--icon-inverse:#ffffff;--interactive:#0f62fe;--button-primary:#0f62fe;--button-primary-hover:#0050e6;--button-primary-active:#002d9c;--button-secondary:#393939;--button-secondary-hover:#474747;--button-secondary-active:#6f6f6f;--button-tertiary:#0f62fe;--button-tertiary-hover:#0050e6;--button-tertiary-active:#002d9c;--button-danger-primary:#da1e28;--button-danger-hover:#b81921;--button-danger-active:#750e13;--button-danger-secondary:#da1e28;--button-disabled:#c6c6c6;--support-error:#da1e28;--support-success:#24a148;--support-warning:#f1c21b;--support-info:#0043ce;--notification-background-error:#fff1f1;--notification-background-success:#defbe6;--notification-background-warning:#fcf4d6;--notification-background-info:#edf5ff;--focus:#0f62fe;--focus-inset:#ffffff;--toggle-off:#8d8d8d;--skeleton-background:#e8e8e8;--skeleton-element:#c6c6c6;--overlay:rgba(22, 22, 22, 0.5);--tag-background-red:#ffd7d9;--tag-color-red:#a2191f;--tag-background-purple:#e8daff;--tag-color-purple:#6929c4;--tag-background-blue:#d0e2ff;--tag-color-blue:#0043ce;--tag-background-cyan:#bae6ff;--tag-color-cyan:#00539a;--tag-background-teal:#9ef0f0;--tag-color-teal:#005d5d;--tag-background-green:#a7f0ba;--tag-color-green:#0e6027;--tag-background-gray:#e0e0e0;--tag-color-gray:#161616;--blue-10:#edf5ff;--blue-20:#d0e2ff;--blue-40:#78a9ff;--blue-60:#0f62fe;--blue-80:#002d9c;--cyan-40:#33b1ff;--teal-50:#009d9a;--purple-60:#8a3ffc;--gray-10:#f4f4f4;--gray-20:#e0e0e0;--gray-50:#8d8d8d;--gray-80:#393939;--gray-100:#161616;--spacing-01:0.125rem;--spacing-02:0.25rem;--spacing-03:0.5rem;--spacing-04:0.75rem;--spacing-05:1rem;--spacing-06:1.5rem;--spacing-07:2rem;--spacing-08:2.5rem;--spacing-09:3rem;--spacing-10:4rem;--spacing-11:5rem;--spacing-12:6rem;--spacing-13:10rem;--radius-none:0;--radius-checkbox:1px;--radius-pill:1rem;--shadow-overlay:0 2px 6px rgba(0, 0, 0, 0.3);--size-xs:1.5rem;--size-sm:2rem;--size-md:2.5rem;--size-lg:3rem;--size-xl:4rem;--size-2xl:5rem;--font-sans:"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;--font-mono:"IBM Plex Mono", "Menlo", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Courier, monospace}
+[data-theme="g100"]{--background:#161616;--background-hover:rgba(141, 141, 141, 0.16);--background-active:rgba(141, 141, 141, 0.4);--background-selected:rgba(141, 141, 141, 0.24);--layer-01:#262626;--layer-hover-01:#333333;--border-subtle-00:#393939;--border-subtle-01:#525252;--border-interactive:#4589ff;--text-primary:#f4f4f4;--text-secondary:#c6c6c6;--text-helper:#a8a8a8;--link-primary:#78a9ff;--icon-primary:#f4f4f4;--icon-secondary:#c6c6c6;--focus:#ffffff;--focus-inset:#161616;color:var(--text-primary)}
+body{margin:0;background:#ffffff;font-family:"IBM Plex Sans", system-ui, sans-serif;color:#161616}
+a{color:#0f62fe}a:hover{color:#0043ce}
+.nav{display:flex;align-items:center;height:48px;box-sizing:border-box;padding:0 16px;font-size:14px;line-height:18px;letter-spacing:0.16px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid transparent}
+.nav:hover{background:var(--background-hover);color:var(--text-primary)}
+.nav:focus-visible,.tab:focus-visible,.seg:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.nav[aria-current="page"]{color:var(--text-primary);border-bottom-color:var(--border-interactive)}
+.tab{display:flex;align-items:center;height:40px;padding:0 16px;font-size:14px;line-height:18px;color:var(--text-secondary);text-decoration:none;border-bottom:2px solid var(--border-subtle-01)}
+.tab:hover{color:var(--text-primary);border-bottom-color:var(--border-strong-01)}
+.tab[aria-current="page"]{color:var(--text-primary);font-weight:600;border-bottom-color:var(--border-interactive)}
+.seg{height:32px;padding:0 12px;border:1px solid var(--border-strong-01);margin-left:-1px;background:var(--background);color:var(--text-secondary);font-family:var(--font-sans);font-size:14px;cursor:pointer}
+.seg:hover{background:var(--background-hover);color:var(--text-primary)}
+.seg[aria-pressed="true"]{background:var(--background-inverse);color:var(--text-inverse);border-color:var(--background-inverse)}
+.lane{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:28px;border-bottom:1px solid var(--border-subtle-00)}
+.lane.on{background:var(--blue-10)}
+.lab{display:flex;flex-direction:column;justify-content:center;padding:4px 12px 4px 16px;font-size:13px;line-height:16px;border-right:1px solid var(--border-subtle-01);position:sticky;left:0;background:inherit;z-index:3;min-width:0}
+.lane:not(.on) .lab{background:var(--background)}
+.lab small{font-family:var(--font-mono);font-size:11px;line-height:14px;color:var(--text-helper);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grp{padding:8px 16px 4px;font-size:12px;line-height:16px;letter-spacing:0.32px;color:var(--text-secondary);background:var(--layer-01);border-bottom:1px solid var(--border-subtle-00);position:sticky;left:0}
+.trk{position:relative;background-image:linear-gradient(to right,var(--border-subtle-00) 1px,transparent 1px);background-size:10.695% 100%}
+.tk{position:absolute;top:50%;transform:translateY(-50%);border:0;padding:0;margin:0;cursor:pointer;box-sizing:border-box}
+.tk::before{content:"";position:absolute;inset:-6px -2px}
+.tk:hover{filter:brightness(0.8);z-index:2}
+.tk:focus-visible{outline:2px solid var(--focus);outline-offset:2px;z-index:4}
+.tk[aria-pressed="true"]{outline:2px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 2px var(--background);z-index:4}
+.bar{height:20px;background:var(--blue-20);border:1px solid var(--blue-60);color:var(--blue-80);font-family:var(--font-sans);font-size:12px;line-height:16px;text-align:left;padding:0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tool{height:12px;background:var(--teal-50)}
+.tk.err{background:var(--support-error);border-color:var(--support-error)}
+.tk.dim{opacity:0.25}
+.cb{height:8px;transform:none;background:var(--blue-20);border:1px solid var(--blue-60)}
+.pm{width:12px;height:12px;background:var(--gray-100);transform:translate(-6px,-50%) rotate(45deg)}
+.pm[aria-pressed="true"]{outline-offset:3px}
+.fr{width:8px;height:12px;border:2px solid var(--blue-60);background:var(--background);transform:translate(-4px,-50%)}
+.fw{width:8px;height:12px;background:var(--blue-60);transform:translate(-4px,-50%)}
+.nm{width:2px;height:10px;background:var(--purple-60)}
+.nx{width:6px;height:20px;background:var(--cyan-40);border:1px solid var(--blue-80)}
+.sw{display:inline-block;flex:none}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--background);color:var(--text-primary);font-family:var(--font-sans);display:flex;flex-direction:column">
+<header data-theme="g100" style="display:flex;flex-wrap:wrap;align-items:center;min-height:48px;background:var(--background);border-bottom:1px solid var(--border-subtle-01);padding:0 0 0 16px">
+<span style="font-size:14px;line-height:18px;font-weight:600;padding-right:32px">Session debugger</span>
+<nav aria-label="Main" style="display:flex;flex-grow:1">
+<a class="nav" href="Dashboard.dc.html">Dashboard</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Sessions</a>
+</nav>
+<x-import component-from-global-scope="Carbon.IconButton" icon="settings" label="Settings" kind="ghost"></x-import>
+</header>
+
+<div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:16px">
+<nav aria-label="Breadcrumb" style="font-size:14px;line-height:18px;display:flex;gap:8px;color:var(--text-secondary)">
+<a href="Main.dc.html" style="color:var(--link-primary);text-decoration:none">Sessions</a><span aria-hidden="true">/</span><a href="SessionDetail.dc.html" style="color:var(--link-primary);text-decoration:none">s-0142</a><span aria-hidden="true">/</span><span>Timeline</span>
+</nav>
+<h1 style="margin:0;font-size:28px;line-height:36px;font-weight:400">Migrate billing API client to openapi-ts</h1>
+<nav aria-label="Session views" style="display:flex;flex-wrap:wrap">
+<a class="tab" href="SessionDetail.dc.html">Overview</a>
+<a class="tab" href="Timeline.dc.html" aria-current="page">Timeline</a>
+<span style="flex:1;border-bottom:2px solid var(--border-subtle-01)"></span>
+</nav>
+<div style="display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding-bottom:16px">
+<ul aria-label="Legend" style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12px;line-height:16px;color:var(--text-secondary)">
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:16px;height:10px;background:var(--blue-20);border:1px solid var(--blue-60)"></span>Agent run</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:6px;height:10px;background:var(--teal-50)"></span>Tool call</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:10px;height:10px;background:var(--support-error)"></span>Error (any item that failed)</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:9px;height:9px;background:var(--gray-100);transform:rotate(45deg)"></span>Prompt</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:6px;height:10px;border:2px solid var(--blue-60)"></span>File read</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:8px;height:12px;background:var(--blue-60)"></span>File edit or write</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:2px;height:10px;background:var(--purple-60)"></span>Model API call</li>
+<li style="display:flex;gap:6px;align-items:center"><span class="sw" style="width:6px;height:10px;background:var(--cyan-40);border:1px solid var(--blue-80)"></span>External request</li>
+</ul>
+<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+<div role="group" aria-label="Density" style="display:flex;padding-left:1px">
+<sc-for list="{{views}}" as="v" hint-placeholder-count="2"><button type="button" class="seg" aria-pressed="{{v.pressed}}" onClick="{{v.pick}}">{{v.label}}</button></sc-for>
+</div>
+<div role="group" aria-label="Zoom" style="display:flex;padding-left:1px">
+<sc-for list="{{zooms}}" as="z" hint-placeholder-count="3"><button type="button" class="seg" aria-pressed="{{z.pressed}}" onClick="{{z.pick}}">{{z.label}}</button></sc-for>
+</div>
+<sc-if value="{{closed}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="Carbon.Button" kind="tertiary" size="sm" on-click="{{reopen}}">Show details</x-import>
+</sc-if>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;flex-direction:{{flexDir}};border-top:1px solid var(--border-subtle-01);flex-grow:1">
+<section aria-label="Timeline" style="flex:999 1 560px;min-width:0;overflow:auto;max-height:880px">
+<div style="width:{{zoomW}};min-width:900px;position:relative">
+<div class="lane" style="position:sticky;top:0;z-index:5;background:var(--background);min-height:32px;border-bottom:1px solid var(--border-strong-01)">
+<div class="lab" style="font-size:12px;color:var(--text-secondary)">14:02:11 start</div>
+<div class="trk" style="background-image:none" aria-hidden="true">
+<sc-for list="{{axis}}" as="a" hint-placeholder-count="10"><span style="position:absolute;left:{{a.l}};top:8px;font-size:12px;line-height:16px;color:var(--text-helper);padding-left:4px;border-left:1px solid var(--border-strong-01)">{{a.label}}</span></sc-for>
+</div>
+</div>
+
+<sc-if value="{{expanded}}" hint-placeholder-val="{{false}}"><div class="grp">Session</div></sc-if>
+<div class="{{sessionLane}}">
+<div class="lab">Session<small>s-0142 · 18m 42s</small></div>
+<div class="trk"><button type="button" class="tk bar" style="left:0;width:100%;background:var(--gray-80);border-color:var(--gray-100);color:var(--text-on-color)" aria-pressed="{{sessionSel}}" onClick="{{pickSession}}">Session · 186 tool calls · 146 network calls · 10 errors</button></div>
+</div>
+<div class="lane" style="min-height:32px">
+<div class="lab">Prompts<small>3 user messages</small></div>
+<div class="trk">
+<sc-for list="{{prompts}}" as="p" hint-placeholder-count="3"><button type="button" class="tk pm" style="left:{{p.l}}" aria-pressed="{{p.sel}}" aria-label="{{p.aria}}" title="{{p.aria}}" onClick="{{p.pick}}"></button></sc-for>
+</div>
+</div>
+
+<sc-if value="{{compact}}" hint-placeholder-val="{{true}}">
+<div class="{{cAgentsLane}}">
+<div class="lab">Agents<small>5 · 1 main, 4 subagents</small></div>
+<div class="trk" style="height:{{cAgentsH}}">
+<sc-for list="{{cAgents}}" as="r" hint-placeholder-count="5"><button type="button" class="tk cb" style="left:{{r.l}};width:{{r.w}};top:{{r.top}}" aria-pressed="{{r.sel}}" aria-label="{{r.title}}" title="{{r.title}}" onClick="{{r.pick}}"></button></sc-for>
+</div>
+</div>
+<div class="{{cToolsLane}}" style="min-height:32px">
+<div class="lab">Tools<small>{{cToolsSummary}}</small></div>
+<div class="trk">
+<sc-for list="{{cTools}}" as="t" hint-placeholder-count="40"><button type="button" class="{{t.cls}}" style="left:{{t.l}};width:{{t.w}}" aria-pressed="{{t.sel}}" aria-label="{{t.aria}}" title="{{t.aria}}" onClick="{{t.pick}}"></button></sc-for>
+</div>
+</div>
+<div class="{{cFilesLane}}" style="min-height:32px">
+<div class="lab">Files<small>{{cFilesSummary}}</small></div>
+<div class="trk">
+<sc-for list="{{cFiles}}" as="o" hint-placeholder-count="30"><button type="button" class="{{o.cls}}" style="left:{{o.l}}" aria-pressed="{{o.sel}}" aria-label="{{o.aria}}" title="{{o.aria}}" onClick="{{o.pick}}"></button></sc-for>
+</div>
+</div>
+<div class="{{cNetLane}}" style="min-height:32px">
+<div class="lab">Network<small>{{cNetSummary}}</small></div>
+<div class="trk">
+<sc-for list="{{cNet}}" as="x" hint-placeholder-count="40"><button type="button" class="{{x.cls}}" style="left:{{x.l}}" aria-pressed="{{x.sel}}" aria-label="{{x.aria}}" title="{{x.aria}}" onClick="{{x.pick}}"></button></sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{expanded}}" hint-placeholder-val="{{false}}">
+<div class="grp">Agents and tool calls</div>
+<sc-for list="{{agents}}" as="r" hint-placeholder-count="5">
+<div class="{{r.laneCls}}">
+<div class="lab"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{r.name}}</span><small>{{r.id}} · {{r.model}}</small></div>
+<div class="trk"><button type="button" class="tk bar" style="left:{{r.l}};width:{{r.w}}" aria-pressed="{{r.sel}}" onClick="{{r.pick}}" title="{{r.title}}">{{r.desc}}</button></div>
+</div>
+<div class="{{r.laneCls}}" style="min-height:32px">
+<div class="lab" style="color:var(--text-secondary)">Tools<small>{{r.toolSummary}}</small></div>
+<div class="trk">
+<sc-for list="{{r.tools}}" as="t" hint-placeholder-count="20"><button type="button" class="{{t.cls}}" style="left:{{t.l}};width:{{t.w}}" aria-pressed="{{t.sel}}" aria-label="{{t.aria}}" title="{{t.aria}}" onClick="{{t.pick}}"></button></sc-for>
+</div>
+</div>
+</sc-for>
+
+<div class="grp">Files</div>
+<sc-for list="{{fileLanes}}" as="f" hint-placeholder-count="6">
+<div class="{{f.laneCls}}">
+<div class="lab"><span style="font-family:var(--font-mono);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{f.path}}">{{f.short}}</span><small>{{f.summary}}</small></div>
+<div class="trk">
+<sc-for list="{{f.ops}}" as="o" hint-placeholder-count="4"><button type="button" class="{{o.cls}}" style="left:{{o.l}}" aria-pressed="{{o.sel}}" aria-label="{{o.aria}}" title="{{o.aria}}" onClick="{{o.pick}}"></button></sc-for>
+</div>
+</div>
+</sc-for>
+
+<div class="grp">Network</div>
+<sc-for list="{{netLanes}}" as="n" hint-placeholder-count="2">
+<div class="lane" style="min-height:32px">
+<div class="lab">{{n.label}}<small>{{n.summary}}</small></div>
+<div class="trk">
+<sc-for list="{{n.items}}" as="x" hint-placeholder-count="20"><button type="button" class="{{x.cls}}" style="left:{{x.l}}" aria-pressed="{{x.sel}}" aria-label="{{x.aria}}" title="{{x.aria}}" onClick="{{x.pick}}"></button></sc-for>
+</div>
+</div>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{hasCursor}}" hint-placeholder-val="{{true}}">
+<div aria-hidden="true" style="position:absolute;top:32px;bottom:0;left:{{cursorLeft}};width:0;border-left:1px dashed var(--focus);pointer-events:none;z-index:2"></div>
+</sc-if>
+</div>
+</section>
+<sc-if value="{{isOpen}}" hint-placeholder-val="{{true}}">
+<aside aria-label="Details" style="{{panelStyle}}">
+<dc-import name="DetailPanel" sel="{{sel}}" on-open="{{openItem}}" on-back="{{back}}" can-back="{{canBack}}" back-label="{{backLabel}}" dock="{{dock}}" on-dock="{{setDock}}" on-close="{{close}}" hint-size="100%,880px"></dc-import>
+</aside>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dock":{"editor":"enum","options":["right","left","bottom"],"default":"right","section":"Panel"},"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { stack: [{ kind: 'agent', id: 'gp-1' }], dock: null, open: true, zoom: 1, view: 'compact' };
+  }
+  data() {
+    if (this._d) return this._d;
+    var seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    var T0 = 14 * 3600 + 2 * 60 + 11;
+    function clock(t) { var s = T0 + Math.round(t); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s % 3600 / 60)) + ':' + pad(s % 60); }
+    function rel(t) { t = Math.round(t); return '+' + Math.floor(t / 60) + ':' + pad(t % 60); }
+    var USER = 'Replace the hand-written fetch wrapper in src/api/billing with a client generated by openapi-ts from openapi.yaml. Keep the public function names so call sites don’t change, validate every response with Zod, and move the tests to Bun’s test runner. Run the full test suite before you finish and summarise anything you couldn’t migrate.';
+    var AG = [
+      { id: 'main', name: 'Main agent', type: 'Main', desc: 'Top-level agent that received the user prompt and delegated to 4 subagents.', model: 'claude-opus-5-5', s: 0, e: 1122, api: 58, tok: 1012400, cost: 9.86, c0: 18400, c1: 131000, pk: 148200,
+        prompt: USER, mix: { Read: 18, Edit: 14, Bash: 11, Task: 4, Grep: 6, Write: 3, TodoWrite: 3, Glob: 2 },
+        instr: [['~/.claude/CLAUDE.md', 'User memory', '1.2K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['.claude/skills/openapi-client/SKILL.md', 'Skill', '2.1K'], ['System prompt and output style', 'Built-in', '3.1K']] },
+      { id: 'explore-1', name: 'Explore', type: 'Subagent · Explore', desc: 'Map existing API client usage', model: 'claude-haiku-4-5', s: 64, e: 210, api: 21, tok: 288100, cost: 0.41, c0: 12100, c1: 58900, pk: 61400,
+        prompt: 'Find every import of src/api/billing and every call to billingFetch(). Report file paths, the function used and any response fields read. Thoroughness: medium.', mix: { Grep: 16, Read: 15, Glob: 7 },
+        instr: [['Explore agent definition', 'Built-in', '0.9K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K']] },
+      { id: 'plan-1', name: 'Plan', type: 'Subagent · Plan', desc: 'Design migration plan', model: 'claude-opus-5-5', s: 220, e: 340, api: 9, tok: 214600, cost: 2.31, c0: 14800, c1: 52900, pk: 52900,
+        prompt: 'Using the explore report, write a step-by-step plan to move from the fetch wrapper to an openapi-ts client with Zod validation. Keep public function names stable.', mix: { Read: 9, WebFetch: 2, TodoWrite: 1 },
+        instr: [['Plan agent definition', 'Built-in', '1.1K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K']] },
+      { id: 'gp-1', name: 'general-purpose', type: 'Subagent · general-purpose', desc: 'Rewrite tests with bun test', model: 'claude-sonnet-4-5', s: 610, e: 905, api: 34, tok: 402700, cost: 3.92, c0: 16200, c1: 104500, pk: 112700,
+        prompt: 'Move tests/ from vitest to bun test. Replace vi.fn with mock() from bun:test, keep the fixtures, and run bun test until it is green.', mix: { Bash: 18, Edit: 15, Read: 11, Write: 5 },
+        instr: [['general-purpose agent definition', 'Built-in', '0.8K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['~/.claude/CLAUDE.md', 'User memory', '1.2K']] },
+      { id: 'gp-2', name: 'general-purpose', type: 'Subagent · general-purpose', desc: 'Update call sites in src/billing', model: 'claude-sonnet-4-5', s: 640, e: 820, api: 20, tok: 266500, cost: 1.92, c0: 15900, c1: 97300, pk: 97300,
+        prompt: 'Update call sites in src/billing to the generated client. Function names are unchanged; adjust imports and response types only.', mix: { Edit: 12, Read: 8, Grep: 6 },
+        instr: [['general-purpose agent definition', 'Built-in', '0.8K'], ['billing-web/CLAUDE.md', 'Project memory', '2.4K'], ['~/.claude/CLAUDE.md', 'User memory', '1.2K']] }
+    ];
+    var POOL = {
+      Read: ['src/api/billing/index.ts', 'src/api/billing/client.ts', 'openapi.yaml', 'src/api/billing/types.ts', 'tests/invoices.test.ts', 'package.json', 'src/billing/checkout.ts', 'src/billing/invoices.ts', 'tests/setup.ts', 'README.md', 'openapi-ts.config.ts', 'src/api/billing/schemas.ts'],
+      Edit: ['src/api/billing/index.ts', 'src/billing/checkout.ts', 'src/billing/invoices.ts', 'tests/invoices.test.ts', 'tests/setup.ts', 'package.json', 'src/api/billing/schemas.ts'],
+      Write: ['openapi-ts.config.ts', 'src/api/billing/schemas.ts', 'tests/subscriptions.test.ts', 'tests/helpers/mock-fetch.ts'],
+      Bash: ['bun install', 'bun run generate:client', 'bun test', 'bunx tsc --noEmit', 'git status --short', 'bun run lint'],
+      Grep: ['billingFetch\\(', 'from "@/api/billing"', 'fetchInvoices', 'vi\\.fn', 'z\\.object'],
+      Glob: ['src/**/*.ts', 'tests/**/*.test.ts'],
+      WebFetch: ['https://heyapi.dev/openapi-ts/get-started', 'https://bun.sh/docs/cli/test'],
+      TodoWrite: ['5 todos'], Task: ['']
+    };
+    var DUR = { Read: [0.1, 0.5], Edit: [0.2, 0.7], Write: [0.2, 0.4], Bash: [1.5, 22], Grep: [0.3, 1.1], Glob: [0.2, 0.4], WebFetch: [2, 5], TodoWrite: [0.05, 0.1] };
+    var ERR = [
+      { a: 'main', n: 'Bash', t: 372, d: 4.2, x: 'bun run generate:client' },
+      { a: 'main', n: 'Edit', t: 455, d: 0.3, x: 'src/api/billing/index.ts' },
+      { a: 'gp-1', n: 'Bash', t: 700, d: 18.4, x: 'bun test' },
+      { a: 'gp-1', n: 'Bash', t: 742, d: 6.1, x: 'bun test tests/invoices.test.ts' },
+      { a: 'gp-1', n: 'Edit', t: 768, d: 0.2, x: 'tests/setup.ts' },
+      { a: 'gp-1', n: 'Bash', t: 850, d: 120, x: 'bun test --watch' },
+      { a: 'gp-2', n: 'Edit', t: 702, d: 0.3, x: 'src/billing/checkout.ts' }
+    ];
+    var tools = [], byAgent = {};
+    var subs = AG.slice(1);
+    AG.forEach(function (a) {
+      var names = [];
+      Object.keys(a.mix).forEach(function (k) { for (var i = 0; i < a.mix[k]; i++) names.push(k); });
+      var forced = ERR.filter(function (e) { return e.a === a.id; });
+      forced.forEach(function (e) { var i = names.indexOf(e.n); if (i >= 0) names.splice(i, 1); });
+      if (a.id === 'main') { names = names.filter(function (n) { return n !== 'Task'; }); }
+      for (var i = names.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var tmp = names[i]; names[i] = names[j]; names[j] = tmp; }
+      var list = [], span = a.e - a.s - 10;
+      names.forEach(function (n, i) {
+        var dr = DUR[n], d = dr[0] + rnd() * (dr[1] - dr[0]);
+        var pool = POOL[n];
+        list.push({ n: n, t: a.s + 5 + (i + 0.3 + rnd() * 0.4) * span / names.length, d: d, x: pool[Math.floor(rnd() * pool.length)] });
+      });
+      forced.forEach(function (e) { list.push({ n: e.n, t: e.t, d: e.d, x: e.x, err: e }); });
+      if (a.id === 'main') subs.forEach(function (s) { list.push({ n: 'Task', t: s.s, d: s.e - s.s, x: s.desc, sub: s.id }); });
+      list.sort(function (p, q) { return p.t - q.t; });
+      byAgent[a.id] = [];
+      list.forEach(function (c, i) {
+        var id = a.id + '-t' + pad(i + 1);
+        var tool = { id: id, agent: a.id, name: c.n, t: c.t, d: c.d, target: c.x, err: c.err || null, sub: c.sub || null, turn: Math.max(1, Math.round((c.t - a.s) / (a.e - a.s) * a.api)) };
+        tools.push(tool); byAgent[a.id].push(tool);
+      });
+    });
+    var files = {};
+    tools.forEach(function (t) {
+      if (t.name === 'Read' || t.name === 'Edit' || t.name === 'Write') {
+        if (!files[t.target]) files[t.target] = { path: t.target, ops: [] };
+        files[t.target].ops.push(t);
+      }
+    });
+    var net = [];
+    AG.forEach(function (a) {
+      for (var i = 0; i < a.api; i++) {
+        var t = a.s + 1 + i * (a.e - a.s - 4) / a.api, d = 1.6 + rnd() * 6;
+        var inTok = Math.round(a.c0 + (a.pk - a.c0) * (i / a.api));
+        net.push({ id: a.id + '-n' + pad(i + 1), agent: a.id, kind: 'model', t: t, d: d, method: 'POST', url: 'https://api.anthropic.com/v1/messages', status: '200 OK',
+          req: (inTok * 4 / 1024).toFixed(0) + ' KB', res: (2 + rnd() * 9).toFixed(1) + ' KB', inTok: inTok, outTok: Math.round(180 + rnd() * 1600), stop: rnd() > 0.15 ? 'tool_use' : 'end_turn' });
+      }
+    });
+    var NETERR = { 'explore-1-n07': 'Connection error', 'main-n23': '529 Overloaded', 'gp-1-n12': '500 Internal Server Error' };
+    net.forEach(function (n) { if (NETERR[n.id]) { n.status = NETERR[n.id]; n.err = true; } });
+    tools.forEach(function (t) {
+      if (t.name === 'WebFetch') net.push({ id: t.id + '-net', agent: t.agent, kind: 'ext', t: t.t, d: t.d, method: 'GET', url: t.target, status: '200 OK', req: '0.4 KB', res: '86.2 KB', tool: t.id });
+      if (t.name === 'Bash' && t.target === 'bun install') net.push({ id: t.id + '-net', agent: t.agent, kind: 'ext', t: t.t + 0.4, d: Math.min(t.d, 3.2), method: 'GET', url: 'https://registry.npmjs.org/@hey-api%2fopenapi-ts', status: '200 OK', req: '0.3 KB', res: '412 KB', tool: t.id });
+    });
+    var prompts = [
+      { id: 'p1', t: 0, title: 'Original prompt', text: USER, tokens: 412, att: 'openapi.yaml' },
+      { id: 'p2', t: 512, title: 'Follow-up prompt', text: 'Use bun test, not vitest. Don’t add new dev dependencies.', tokens: 19, att: 'None' },
+      { id: 'p3', t: 1008, title: 'Follow-up prompt', text: 'Also update the README section on regenerating the client.', tokens: 14, att: 'None' }
+    ];
+    var agentById = {}; AG.forEach(function (a) { agentById[a.id] = a; });
+    var toolById = {}; tools.forEach(function (t) { toolById[t.id] = t; });
+    var netById = {}; net.forEach(function (n) { netById[n.id] = n; });
+    this._d = { AG: AG, agentById: agentById, tools: tools, toolById: toolById, byAgent: byAgent, files: files, net: net, netById: netById, prompts: prompts, clock: clock, rel: rel, total: 1122 };
+    return this._d;
+  }
+  renderVals() {
+    var self = this, D = this.data(), T = D.total;
+    var st = this.state, stack = st.stack, sel = stack[stack.length - 1];
+    var dock = st.dock || this.props.dock || 'right';
+    function pct(t) { return (t / T * 100).toFixed(3) + '%'; }
+    function open(kind, id) { self.setState({ stack: self.state.stack.concat([{ kind: kind, id: id }]), open: true }); }
+    function agentName(id) { var a = D.agentById[id]; return a.id === 'main' ? 'Main agent' : a.name + ' · ' + a.id; }
+    function label(s) {
+      if (!s) return '';
+      if (s.kind === 'agent') return s.id === 'main' ? 'Main agent' : D.agentById[s.id].name + ' (' + s.id + ')';
+      if (s.kind === 'tool') return D.toolById[s.id].name + ' call';
+      return { file: 'file', prompt: 'prompt', net: 'network call', session: 'session' }[s.kind];
+    }
+    var selTool = sel.kind === 'tool' ? D.toolById[sel.id] : null;
+    var selNet = sel.kind === 'net' ? D.netById[sel.id] : null;
+    var selPrompt = sel.kind === 'prompt' ? D.prompts.filter(function (p) { return p.id === sel.id; })[0] : null;
+    var focusAgent = sel.kind === 'agent' ? sel.id : selTool ? selTool.agent : selNet ? selNet.agent : null;
+    var dimOn = (st.view || 'compact') === 'compact' && sel.kind === 'agent';
+    var agents = D.AG.map(function (a) {
+      var calls = D.byAgent[a.id], errs = calls.filter(function (t) { return t.err; }).length;
+      return {
+        id: a.id, name: a.id === 'main' ? 'Main agent' : a.name, model: a.model, desc: a.desc, l: pct(a.s), w: 'max(3px, ' + pct(a.e - a.s) + ')',
+        title: agentName(a.id) + ' · ' + D.clock(a.s) + '–' + D.clock(a.e),
+        sel: sel.kind === 'agent' && sel.id === a.id, laneCls: 'lane' + (focusAgent === a.id ? ' on' : ''),
+        toolSummary: calls.length + ' calls' + (errs ? ' · ' + errs + ' failed' : ''),
+        pick: function () { open('agent', a.id); },
+        tools: calls.map(function (t) {
+          return { l: pct(t.t), w: 'max(3px, ' + pct(t.d) + ')', cls: 'tk tool' + (t.err ? ' err' : ''), sel: !!selTool && selTool.id === t.id,
+            aria: t.name + ' ' + t.target + ' at ' + D.rel(t.t) + (t.err ? ', failed' : ''), pick: function () { open('tool', t.id); } };
+        })
+      };
+    });
+    var fileLanes = Object.keys(D.files).map(function (k) { return D.files[k]; }).sort(function (p, q) { return q.ops.length - p.ops.length; }).slice(0, 8).map(function (f) {
+      var r = f.ops.filter(function (o) { return o.name === 'Read'; }).length;
+      var parts = f.path.split('/');
+      return {
+        path: f.path, short: parts.length > 2 ? '…/' + parts.slice(-2).join('/') : f.path, summary: r + ' reads · ' + (f.ops.length - r) + ' changes',
+        laneCls: 'lane' + ((sel.kind === 'file' && sel.id === f.path) || (selTool && selTool.target === f.path) ? ' on' : ''),
+        ops: f.ops.map(function (o) {
+          return { l: pct(o.t), cls: 'tk ' + (o.name === 'Read' ? 'fr' : 'fw'), sel: (sel.kind === 'file' && sel.id === f.path) || (!!selTool && selTool.id === o.id),
+            aria: o.name + ' ' + f.path + ' by ' + agentName(o.agent) + ' at ' + D.rel(o.t), pick: function () { open('file', f.path); } };
+        })
+      };
+    });
+    var model = D.net.filter(function (n) { return n.kind === 'model'; }), ext = D.net.filter(function (n) { return n.kind === 'ext'; });
+    function netItem(n) {
+      return { l: pct(n.t), cls: 'tk ' + (n.kind === 'model' ? 'nm' : 'nx') + (n.err ? ' err' : '') + (dimOn && n.agent !== focusAgent ? ' dim' : ''), sel: !!selNet && selNet.id === n.id,
+        aria: n.method + ' ' + n.url + ' · ' + agentName(n.agent) + ' at ' + D.rel(n.t) + (n.err ? ', failed: ' + n.status : ''), pick: function () { open('net', n.id); } };
+    }
+    var compact = (st.view || 'compact') === 'compact';
+    var levels = [], cAgents = D.AG.map(function (a) {
+      var lv = 0;
+      while (levels[lv] !== undefined && levels[lv] > a.s) lv++;
+      levels[lv] = a.e;
+      return { l: pct(a.s), w: 'max(3px, ' + pct(a.e - a.s) + ')', top: (5 + lv * 11) + 'px', sel: sel.kind === 'agent' && sel.id === a.id,
+        title: agentName(a.id) + ' · ' + a.desc + ' · ' + D.clock(a.s) + '–' + D.clock(a.e), pick: function () { open('agent', a.id); } };
+    });
+    var cTools = D.tools.map(function (t) {
+      return { l: pct(t.t), w: 'max(3px, ' + pct(t.d) + ')', cls: 'tk tool' + (t.err ? ' err' : '') + (dimOn && t.agent !== focusAgent ? ' dim' : ''), sel: !!selTool && selTool.id === t.id,
+        aria: t.name + ' ' + t.target + ' · ' + agentName(t.agent) + ' at ' + D.rel(t.t) + (t.err ? ', failed' : ''), pick: function () { open('tool', t.id); } };
+    });
+    var fileOps = D.tools.filter(function (t) { return !!D.files[t.target] && (t.name === 'Read' || t.name === 'Edit' || t.name === 'Write'); });
+    var cFiles = fileOps.map(function (o) {
+      return { l: pct(o.t), cls: 'tk ' + (o.name === 'Read' ? 'fr' : 'fw') + (o.err ? ' err' : '') + (dimOn && o.agent !== focusAgent ? ' dim' : ''),
+        sel: (sel.kind === 'file' && sel.id === o.target) || (!!selTool && selTool.id === o.id),
+        aria: o.name + ' ' + o.target + ' by ' + agentName(o.agent) + ' at ' + D.rel(o.t), pick: function () { open('file', o.target); } };
+    });
+    var toolErrs = D.tools.filter(function (t) { return t.err; }).length, netErrs = D.net.filter(function (n) { return n.err; }).length;
+    var netLanes = [
+      { label: 'Model API', summary: model.length + ' calls · ' + model.filter(function (n) { return n.err; }).length + ' failed', items: model.map(netItem) },
+      { label: 'External', summary: ext.length + ' requests', items: ext.map(netItem) }
+    ];
+    var axis = [];
+    for (var m = 0; m <= 18; m += 2) axis.push({ l: pct(m * 60), label: m + 'm' });
+    var ct = selTool ? selTool.t : selNet ? selNet.t : selPrompt ? selPrompt.t : null;
+    var panelStyle = dock === 'bottom'
+      ? 'flex:1 1 100%;height:480px;overflow-y:auto;border-top:1px solid var(--border-subtle-01);background:var(--background)'
+      : 'flex:1 1 440px;max-width:520px;height:880px;overflow-y:auto;background:var(--background);' + (dock === 'left' ? 'border-right' : 'border-left') + ':1px solid var(--border-subtle-01)';
+    return {
+      sel: sel, canBack: stack.length > 1, backLabel: label(stack[stack.length - 2]), dock: dock,
+      openItem: open,
+      back: function () { self.setState({ stack: self.state.stack.slice(0, -1) }); },
+      setDock: function (d) { self.setState({ dock: d }); },
+      close: function () { self.setState({ open: false }); },
+      reopen: function () { self.setState({ open: true }); },
+      isOpen: st.open, closed: !st.open,
+      flexDir: dock === 'left' ? 'row-reverse' : dock === 'bottom' ? 'column' : 'row',
+      panelStyle: panelStyle,
+      zoomW: st.zoom * 100 + '%',
+      compact: compact, expanded: !compact,
+      views: [['compact', 'Compact'], ['expanded', 'Expanded']].map(function (v) { return { label: v[1], pressed: (st.view || 'compact') === v[0], pick: function () { self.setState({ view: v[0] }); } }; }),
+      cAgents: cAgents, cAgentsH: (levels.length * 11 + 8) + 'px', cAgentsLane: 'lane' + (sel.kind === 'agent' ? ' on' : ''),
+      cTools: cTools, cToolsLane: 'lane' + (selTool ? ' on' : ''), cToolsSummary: D.tools.length + ' calls · ' + toolErrs + ' failed',
+      cFiles: cFiles, cFilesLane: 'lane' + (sel.kind === 'file' ? ' on' : ''), cFilesSummary: Object.keys(D.files).length + ' files · ' + fileOps.length + ' operations',
+      cNet: D.net.map(netItem), cNetLane: 'lane' + (selNet ? ' on' : ''), cNetSummary: D.net.length + ' requests · ' + netErrs + ' failed',
+      zooms: [[1, 'Fit'], [2, '2×'], [4, '4×']].map(function (z) { return { label: z[1], pressed: st.zoom === z[0], pick: function () { self.setState({ zoom: z[0] }); } }; }),
+      axis: axis, agents: agents, fileLanes: fileLanes, netLanes: netLanes,
+      sessionSel: sel.kind === 'session', sessionLane: 'lane' + (sel.kind === 'session' ? ' on' : ''),
+      pickSession: function () { open('session', 's-0142'); },
+      prompts: D.prompts.map(function (p) { return { l: pct(p.t), sel: !!selPrompt && selPrompt.id === p.id, aria: p.title + ' at ' + D.clock(p.t), pick: function () { open('prompt', p.id); } }; }),
+      hasCursor: ct !== null, cursorLeft: 'calc(200px + (100% - 200px) * ' + (ct === null ? 0 : ct / T).toFixed(4) + ')'
+    };
+  }
+}
+</script>
+</body>
+</html>

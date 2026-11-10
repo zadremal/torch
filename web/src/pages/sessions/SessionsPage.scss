@@ -1,0 +1,30 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.torch-slist {
+  display: flex;
+  flex-direction: column;
+}
+
+.torch-slist__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-04 $spacing-05;
+  background: $layer-01;
+  gap: $spacing-05;
+}
+
+.torch-slist__title {
+  @include type-style('heading-compact-02');
+
+  margin: 0;
+}
+
+.torch-slist__count {
+  @include type-style('body-compact-01');
+
+  color: $text-secondary;
+}

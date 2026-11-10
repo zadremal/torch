@@ -1,0 +1,25 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/variables' as *;
+
+.torch-bar-chart {
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-05;
+  border: 1px solid $border-subtle-00;
+  gap: $spacing-03;
+  min-inline-size: 0;
+}
+
+.torch-bar-chart__summary {
+  @include type-style('body-compact-01');
+
+  margin: 0;
+  color: $text-secondary;
+}
+
+// Carbon Charts without a height parameter takes the parent's height.
+.torch-bar-chart__plot {
+  block-size: $bar-chart-height;
+}

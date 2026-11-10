@@ -1,0 +1,33 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.torch-session-token-cards {
+  display: grid;
+  gap: $spacing-05;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.torch-session-token-card {
+  display: flex;
+  flex-direction: column;
+  padding-block-start: $spacing-04;
+  border-block-start: 4px solid;
+  gap: $spacing-02;
+}
+
+.torch-session-token-card__label {
+  @include type-style('body-compact-01');
+
+  color: $text-secondary;
+}
+
+.torch-session-token-card__value {
+  @include type-style('heading-03');
+}
+
+.torch-session-token-card__note {
+  @include type-style('label-01');
+
+  color: $text-helper;
+}

@@ -1,0 +1,63 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../../styles/mixins' as *;
+
+.torch-session-agents {
+  overflow-x: auto;
+}
+
+.torch-session-agents__table {
+  @include type-style('body-compact-01');
+
+  border-collapse: collapse;
+  inline-size: 100%;
+  min-inline-size: 1080px;
+
+  th {
+    padding-inline: $spacing-05;
+    background: $layer-accent-01;
+    block-size: $spacing-09;
+    font-weight: 600;
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: $spacing-04 $spacing-05;
+    border-block-end: 1px solid $border-subtle-00;
+    vertical-align: top;
+  }
+
+  tbody tr:hover {
+    background: $layer-hover-01;
+  }
+
+  a {
+    color: $link-primary;
+    text-decoration: none;
+
+    &:hover {
+      color: $link-primary-hover;
+    }
+  }
+}
+
+.torch-session-agents__name {
+  display: flex;
+  flex-direction: column;
+}
+
+.torch-session-agents__num {
+  @include tabular;
+
+  text-align: end;
+}
+
+.torch-session-agents__num--error {
+  color: $text-error;
+}
+
+.torch-session-agents__num--zero {
+  color: $text-helper;
+}

@@ -1,0 +1,125 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/mixins' as *;
+@use '../../styles/variables' as *;
+
+.torch-session {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-inline-size: 0;
+}
+
+// The page header has arrived — the template's placeholder header is not needed.
+.torch-session__slot:not(:empty) + .torch-session__placeholder {
+  display: none;
+}
+
+.torch-session__head {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: $spacing-06 $spacing-07 0;
+  margin-inline: auto;
+  gap: $spacing-05;
+  inline-size: 100%;
+  max-inline-size: $page-max-width;
+}
+
+.torch-session__head--wide {
+  max-inline-size: none;
+}
+
+.torch-session__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-05;
+}
+
+.torch-session__heading {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-03;
+  min-inline-size: 0;
+}
+
+.torch-session__title {
+  @include type-style('heading-04');
+
+  margin: 0;
+}
+
+// The placeholder takes the height of the heading row: the page does not jump when the name arrives.
+.torch-session__title-skeleton {
+  block-size: 1.75rem;
+  inline-size: 24rem;
+  margin-block: $spacing-02;
+  max-inline-size: 100%;
+}
+
+.torch-session__meta {
+  @include type-style('body-compact-01');
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: $text-secondary;
+  gap: $spacing-03 $spacing-05;
+}
+
+.torch-session__actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.torch-session__tabs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.torch-session__tab {
+  @include type-style('body-compact-01');
+
+  display: flex;
+  align-items: center;
+  block-size: $spacing-08;
+  border-block-end: 2px solid $border-subtle-01;
+  color: $text-secondary;
+  padding-inline: $spacing-05;
+  text-decoration: none;
+
+  &:is(a):hover {
+    border-block-end-color: $border-strong-01;
+    color: $text-primary;
+  }
+
+  &:focus-visible {
+    @include focus-inset;
+  }
+
+  &[aria-current='page'] {
+    border-block-end-color: $border-interactive;
+    color: $text-primary;
+    font-weight: font-weight('semibold');
+  }
+}
+
+// The line under the tabs stretches to the right edge.
+.torch-session__tabs-rest {
+  flex: 1;
+  border-block-end: 2px solid $border-subtle-01;
+}
+
+.torch-session__content {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  padding: $spacing-07 $spacing-07 $spacing-09;
+  margin-inline: auto;
+  gap: $spacing-07;
+  inline-size: 100%;
+  max-inline-size: $page-max-width;
+}
