@@ -36,7 +36,7 @@ describe("agent totals", () => {
     expect(agentRow(db, "sub-1")).toMatchObject({ model_calls: 1, tok_input: 7, tok_output: 70, tok_cache_read: 700, tok_cache_write: 7000, tok_thinking: 0, tok_total: 7777 });
   });
 
-  test("tool errors are only the error status; denied, interrupted and pending are not errors", () => {
+  test("tool errors are only the error status; denied (rejected by the user), interrupted and pending are not errors", () => {
     const db = twoAgents();
     seed.toolCall(db, { session_id: "s1", id: "t1", status: "ok" });
     seed.toolCall(db, { session_id: "s1", id: "t2", status: "error" });

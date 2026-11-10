@@ -3,7 +3,7 @@ import type { Database } from "bun:sqlite";
 import type { ParsedLine, ToolResultBlock, ToolUseResultInfo, UserLine } from "../../contracts/lines.ts";
 import type { LineReducer } from "../../contracts/pipeline.ts";
 import type { ToolCallRow, ToolStatus } from "../../contracts/rows.ts";
-import { PERMISSION_REJECT } from "../../contracts/constants.ts";
+import { PERMISSION_REJECT, PERMISSION_SOURCE_USER_PREFIX, TOOL_DENIAL_USER } from "../../contracts/constants.ts";
 import { countLines } from "../parse.ts";
 import { getContent, putContent } from "./contents.ts";
 
@@ -52,9 +52,21 @@ function mcpServer(name: string): string | null {
   return /^mcp__(.+?)__/.exec(name)?.[1] ?? null;
 }
 
-/** Denial outranks interruption, interruption outranks error: the result of a denied call is also marked `is_error`. */
+function isDenial(line: UserLine): boolean {
+  return line.toolDenialKind !== null || line.permissionDecision?.decision === PERMISSION_REJECT;
+}
+
+/** The user rejected the call; otherwise it was blocked by a permission rule, auto mode, a hook or another app. */
+function isUserRejection(line: UserLine): boolean {
+  return line.toolDenialKind === TOOL_DENIAL_USER || (line.permissionDecision?.source?.startsWith(PERMISSION_SOURCE_USER_PREFIX) ?? false);
+}
+
+/**
+ * Denial outranks interruption, interruption outranks error: the result of a denied call is also marked `is_error`.
+ * Only the user's rejection is the neutral denied; a call blocked by anything else failed (decision 12).
+ */
 function resultStatus(line: UserLine, result: ToolResultBlock): ToolStatus {
-  if (line.toolDenialKind !== null || line.permissionDecision?.decision === PERMISSION_REJECT) return "denied";
+  if (isDenial(line)) return isUserRejection(line) ? "denied" : "error";
   if (line.toolUseResult?.interrupted) return "interrupted";
   return result.isError ? "error" : "ok";
 }
@@ -130,9 +142,10 @@ export const reduceToolCalls: LineReducer = ({ db, sessionId, agentId }, lines) 
           $duration_ms: info?.durationMs ?? (line.timestamp === null ? null : Math.max(0, line.timestamp - call.ts_start)),
           $duration_exact: info?.durationMs != null ? 1 : 0,
           $status: status,
-          $error_title: result.isError ? firstLine(result.text) : null,
-          $permission_decision: line.permissionDecision?.decision ?? null,
-          $permission_source: line.permissionDecision?.source ?? null,
+          $error_title: result.isError || status === "error" ? firstLine(result.text) : null,
+          // A denial without permissionDecision is still a denial; its kind stands in for the source.
+          $permission_decision: line.permissionDecision?.decision ?? (isDenial(line) ? PERMISSION_REJECT : null),
+          $permission_source: line.permissionDecision?.source ?? line.toolDenialKind,
           $spawned_agent_id: info?.agentId ?? null,
           $output_content_id: putContent(db, result.text),
           $output_bytes: Buffer.byteLength(result.text),
