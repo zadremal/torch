@@ -104,18 +104,36 @@ test("status: is_error is error, with the first line of the output in error_titl
   expect(call).toMatchObject({ status: "error", error_title: "Exit code 1" });
 });
 
-test("status: toolDenialKind is denied, although the result is marked is_error", () => {
+test("status: a call the user rejected is denied, although the result is marked is_error", () => {
   const call = single("Bash", { command: "rm -rf build" }, { content: "The user doesn't want to proceed with this tool use.", isError: true, toolDenialKind: "user-rejected" });
-  expect(call).toMatchObject({ status: "denied", permission_decision: null, permission_source: null });
-});
+  expect(call).toMatchObject({ status: "denied", permission_decision: "reject", permission_source: "user-rejected" });
 
-test("status: a denial in permissionDecision is denied, the decision and source are recorded", () => {
-  const call = single(
+  const prompt = single(
     "Bash",
     { command: "git push" },
-    { content: "Permission to use Bash has been denied.", isError: true, permissionDecision: { decision: "reject", source: "rule", reasonType: "rule" } },
+    { content: "The user doesn't want to proceed with this tool use.", isError: true, permissionDecision: { decision: "reject", source: "user_reject" } },
   );
-  expect(call).toMatchObject({ status: "denied", permission_decision: "reject", permission_source: "rule" });
+  expect(prompt).toMatchObject({ status: "denied", permission_decision: "reject", permission_source: "user_reject" });
+});
+
+test("status: a call blocked by a rule, auto mode or a hook is an error, the decision and source are recorded", () => {
+  const rule = single(
+    "Bash",
+    { command: "git push" },
+    { content: "Permission to use Bash has been denied.", isError: true, permissionDecision: { decision: "reject", source: "config", reasonType: "rule" } },
+  );
+  expect(rule).toMatchObject({ status: "error", error_title: "Permission to use Bash has been denied.", permission_decision: "reject", permission_source: "config" });
+
+  const hook = single("Bash", { command: "curl x" }, { content: "Blocked by hook", isError: true, permissionDecision: { decision: "reject", source: "hook" } });
+  expect(hook).toMatchObject({ status: "error", error_title: "Blocked by hook", permission_source: "hook" });
+
+  const auto = single("WebFetch", { url: "https://x.test" }, { content: "Blocked by auto mode.\nReason: …", isError: true, toolDenialKind: "automode-blocked" });
+  expect(auto).toMatchObject({ status: "error", error_title: "Blocked by auto mode.", permission_decision: "reject", permission_source: "automode-blocked" });
+});
+
+test("status: a blocked call is an error even when the result is not marked is_error", () => {
+  const call = single("Bash", { command: "ls" }, { content: "Permission to use Bash has been denied.", toolDenialKind: "permission-rule" });
+  expect(call).toMatchObject({ status: "error", error_title: "Permission to use Bash has been denied." });
 });
 
 test("status: an allow in permissionDecision does not change the status", () => {

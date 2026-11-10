@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { existsSync, mkdtempSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { openDb, openMemoryDb, openReadonlyDb, schemaVersion } from "../../src/db/db.ts";
+import { migrate, openDb, openMemoryDb, openReadonlyDb, schemaVersion } from "../../src/db/db.ts";
 import { referenceScenario } from "../support/reference.ts";
 import { seedListSessions, seedReference } from "../support/reference-seed.ts";
 import { seed } from "../support/seed.ts";
@@ -12,7 +12,7 @@ test("the database file is created with mode 0600, WAL and the current schema", 
   const db = openDb(path);
   expect(statSync(path).mode & 0o777).toBe(0o600);
   expect(db.query<{ journal_mode: string }, []>("PRAGMA journal_mode").get()!.journal_mode).toBe("wal");
-  expect(schemaVersion(db)).toBe(2);
+  expect(schemaVersion(db)).toBe(3);
   db.close();
 });
 
@@ -88,8 +88,38 @@ test("read-only open: without a database it returns null and no file is created;
   writable.close();
 
   const db = openReadonlyDb(path)!;
-  expect(schemaVersion(db)).toBe(2);
+  expect(schemaVersion(db)).toBe(3);
   expect(db.query<{ id: string }, []>("SELECT id FROM sessions").all()).toEqual([{ id: "s1" }]);
   expect(() => db.exec("DELETE FROM sessions")).toThrow();
   db.close();
+});
+
+test("migration 003: indexed calls blocked by anything but the user become errors, the totals follow", () => {
+  const db = openMemoryDb();
+  db.exec("UPDATE meta SET value = '2' WHERE key = 'schema_version'");
+  seed.session(db, { id: "s1" });
+  seed.agent(db, { session_id: "s1" });
+  const rejected = "The user doesn't want to proceed with this tool use. The tool use was rejected.";
+  seed.toolCall(db, { session_id: "s1", id: "t1", status: "error", output: "Exit code 1" });
+  seed.toolCall(db, { session_id: "s1", id: "t2", status: "denied", output: rejected });
+  seed.toolCall(db, { session_id: "s1", id: "t3", status: "denied", output: "No.", permission_decision: "reject", permission_source: "user_reject" });
+  seed.toolCall(db, { session_id: "s1", id: "t4", status: "denied", output: "Permission to use Bash has been denied.", permission_decision: "reject", permission_source: "config" });
+  seed.toolCall(db, { session_id: "s1", id: "t5", status: "denied", output: "  Blocked by auto mode.\nReason: …" });
+  seed.toolCall(db, { session_id: "s1", id: "t6", status: "denied", output: `To tell you how to proceed, the user said:\n${"x".repeat(5000)}` });
+
+  expect(migrate(db)).toEqual([3]);
+  const rows = db.query<{ id: string; status: string; error_title: string | null; permission_decision: string | null }, []>(
+    "SELECT id, status, error_title, permission_decision FROM tool_calls ORDER BY id",
+  ).all();
+  expect(rows.map((r) => [r.id, r.status, r.permission_decision])).toEqual([
+    ["t1", "error", null],
+    ["t2", "denied", "reject"],
+    ["t3", "denied", "reject"],
+    ["t4", "error", "reject"],
+    ["t5", "error", "reject"],
+    ["t6", "denied", "reject"],
+  ]);
+  expect(rows.find((r) => r.id === "t5")!.error_title).toBe("Blocked by auto mode.");
+  expect(db.query<{ n: number }, []>("SELECT tool_errors AS n FROM agents").get()!.n).toBe(3);
+  expect(db.query<{ n: number }, []>("SELECT tool_errors AS n FROM sessions").get()!.n).toBe(3);
 });

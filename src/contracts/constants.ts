@@ -43,6 +43,15 @@ export const PROMPT_NAME_MAX_CHARS = 80;
 /** Value of `permissionDecision.decision` for a denial; for an approval it is `accept` (spikes.md §2). */
 export const PERMISSION_REJECT = "reject";
 
+/** `toolDenialKind` of a call the user rejected at the permission prompt (spikes.md §2). */
+export const TOOL_DENIAL_USER = "user-rejected";
+
+/**
+ * Beginning of `permissionDecision.source` for a decision made by the user (`user_reject`, `user_temporary`, …);
+ * other sources (`config`, `hook`) are made by Claude Code or another app (spikes.md §2).
+ */
+export const PERMISSION_SOURCE_USER_PREFIX = "user";
+
 /**
  * Beginnings of the text of `user` lines that Claude Code wrote rather than the user typing: local
  * command output and shell command output, the interruption marker (spikes.md §2). Such lines are not prompts.

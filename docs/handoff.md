@@ -70,6 +70,8 @@ To consolidate before or during stage C:
 
 From stage C:
 
+- **Decision 12 revised by the owner (2026-11-10):** a tool call blocked by a permission rule, auto mode, a hook or another app is an error; only a call the user rejected stays denied. Migration 003 reclassifies indexed calls by permission source and output text (`toolDenialKind` is not stored): check the `denied` and `error` counters on the real database after `torch start`.
+
 - **Not checked at K3** (spikes.md §9): `PreCompact`, `PostCompact` and `SessionEnd` from a real Claude Code; subagent events; API errors from two sources. Check on the owner's ordinary work after `torch setup`: look at the `hook_events` and `otel_events` counters in a day or two.
 - **The owner runs torch himself** from the VS Code terminal (`bun run dev`, `bun run dev:server` with `--watch`) on the real database: an edit of the code in `main` restarts his server; ports 4820 and 5173 are taken.
 
