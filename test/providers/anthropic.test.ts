@@ -43,8 +43,11 @@ describe("matchApiRequests", () => {
     expect(anthropic.matchApiRequests([event(1), event(2, { requestId: "req_other" })], calls).size).toBe(0);
   });
 
-  test("a call is matched at most once: the first event in input order takes it", () => {
+  test("repeated events about one request all pair with its call, as before providers existed", () => {
     const matched = anthropic.matchApiRequests([event(1, { requestId: "req_a" }), event(2, { requestId: "req_a" })], [call("req_a")]);
-    expect(pairs(matched)).toEqual([[1, "req_a"]]);
+    expect(pairs(matched)).toEqual([
+      [1, "req_a"],
+      [2, "req_a"],
+    ]);
   });
 });

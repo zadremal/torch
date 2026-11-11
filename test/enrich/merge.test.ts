@@ -75,6 +75,18 @@ test("a repeated event about the same request replaces the duration and the requ
   expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2400, duration_exact: 1, query_source: "repl_main_thread" });
 });
 
+test("two events about the same request in one merge are both applied: the later one wins", () => {
+  const db = sessionDb();
+  seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2400, query_source: "sdk" } });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 10, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2450, query_source: "repl_main_thread" } });
+
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
+
+  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2450, duration_exact: 1, query_source: "repl_main_thread" });
+  expect(applied(db)).toEqual([1, 1]);
+});
+
 test("api_request without a duration does not reset an exact duration recorded earlier", () => {
   const db = sessionDb();
   const before = seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 2350, duration_exact: 1, query_source: "repl_main_thread" });
@@ -106,24 +118,6 @@ test("on the direct API an api_request without request_id changes nothing and wa
 
   expect(modelCall(db, "req_1")).toEqual(call);
   expect(applied(db)).toEqual([0]);
-});
-
-test("two events with one request_id in one merge: the first refines the call, the second waits and refines it on the next merge", () => {
-  const db = sessionDb();
-  seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
-  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2350, query_source: "sdk" } });
-  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 10, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2400, query_source: "repl_main_thread" } });
-
-  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
-
-  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2350, duration_exact: 1, query_source: "sdk" });
-  expect(applied(db)).toEqual([1, 0]);
-
-  // The anthropic matcher does not look at the exact duration: the waiting event is applied as before.
-  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
-
-  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2400, duration_exact: 1, query_source: "repl_main_thread" });
-  expect(applied(db)).toEqual([1, 1]);
 });
 
 // ── tool_result, tool_decision → tool_calls ─────────────────────────────────────────────────

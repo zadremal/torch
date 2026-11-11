@@ -8,15 +8,16 @@ export const anthropic: Provider = {
   // A dated name (`claude-haiku-4-5-20251001`) is resolved by the price lookup itself (ingest/reduce/cost.ts).
   canonicalModel: (model) => model,
   declaredContextWindow: () => null,
-  /** By `request_id` only: an event without one, or naming a call the transcript does not have, stays unmatched. */
+  /**
+   * By `request_id` only: an event without one, or naming a call the transcript does not have, stays unmatched.
+   * Repeated events about one request (an exporter retry) all pair with its call, as they did before providers
+   * existed: the merge applies them in order, the later one wins.
+   */
   matchApiRequests(events, calls) {
-    const byId = new Map(calls.map((call) => [call.id, call]));
-    const taken = new Set<string>();
+    const ids = new Set(calls.map((call) => call.id));
     const matched = new Map<number, string>();
     for (const event of events) {
-      if (event.requestId === null || !byId.has(event.requestId) || taken.has(event.requestId)) continue;
-      taken.add(event.requestId);
-      matched.set(event.eventId, event.requestId);
+      if (event.requestId !== null && ids.has(event.requestId)) matched.set(event.eventId, event.requestId);
     }
     return matched;
   },

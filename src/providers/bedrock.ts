@@ -12,7 +12,9 @@ const FAMILIES = new Set(["opus", "sonnet", "haiku", "fable", "mythos"]);
 const WRAPPING = [/^(us|eu|apac|global)\./, /^anthropic\./, /-v\d+:\d+$/, /@\d{8}$/];
 
 function canonicalModel(model: string): string {
+  // A Bedrock ARN (`arn:aws:bedrock:…:inference-profile/us.anthropic.claude-…`) names the model after its last `/`.
   let name = model.toLowerCase().replace(/\[[^\]]*\]/g, "");
+  name = name.slice(name.lastIndexOf("/") + 1);
   for (const pattern of WRAPPING) name = name.replace(pattern, "");
   const tokens = name.replace(/[._]/g, "-").split("-");
   const family = tokens.findIndex((token) => FAMILIES.has(token));

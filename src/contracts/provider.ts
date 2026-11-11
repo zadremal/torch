@@ -49,8 +49,9 @@ export interface Provider {
   /** Context window the reported name itself declares (a `[1m]` suffix); null — the price table decides. */
   declaredContextWindow(model: string): number | null;
   /**
-   * Pairs `api_request` events with model calls, each event and each call at most once:
-   * eventId → `model_calls.id`.
+   * Pairs `api_request` events with model calls: eventId → `model_calls.id`. Each event pairs with at most one
+   * call, and a call with at most one event, except by `request_id`: repeated events naming one request all pair
+   * with its call (the merge applies them in order, the later one wins).
    */
   matchApiRequests(events: ApiRequestEvent[], calls: CallCandidate[]): Map<number, string>;
 }

@@ -188,7 +188,11 @@ function doctor({ config, out }: CliDeps): number {
   const mismatch = db && providerMismatch(db, config);
   if (mismatch) out(`  ${mismatch}`);
   out(`  Model response lines without a call key: ${scan.keyless}`);
-  if (scan.keyless > 0) out(`  They give no model calls, tokens or cost. Transcripts written through a gateway need "provider": "bedrock" in config.json, then torch index --rebuild`);
+  if (scan.keyless > 0) {
+    // With bedrock already set the advice to set it would mislead: such lines have neither requestId nor message.id.
+    const advice = config.provider === "bedrock" ? "" : ' Transcripts written through a gateway need "provider": "bedrock" in config.json, then torch index --rebuild';
+    out(`  They give no model calls, tokens or cost.${advice}`);
+  }
   printCounts(out, "Unknown line types", scan.unknown.types);
   printCounts(out, "Unknown fields", scan.unknown.fields);
 

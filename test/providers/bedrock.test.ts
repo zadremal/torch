@@ -41,12 +41,14 @@ describe("canonicalModel", () => {
     ["claude-align-aws-opus-5", "claude-opus-5"],
     ["claude-3-5-sonnet-20241022", "claude-3-5-sonnet-20241022"],
     ["mythos-1", "claude-mythos-1"],
+    ["arn:aws:bedrock:us-east-1:123456789012:inference-profile/us.anthropic.claude-opus-5-5-v1:0", "claude-opus-5-5"],
+    ["arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0", "claude-haiku-4-5-20251001"],
   ])("%s → %s", (reported, canonical) => {
     expect(bedrock.canonicalModel(reported)).toBe(canonical);
   });
 
   test("a name without a Claude family is returned unchanged", () => {
-    for (const model of ["gpt-5", "<synthetic>", "us.amazon.nova-pro-v1:0", "Claude-Instant"]) expect(bedrock.canonicalModel(model)).toBe(model);
+    for (const model of ["", "gpt-5", "<synthetic>", "us.amazon.nova-pro-v1:0", "Claude-Instant", "arn:aws:bedrock:us-east-1:123456789012:application-inference-profile/a1b2c3d4"]) expect(bedrock.canonicalModel(model)).toBe(model);
   });
 });
 

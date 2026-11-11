@@ -466,6 +466,19 @@ describe("torch doctor: provider", () => {
     expect(c.out.slice(2, 5)).toEqual(["Provider: bedrock", `  ${PROVIDER_MISMATCH}`, "  Model response lines without a call key: 0"]);
     expect(c.out).not.toContain(HINT);
   });
+
+  test("with bedrock already set, responses without any key are counted without the advice to set bedrock", () => {
+    const c = cli();
+    const files = gatewaySession("g1");
+    // Neither requestId nor message.id: no provider can key these lines.
+    for (const line of files.main.lines) delete (line as { message?: { id?: string } }).message?.id;
+    c.write(files);
+    c.config.provider = "bedrock";
+
+    expect(c.run("doctor")).toBe(0);
+
+    expect(c.out.slice(2, 5)).toEqual(["Provider: bedrock", "  Model response lines without a call key: 2", "  They give no model calls, tokens or cost."]);
+  });
 });
 
 describe("torch status", () => {
