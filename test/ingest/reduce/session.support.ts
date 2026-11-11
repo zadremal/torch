@@ -13,8 +13,8 @@ import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 /** Transcript rows parsed by the parser, in recording order. */
 export const parsed = (t: Transcript): ParsedLine[] => t.lines.map((line) => parseLine(JSON.stringify(line)).line);
 
-/** Reducer context for this transcript's file: without meta.json and external titles unless given. */
-export function context(db: Database, t: Transcript, extra: Partial<Pick<ReduceContext, "agentMeta" | "titles">> = {}): ReduceContext {
+/** Reducer context for this transcript's file: the anthropic provider, without meta.json and external titles unless given. */
+export function context(db: Database, t: Transcript, extra: Partial<Pick<ReduceContext, "agentMeta" | "titles" | "provider">> = {}): ReduceContext {
   return {
     db,
     sessionId: t.options.sessionId,

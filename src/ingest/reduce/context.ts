@@ -78,7 +78,7 @@ function breakdown(db: Database, sessionId: string, agent: Agent, calls: Call[],
   ];
 }
 
-export const deriveContext: DerivedReducer = ({ db, sessionId, prices }) => {
+export const deriveContext: DerivedReducer = ({ db, sessionId, prices, provider }) => {
   const agents = db.query<Agent, [string]>("SELECT agent_id, prompt_content_id FROM agents WHERE session_id = ?").all(sessionId);
   const callsOf = db.query<Call, [string, string]>(
     "SELECT id, model, ts_start, ts_end, ctx_tokens, tok_output FROM model_calls WHERE session_id = ? AND agent_id = ? ORDER BY ts_start, turn_index",
@@ -101,9 +101,13 @@ export const deriveContext: DerivedReducer = ({ db, sessionId, prices }) => {
       if (call.ctx_tokens > calls[peakIndex]!.ctx_tokens) peakIndex = i;
     });
     const peak = calls[peakIndex]!;
+    // contextWindow raises the price table entry's window to the next known size only for an observed context
+    // that does not fit it. A window the reported name declares (`[1m]`) holds even when the peak is below the
+    // entry's window, so it is passed as observed.
+    const observed = Math.max(peak.ctx_tokens, provider.declaredContextWindow(peak.model) ?? 0);
     update.run(
       // The window is by the peak call's model; a context larger than the window raises it to the next known size.
-      contextWindow(prices, peak.model, peak.ctx_tokens),
+      contextWindow(prices, provider.canonicalModel(peak.model), observed),
       calls[0]!.ctx_tokens,
       calls.at(-1)!.ctx_tokens,
       peak.ctx_tokens,

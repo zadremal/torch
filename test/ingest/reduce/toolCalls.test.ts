@@ -4,6 +4,7 @@ import type { Database } from "bun:sqlite";
 import type { ToolCallRow } from "../../../src/contracts/rows.ts";
 import { openMemoryDb } from "../../../src/db/db.ts";
 import { getContent } from "../../../src/ingest/reduce/contents.ts";
+import { bedrock } from "../../../src/providers/bedrock.ts";
 import { text, toolUse, transcript, type ToolResultInput } from "../../support/transcript.ts";
 import { lastEventTs, parsed, reduce, rows, START } from "./modelCalls.support.ts";
 
@@ -72,6 +73,23 @@ test("turn_index and model_call_id are the number and requestId of the model cal
   const second = t.assistant({ blocks: [toolUse("Read", { file_path: "/b.ts" }), toolUse("Read", { file_path: "/c.ts" })] });
 
   reduce(db, t);
+
+  const calls = byId(db);
+  expect(calls[first.toolUseIds[0]!]).toMatchObject({ model_call_id: first.requestId, turn_index: 1 });
+  expect(calls[second.toolUseIds[0]!]).toMatchObject({ model_call_id: second.requestId, turn_index: 2 });
+  expect(calls[second.toolUseIds[1]!]).toMatchObject({ model_call_id: second.requestId, turn_index: 2 });
+});
+
+test("bedrock: turn_index and model_call_id come from the call keyed by message.id", () => {
+  const db = openMemoryDb();
+  const t = transcript({ sessionId: "s1", gateway: true });
+  t.prompt("Go");
+  const first = t.assistant({ blocks: [toolUse("Read", { file_path: "/a.ts" })] });
+  t.toolResult(first.toolUseIds[0]!, { content: "a" });
+  const second = t.assistant({ blocks: [text("Two more"), toolUse("Read", { file_path: "/b.ts" }), toolUse("Read", { file_path: "/c.ts" })] });
+  expect(second.requestId).toStartWith("msg_bdrk_");
+
+  reduce(db, t, { provider: bedrock });
 
   const calls = byId(db);
   expect(calls[first.toolUseIds[0]!]).toMatchObject({ model_call_id: first.requestId, turn_index: 1 });

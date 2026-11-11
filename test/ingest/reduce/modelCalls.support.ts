@@ -4,6 +4,7 @@ import type { PriceTable } from "../../../src/contracts/api.ts";
 import { MAIN_AGENT_ID } from "../../../src/contracts/constants.ts";
 import type { ParsedLine } from "../../../src/contracts/lines.ts";
 import type { LineReducer, ReduceContext } from "../../../src/contracts/pipeline.ts";
+import type { Provider } from "../../../src/contracts/provider.ts";
 import { LINE_REDUCERS } from "../../../src/ingest/index.ts";
 import { parseLine } from "../../../src/ingest/parse.ts";
 import { reduceApiErrors } from "../../../src/ingest/reduce/apiErrors.ts";
@@ -48,6 +49,8 @@ export interface Pass {
   lines?: ParsedLine[];
   prevEventTs?: number | null;
   prices?: PriceTable;
+  /** The API provider; by default anthropic. */
+  provider?: Provider;
 }
 
 /** One pass over a transcript file: the package reducers in the indexer's order, in one transaction. */
@@ -57,7 +60,7 @@ export function reduce(db: Database, t: Transcript, pass: Pass = {}): void {
     sessionId: t.options.sessionId,
     agentId: t.options.agentId ?? MAIN_AGENT_ID,
     prices: pass.prices ?? PRICES,
-    provider: ANTHROPIC_PROVIDER,
+    provider: pass.provider ?? ANTHROPIC_PROVIDER,
     prevEventTs: pass.prevEventTs ?? null,
     agentMeta: null,
     titles: { customFile: null, desktop: null },
