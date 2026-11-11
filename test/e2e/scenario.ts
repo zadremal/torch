@@ -222,6 +222,32 @@ export async function runScenario({ world, baseUrl, browser, page }: Stage): Pro
     await page.gone("region", "Details");
   });
 
+  await step("Session overview", "the Errors tile opens the errors list; an error opens its tool call in the details panel", async () => {
+    await (await (await page.find("region", "Session summary")).find("link", /^Errors/)).click();
+    await withParam("errors", "1");
+    const errors = await page.find("region", "Errors");
+    const table = await errors.find("table");
+    await shows("Errors table, number of error rows", String(refErrors), async () => String((await table.all("link")).length));
+    let row: Scope | undefined;
+    await waitFor(`Errors table: a row with the target “${call.target}”`, async () => {
+      for (const candidate of await table.all("row")) if ((await texts(candidate)).includes(call.target)) return (row = candidate);
+      return undefined;
+    });
+    await showsText(row!, "error row", callAgent.type!);
+    await (await row!.find("link", call.name)).click();
+    await withParam("sel", callSelection);
+    await withParam("errors", "1");
+    const details = await page.find("region", "Details");
+    await details.find("heading", call.name);
+    await (await details.find("button", "Close panel")).click();
+    await withParam("sel", null);
+    await page.gone("region", "Details");
+    await page.find("region", "Errors");
+    await (await (await page.find("region", "Session summary")).find("link", /^Errors/)).click();
+    await withParam("errors", null);
+    await page.gone("region", "Errors");
+  });
+
   await step("Session timeline", "opens from the overview: tracks with marks", async () => {
     await (await page.find("link", "Open timeline")).click();
     await atPath(`${sessionPath}/timeline`);

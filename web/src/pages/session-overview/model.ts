@@ -1,6 +1,6 @@
 // Session overview logic without rendering: tile values, Token usage series, agent order,
 // header captions and the downloaded file name. Everything the screen shows as text is computed here.
-import type { AgentSummary, PromptSummary, SessionOverview, TokenTotals } from "@contracts/api.ts";
+import type { AgentSummary, PromptSummary, SessionOverview, TokenTotals, ToolErrorEntry } from "@contracts/api.ts";
 import {
   DASH,
   formatClock,
@@ -8,6 +8,7 @@ import {
   formatDateTime,
   formatDuration,
   formatMoney,
+  formatOffset,
   formatPercent,
   formatTokens,
 } from "../../lib/format.ts";
@@ -18,6 +19,8 @@ export interface TileModel {
   value: string;
   helper?: string;
   error?: boolean;
+  /** The tile opens the Errors list: only the Errors tile of a session with errors. */
+  opensErrors?: boolean;
 }
 
 /** Six totals tiles, in artboard order. */
@@ -39,6 +42,7 @@ export function summaryTiles(s: SessionOverview): TileModel[] {
       label: "Errors",
       value: formatCount(s.toolErrors),
       error: s.toolErrors > 0,
+      opensErrors: s.toolErrors > 0,
       helper:
         s.toolCalls > 0
           ? `${formatPercent(s.toolErrors / s.toolCalls, 1)} of ${formatCount(s.toolCalls)} tool calls`
@@ -115,16 +119,23 @@ export interface AgentRowModel {
 
 const USAGE_SHOWN = 4;
 
+const isMainAgent = (a: AgentSummary) => a.parentAgentId === null && a.type === null;
+
+/** Agent name in the Agents table and the Errors list. */
+function agentName(a: AgentSummary): string {
+  return isMainAgent(a) ? "Main agent" : (a.type ?? a.agentId);
+}
+
 export function agentRows(agents: AgentSummary[]): AgentRowModel[] {
   // The tree traversal order and depth are set by the server (`agentsInTreeOrder`): only captions here.
   return agents.map((a) => {
-    const main = a.parentAgentId === null && a.type === null;
+    const main = isMainAgent(a);
     const ratio = a.ctxPeak !== null && a.ctxWindow ? a.ctxPeak / a.ctxWindow : null;
     const caption = [a.agentId, a.description ?? (main ? "orchestrator" : null)].filter(Boolean).join(" · ");
     return {
       agentId: a.agentId,
       depth: a.depth,
-      name: main ? "Main agent" : (a.type ?? a.agentId),
+      name: agentName(a),
       caption,
       model: a.model,
       peak: ratio === null ? DASH : `${formatTokens(a.ctxPeak)} · ${formatPercent(ratio)}`,
@@ -139,6 +150,45 @@ export function agentRows(agents: AgentSummary[]): AgentRowModel[] {
       errors: a.toolErrors,
     };
   });
+}
+
+export interface ErrorRowModel {
+  /** Tool call identifier: opens the call in the details panel. */
+  id: string;
+  tool: string;
+  target: string | null;
+  agent: string;
+  agentId: string;
+  /** Time of day. */
+  time: string;
+  /** Offset from the session start: "+6:12". */
+  offset: string | null;
+  error: string;
+}
+
+/** Rows of the Errors list: the agent by name, as in the Agents table; the error is the first line of its output. */
+export function errorRows(errors: ToolErrorEntry[], agents: AgentSummary[], sessionStart: number | null): ErrorRowModel[] {
+  const byId = new Map(agents.map((a) => [a.agentId, a]));
+  return errors.map((e) => {
+    const agent = byId.get(e.agentId);
+    return {
+      id: e.id,
+      tool: e.name,
+      target: e.target,
+      agent: agent ? agentName(agent) : e.agentId,
+      agentId: e.agentId,
+      time: formatClock(e.ts),
+      offset: sessionStart === null ? null : formatOffset(e.ts - sessionStart),
+      error: e.errorTitle ?? "No error message recorded",
+    };
+  });
+}
+
+/** Note beside the Errors heading: "7 tool errors in 3 agents". */
+export function errorsCaption(errors: ToolErrorEntry[]): string {
+  const agents = new Set(errors.map((e) => e.agentId)).size;
+  const calls = `${formatCount(errors.length)} tool ${errors.length === 1 ? "error" : "errors"}`;
+  return agents > 1 ? `${calls} in ${agents} agents` : calls;
 }
 
 /** Context window in whole thousands, as in the artboard: 200000 → "200K". */

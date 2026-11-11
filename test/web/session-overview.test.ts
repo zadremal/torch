@@ -4,6 +4,8 @@ import type { AgentSummary, SessionOverview } from "../../src/contracts/api.ts";
 import {
   agentRows,
   enrichmentNote,
+  errorRows,
+  errorsCaption,
   exportFileName,
   formatWindow,
   promptsModel,
@@ -50,6 +52,39 @@ describe("summaryTiles", () => {
   test("no errors: a tile without an icon", () => {
     const tiles = summaryTiles({ ...done, toolErrors: 0 });
     expect(tiles.find((x) => x.label === "Errors")?.error).toBe(false);
+  });
+
+  test("only the Errors tile of a session with errors opens the Errors list", () => {
+    expect(summaryTiles(done).filter((x) => x.opensErrors).map((x) => x.label)).toEqual(["Errors"]);
+    expect(summaryTiles({ ...done, toolErrors: 0 }).some((x) => x.opensErrors)).toBe(false);
+  });
+});
+
+describe("errors", () => {
+  test("baseline session: every error by time, agents by name as in the Agents table", () => {
+    const rows = errorRows(done.toolErrorList, done.agents, done.startedAt);
+    expect(rows).toHaveLength(done.toolErrors);
+    expect(rows.map((r) => r.id)).toEqual(done.toolErrorList.map((e) => e.id));
+    expect(rows[0]).toMatchObject({
+      id: "toolu_main_009",
+      tool: "Bash",
+      target: "bun run generate:client",
+      agent: "Main agent",
+      agentId: "main",
+      error: "$ openapi-ts -i openapi.yaml -o src/api/billing/gen --zod",
+    });
+    expect(rows[0]?.offset).toMatch(/^\+\d+:\d\d$/);
+    expect(rows.find((r) => r.agentId === "gp-1")?.agent).toBe("general-purpose");
+  });
+
+  test("a call without an error message and an agent missing from the list", () => {
+    const [row] = errorRows([{ id: "t", agentId: "lost", name: "Bash", target: null, ts: 0, errorTitle: null }], [], null);
+    expect(row).toMatchObject({ agent: "lost", offset: null, error: "No error message recorded" });
+  });
+
+  test("caption: the number of errors and of agents", () => {
+    expect(errorsCaption(done.toolErrorList)).toMatch(/^7 tool errors in \d agents$/);
+    expect(errorsCaption(done.toolErrorList.slice(0, 1))).toBe("1 tool error");
   });
 });
 

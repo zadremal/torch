@@ -10,10 +10,11 @@ import type {
   SessionsQuery,
   SessionsResponse,
   SortDir,
+  ToolErrorEntry,
   ToolUsageEntry,
 } from "../contracts/api.ts";
 import { AGENT_BUCKETS, MAIN_AGENT_ID, SESSIONS_PAGE_SIZE } from "../contracts/constants.ts";
-import type { AgentRow, PromptRow, SessionRow } from "../contracts/rows.ts";
+import type { AgentRow, PromptRow, SessionRow, ToolCallRow } from "../contracts/rows.ts";
 import { getContent } from "../ingest/reduce/contents.ts";
 import { type Handler, notFound } from "./context.ts";
 import { badQuery, enumParam, flagParam, numberParam, QueryError, type SessionFilter, sessionFilterSql, textParam } from "./filters.ts";
@@ -172,6 +173,26 @@ function toolUsageByAgent(db: Database, sessionId: string): Map<string, ToolUsag
   return byAgent;
 }
 
+/** Tool calls with the error status by time: the overview's Errors list. */
+function toolErrorList(db: Database, sessionId: string): ToolErrorEntry[] {
+  return db
+    .query<Pick<ToolCallRow, "id" | "agent_id" | "name" | "target" | "ts_start" | "error_title">, [string]>(
+      `SELECT id, agent_id, name, target, ts_start, error_title
+       FROM tool_calls
+       WHERE session_id = ? AND status = 'error'
+       ORDER BY ts_start, id`,
+    )
+    .all(sessionId)
+    .map((row) => ({
+      id: row.id,
+      agentId: row.agent_id,
+      name: row.name,
+      target: row.target,
+      ts: row.ts_start,
+      errorTitle: row.error_title,
+    }));
+}
+
 export const getSession: Handler = (c) => {
   const db = c.get("db");
   const id = c.req.param("id") ?? "";
@@ -240,5 +261,6 @@ export const getSession: Handler = (c) => {
       attachments: prompt.attachments_json ? (JSON.parse(prompt.attachments_json) as string[]) : [],
     })),
     agents: agents.map(agentSummary),
+    toolErrorList: toolErrorList(db, id),
   });
 };

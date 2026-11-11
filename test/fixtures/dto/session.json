@@ -251,5 +251,63 @@
     }
    ]
   }
+ ],
+ "toolErrorList": [
+  {
+   "id": "toolu_main_009",
+   "agentId": "main",
+   "name": "Bash",
+   "target": "bun run generate:client",
+   "ts": 1793455703000,
+   "errorTitle": "$ openapi-ts -i openapi.yaml -o src/api/billing/gen --zod"
+  },
+  {
+   "id": "toolu_main_014",
+   "agentId": "main",
+   "name": "Edit",
+   "target": "/Users/dev/code/billing-web/src/api/billing/index.ts",
+   "ts": 1793455786000,
+   "errorTitle": "Error: String to replace not found in file."
+  },
+  {
+   "id": "toolu_gp-1_031",
+   "agentId": "gp-1",
+   "name": "Bash",
+   "target": "bun test",
+   "ts": 1793456031000,
+   "errorTitle": "bun test v1.3.1"
+  },
+  {
+   "id": "toolu_gp-2_009",
+   "agentId": "gp-2",
+   "name": "Edit",
+   "target": "/Users/dev/code/billing-web/src/billing/checkout.ts",
+   "ts": 1793456033000,
+   "errorTitle": "Error: Found 3 matches of the string to replace, but replace_all is false."
+  },
+  {
+   "id": "toolu_gp-1_038",
+   "agentId": "gp-1",
+   "name": "Bash",
+   "target": "bun test tests/invoices.test.ts",
+   "ts": 1793456073000,
+   "errorTitle": "tests/invoices.test.ts:"
+  },
+  {
+   "id": "toolu_gp-1_043",
+   "agentId": "gp-1",
+   "name": "Edit",
+   "target": "/Users/dev/code/billing-web/tests/setup.ts",
+   "ts": 1793456099000,
+   "errorTitle": "Error: File has not been read yet. Read it first before writing to it."
+  },
+  {
+   "id": "toolu_gp-1_046",
+   "agentId": "gp-1",
+   "name": "Bash",
+   "target": "bun test --watch",
+   "ts": 1793456106000,
+   "errorTitle": "bun test v1.3.1 [watching]"
+  }
  ]
 }

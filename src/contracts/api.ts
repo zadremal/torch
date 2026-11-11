@@ -193,6 +193,18 @@ export interface AgentSummary {
   toolUsage: ToolUsageEntry[];
 }
 
+/** A tool call that ended with an error: a row of the overview's Errors list. */
+export interface ToolErrorEntry {
+  /** Tool call identifier: the selection `tool:<id>` opens it in the details panel. */
+  id: string;
+  agentId: string;
+  name: string;
+  target: string | null;
+  ts: number;
+  /** First line of the error output; null if the call recorded none. */
+  errorTitle: string | null;
+}
+
 /** Session overview; also the data of the "Session" view of the details panel. */
 export interface SessionOverview {
   id: string;
@@ -227,6 +239,8 @@ export interface SessionOverview {
   prompts: PromptSummary[];
   /** The main agent first, nested ones right after their parent. */
   agents: AgentSummary[];
+  /** Tool calls with the error status by time: as many as `toolErrors`. */
+  toolErrorList: ToolErrorEntry[];
 }
 
 // ── GET /api/sessions/:id/export ────────────────────────────────────────────────────────────

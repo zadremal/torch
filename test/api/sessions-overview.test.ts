@@ -79,7 +79,7 @@ test("the response fills every SessionOverview field with values from the databa
   seed.prompt(db, { session_id: "s1", id: "p1", ts: T0, seq: 0, kind: "original", text: "Make checkout faster", tokens_est: 5, attachments_json: JSON.stringify(["trace.json", "notes.md"]) });
   seed.prompt(db, { session_id: "s1", id: "p2", ts: T0 + 300_000, seq: 1, kind: "follow_up", text: "Keep the public API", tokens_est: 4 });
   seed.toolCall(db, { session_id: "s1", id: "t1", name: "Read", ts_start: T0 + 1_000 });
-  seed.toolCall(db, { session_id: "s1", id: "t2", name: "Bash", ts_start: T0 + 2_000, status: "error" });
+  seed.toolCall(db, { session_id: "s1", id: "t2", name: "Bash", target: "bun test", ts_start: T0 + 2_000, status: "error", error_title: "1 test failed" });
   seed.toolCall(db, { session_id: "s1", id: "t3", name: "Read", ts_start: T0 + 3_000 });
   seed.toolCall(db, { session_id: "s1", id: "t4", agent_id: "explore-1", name: "Grep", ts_start: T0 + 61_000 });
 
@@ -151,6 +151,7 @@ test("the response fills every SessionOverview field with values from the databa
         toolUsage: [{ name: "Grep", count: 1, errors: 0 }],
       },
     ],
+    toolErrorList: [{ id: "t2", agentId: "main", name: "Bash", target: "bun test", ts: T0 + 2_000, errorTitle: "1 test failed" }],
   } satisfies SessionOverview);
 });
 
@@ -276,7 +277,22 @@ test("a session without agents, prompts and a name: empty lists, the name is the
     contextWindow: null,
     prompts: [],
     agents: [],
+    toolErrorList: [],
   });
+});
+
+test("toolErrorList holds only error calls of every agent, by time", async () => {
+  const db = openMemoryDb();
+  seed.session(db, { id: "s1" });
+  seed.toolCall(db, { session_id: "s1", id: "late", agent_id: "explore-1", name: "Grep", ts_start: T0 + 9_000, status: "error" });
+  seed.toolCall(db, { session_id: "s1", id: "ok", name: "Read", ts_start: T0 + 1_000 });
+  seed.toolCall(db, { session_id: "s1", id: "denied", name: "Bash", ts_start: T0 + 2_000, status: "denied" });
+  seed.toolCall(db, { session_id: "s1", id: "early", name: "Edit", ts_start: T0 + 3_000, status: "error", error_title: "String not found" });
+  seed.toolCall(db, { session_id: "other", id: "foreign", name: "Bash", ts_start: T0, status: "error" });
+  const list = (await api(db).overview("s1")).toolErrorList;
+  expect(list.map((entry) => entry.id)).toEqual(["early", "late"]);
+  expect(list[0]).toMatchObject({ agentId: "main", errorTitle: "String not found" });
+  expect(list[1]).toMatchObject({ agentId: "explore-1", errorTitle: null });
 });
 
 test("unknown session — 404 with ApiError", async () => {
