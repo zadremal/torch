@@ -413,7 +413,7 @@ Order of work: read the file, show a line-by-line diff, ask for confirmation, sa
 | `GET /api/dashboard?range=&from=&to=&temp=` | Totals with deltas, two series for the charts, token mix, five top lists, tables by tool and model |
 | `GET /api/sessions?q=&agents=&tcMin=&tcMax=&erMin=&erMax=&tkMin=&tkMax=&project=&temp=&sort=&dir=&page=` | The list |
 | `GET /api/projects` | Values for the filter |
-| `GET /api/sessions/:id` | Overview: tiles, tokens, prompts, agents |
+| `GET /api/sessions/:id` | Overview: tiles, tokens, prompts, agents, the tool errors list |
 | `GET /api/sessions/:id/timeline` | All tracks in compact form and the map of collapsed idle periods |
 | `GET /api/sessions/:id/agents/:agentId` | Agent panel |
 | `GET /api/sessions/:id/tool-calls/:callId`, `/api/sessions/:id/prompts/:promptId` | Tool call and prompt panels |
@@ -461,6 +461,7 @@ The timeline state lives in the address: `sel=tool:<id>` (also `session`, `agent
 | Duration | Difference between start and end | Active time; the full interval in the tooltip | Sessions continue across hours and days |
 | Timeline, axis | Linear | Gaps at idle periods | Same |
 | Agents, table | Flat | Nested subagents indented | The data has `spawnDepth` |
+| Session detail, Errors tile | A number | A link that shows the Errors list (tool, agent, time, first line of the error) under the tiles, `errors=1` in the address; an error opens its tool call in the details panel beside the overview | Asked by the owner 2026-11-11 |
 | Session status | Completed | Running or Completed | Live updating |
 | Context at peak | 5 categories, exact numbers | 4 categories ("System and tools" instead of two), marked "Estimated" | The breakdown is not stored anywhere |
 | Instructions loaded | Path, type, tokens | Path, type, token estimate from the file size; for sessions without hooks, whatever could be extracted from the transcript | Hooks have no size |

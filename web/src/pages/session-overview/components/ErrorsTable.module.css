@@ -1,0 +1,97 @@
+/* The same table look as the Agents table; a whole row is the click area of its link. */
+.root {
+  overflow-x: auto;
+}
+
+.table {
+  font-size: var(--cds-body-compact-01-font-size);
+  font-weight: var(--cds-body-compact-01-font-weight);
+  line-height: var(--cds-body-compact-01-line-height);
+  letter-spacing: var(--cds-body-compact-01-letter-spacing);
+  border-collapse: collapse;
+  inline-size: 100%;
+  min-inline-size: 720px;
+  table-layout: fixed;
+
+  th {
+    padding-inline: var(--cds-spacing-05);
+    background: var(--cds-layer-accent-01);
+    block-size: var(--cds-spacing-09);
+    font-weight: 600;
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  th:nth-child(1) {
+    inline-size: 28%;
+  }
+
+  th:nth-child(2) {
+    inline-size: 18%;
+  }
+
+  th:nth-child(3) {
+    inline-size: 12%;
+  }
+
+  tbody tr {
+    position: relative;
+    cursor: pointer;
+  }
+
+  td {
+    padding: var(--cds-spacing-04) var(--cds-spacing-05);
+    border-block-end: 1px solid var(--cds-border-subtle-00);
+    vertical-align: top;
+  }
+
+  tbody tr:hover {
+    background: var(--cds-layer-hover-01);
+  }
+
+  tbody tr.selected {
+    background: var(--cds-layer-selected-01);
+  }
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.open {
+  color: var(--cds-link-primary);
+  text-decoration: none;
+  outline: none;
+
+  &::after {
+    position: absolute;
+    content: "";
+    inset: 0;
+  }
+
+  &:hover {
+    color: var(--cds-link-primary-hover);
+  }
+
+  &:focus-visible::after {
+    outline: 2px solid var(--cds-focus);
+    outline-offset: -2px;
+  }
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The first line of the error output, up to two lines here: the whole output is in the details panel. */
+.error {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--cds-text-error);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
