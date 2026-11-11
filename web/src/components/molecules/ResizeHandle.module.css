@@ -1,0 +1,68 @@
+/*
+ * The resize edge of a docked panel: a 6px strip inside the panel's edge. On hover, while dragging and in focus
+ * a 2px line shows on the edge itself.
+ */
+.handle {
+  position: absolute;
+  z-index: 1;
+  touch-action: none;
+
+  &::after {
+    position: absolute;
+    content: "";
+  }
+
+  &:hover::after,
+  &:active::after {
+    background: var(--cds-border-interactive);
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    &::after {
+      background: var(--cds-focus);
+    }
+  }
+}
+
+.left,
+.right {
+  cursor: col-resize;
+  inline-size: 6px;
+  inset-block: 0;
+
+  &::after {
+    inline-size: 2px;
+    inset-block: 0;
+  }
+}
+
+.left {
+  inset-inline-start: 0;
+
+  &::after {
+    inset-inline-start: 0;
+  }
+}
+
+.right {
+  inset-inline-end: 0;
+
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+.top {
+  block-size: 6px;
+  cursor: row-resize;
+  inset-block-start: 0;
+  inset-inline: 0;
+
+  &::after {
+    block-size: 2px;
+    inset-block-start: 0;
+    inset-inline: 0;
+  }
+}
