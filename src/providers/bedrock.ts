@@ -24,11 +24,17 @@ function canonicalModel(model: string): string {
   return ["claude", ...rest].join("-");
 }
 
-const sameTokens = (event: ApiRequestEvent, call: CallCandidate): boolean =>
-  event.inputTokens === call.tokInput &&
-  event.outputTokens === call.tokOutput &&
-  event.cacheReadTokens === call.tokCacheRead &&
-  event.cacheCreationTokens === call.tokCacheWrite;
+/**
+ * How strongly the token counts say that the event is about the call: 0 — all four equal; 1 — the input side
+ * equal (the transcript's output count can lag behind the final one); 2 — the event has no input-side counts,
+ * so only time speaks; null — the counts it has name another call.
+ */
+function tokenRank(event: ApiRequestEvent, call: CallCandidate): 0 | 1 | 2 | null {
+  const input = [event.inputTokens, event.cacheReadTokens, event.cacheCreationTokens];
+  if (input.every((count) => count === null)) return 2;
+  if (event.inputTokens !== call.tokInput || event.cacheReadTokens !== call.tokCacheRead || event.cacheCreationTokens !== call.tokCacheWrite) return null;
+  return event.outputTokens === call.tokOutput ? 0 : 1;
+}
 
 export const bedrock: Provider = {
   id: "bedrock",
@@ -38,9 +44,16 @@ export const bedrock: Provider = {
   declaredContextWindow: (model) => (/\[1m\]/i.test(model) ? 1_000_000 : null),
   /**
    * First by `request_id`, as on the direct API. The rest pair with calls whose duration is not exact yet, of
-   * the same model, ending within API_REQUEST_MATCH_WINDOW_MS of the event. Equal token counts outrank time,
-   * so parallel subagents finishing together on one model are told apart; then the nearest in time; then the
-   * input order. A side request the transcript does not have (a title on another model) stays unmatched.
+   * the same model, ending within API_REQUEST_MATCH_WINDOW_MS of the event, ranked by `tokenRank`; within a
+   * rank the nearest in time wins, then the input order. A side request the transcript does not have (a title
+   * on another model) stays unmatched.
+   *
+   * Token evidence is decisive, not just a tie-breaker: the merge runs per transcript file, so after the main
+   * file has been read and before a subagent's file is (a first load, a rebuild), the subagent's events are
+   * pending while its calls are not in the database yet. By time alone such an event would take a main-agent
+   * call of the same model that ended nearby. An event whose input-side counts differ from the call's is about
+   * another call and does not pair with it; it waits for its own. Only an event the exporter sent without any
+   * input-side counts pairs by time alone. A partly known input side is not "none": it must match in full.
    */
   matchApiRequests(events, calls) {
     const matched = anthropic.matchApiRequests(events, calls);
@@ -51,7 +64,8 @@ export const bedrock: Provider = {
       return calls.flatMap((call) => {
         const gap = Math.abs(call.tsEnd - event.ts);
         if (taken.has(call.id) || call.durationExact || gap > API_REQUEST_MATCH_WINDOW_MS || canonicalModel(call.model) !== model) return [];
-        return [{ event, call, rank: sameTokens(event, call) ? 0 : 1, gap }];
+        const rank = tokenRank(event, call);
+        return rank === null ? [] : [{ event, call, rank, gap }];
       });
     });
     // The sort is stable: at equal rank and distance the input order decides.

@@ -15,8 +15,11 @@ function number(value: AttrValue | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-/** An `otel_events` row as a network event; null for an `api_request` without `request_id`: there is nothing to attach it to. */
-function networkEvent(row: RawEventRow & { session_id: string }): NetworkEvent | null {
+/**
+ * An `otel_events` row as a network event. An `api_request` without `request_id` (a gateway sends none) is a
+ * network event too: whether it can be tied to a call is the provider's decision (`matchApiRequests`).
+ */
+function networkEvent(row: RawEventRow & { session_id: string }): NetworkEvent {
   const attrs = JSON.parse(row.attrs_json) as Attrs;
   const common = { eventId: row.id, sessionId: row.session_id, ts: row.ts, durationMs: number(attrs.duration_ms) };
   if (row.name === OTEL_EVENT_NAMES.apiError) {
@@ -30,12 +33,10 @@ function networkEvent(row: RawEventRow & { session_id: string }): NetworkEvent |
       attempt: number(attrs.attempt),
     };
   }
-  const requestId = text(attrs.request_id);
-  if (requestId === null) return null;
   return {
     kind: "api_request",
     ...common,
-    requestId,
+    requestId: text(attrs.request_id),
     model: text(attrs.model),
     querySource: text(attrs.query_source),
     inputTokens: number(attrs.input_tokens),
@@ -57,7 +58,6 @@ export function otelNetworkSource(db: Database): NetworkSource {
     pending: (sessionId) =>
       pending
         .all(sessionId, OTEL_EVENT_NAMES.apiRequest, OTEL_EVENT_NAMES.apiError)
-        .map(networkEvent)
-        .filter((event) => event !== null),
+        .map(networkEvent),
   };
 }

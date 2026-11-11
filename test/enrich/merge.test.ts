@@ -97,6 +97,35 @@ test("api_request without a call in the transcript changes nothing and waits", (
   expect(applied(db)).toEqual([0]);
 });
 
+test("on the direct API an api_request without request_id changes nothing and waits, even next to a call of its model", () => {
+  const db = sessionDb();
+  const call = seed.modelCall(db, { session_id: "s1", id: "req_1", model: "claude-opus-5-5" });
+  seed.otelEvent(db, { session_id: "s1", ts: call.ts_end, name: OTEL_EVENT_NAMES.apiRequest, attrs: { model: "claude-opus-5-5", duration_ms: 950, query_source: "repl_main_thread" } });
+
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
+
+  expect(modelCall(db, "req_1")).toEqual(call);
+  expect(applied(db)).toEqual([0]);
+});
+
+test("two events with one request_id in one merge: the first refines the call, the second waits and refines it on the next merge", () => {
+  const db = sessionDb();
+  seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2350, query_source: "sdk" } });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 10, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2400, query_source: "repl_main_thread" } });
+
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
+
+  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2350, duration_exact: 1, query_source: "sdk" });
+  expect(applied(db)).toEqual([1, 0]);
+
+  // The anthropic matcher does not look at the exact duration: the waiting event is applied as before.
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
+
+  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2400, duration_exact: 1, query_source: "repl_main_thread" });
+  expect(applied(db)).toEqual([1, 1]);
+});
+
 // ── tool_result, tool_decision → tool_calls ─────────────────────────────────────────────────
 
 test("tool_result sets the exact duration on the call with the same tool_use_id", () => {

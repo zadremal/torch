@@ -114,17 +114,64 @@ describe("matchApiRequests", () => {
     ]);
   });
 
-  test("tokens only rank: an event with unknown or differing counts still pairs by time", () => {
-    const calls = [call("c", { tsEnd: T0 + 300, ...tokens(1, 2, 3, 4).call })];
-    expect(pairs(bedrock.matchApiRequests([event(1, { ...tokens(1, 2, 3, 5).event })], calls))).toEqual([[1, "c"]]);
-    expect(pairs(bedrock.matchApiRequests([event(1, { ...tokens(1, 2, 3, 4).event, cacheCreationTokens: null })], calls))).toEqual([[1, "c"]]);
+  test("a subagent whose file is not indexed yet: its event does not take a main-agent call of the same model in the window", () => {
+    // The main file has been merged; the subagent's call is not in the database, its event is pending.
+    const calls = [call("msg_bdrk_main", { tsEnd: T0 + 300, ...tokens(2, 300, 40_000, 500).call })];
+    const subagent = event(1, { ts: T0 + 350, ...tokens(6, 120, 18_000, 0).event });
+    expect(bedrock.matchApiRequests([subagent], calls).size).toBe(0);
+    // Once the subagent's file is indexed, the same event pairs with its own call.
+    const later = [...calls, call("msg_bdrk_sub", { tsEnd: T0 + 4000, ...tokens(6, 120, 18_000, 0).call })];
+    expect(pairs(bedrock.matchApiRequests([subagent], later))).toEqual([[1, "msg_bdrk_sub"]]);
   });
 
-  test("an event with partly unknown counts does not outrank by tokens: the nearer call wins", () => {
-    const near = call("near", { tsEnd: T0 + 10 });
-    const far = call("far", { tsEnd: T0 + 900, ...tokens(0, 0, 0, 0).call });
-    // All-zero call counts equal a null-free zero event, but this event has a null count.
-    expect(pairs(bedrock.matchApiRequests([event(1, { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 })], [far, near]))).toEqual([[1, "near"]]);
+  test("any differing input-side count rules the call out, whatever the time", () => {
+    const calls = [call("c", { tsEnd: T0 + 300, ...tokens(1, 2, 3, 4).call })];
+    for (const differing of [tokens(9, 2, 3, 4), tokens(1, 2, 9, 4), tokens(1, 2, 3, 9)]) {
+      expect(bedrock.matchApiRequests([event(1, { ...differing.event })], calls).size).toBe(0);
+    }
+  });
+
+  test("rank 1: the input side equal and the output count different still pairs; a full match outranks it", () => {
+    const lagging = call("lagging", { tsEnd: T0 + 10, ...tokens(1, 2, 3, 4).call });
+    expect(pairs(bedrock.matchApiRequests([event(1, { ...tokens(1, 250, 3, 4).event })], [lagging]))).toEqual([[1, "lagging"]]);
+    // The full match is farther in time and still wins.
+    const exact = call("exact", { tsEnd: T0 + 900, ...tokens(1, 250, 3, 4).call });
+    expect(pairs(bedrock.matchApiRequests([event(1, { ...tokens(1, 250, 3, 4).event })], [lagging, exact]))).toEqual([[1, "exact"]]);
+  });
+
+  test("rank 1 outranks rank 2: an input-side match wins over a nearer call for an event without counts", () => {
+    const near = call("near", { tsEnd: T0 + 10, ...tokens(7, 7, 7, 7).call });
+    const far = call("far", { tsEnd: T0 + 900, ...tokens(1, 2, 3, 4).call });
+    const events = [event(1, { ...tokens(1, 99, 3, 4).event }), event(2)];
+    expect(pairs(bedrock.matchApiRequests(events, [near, far]))).toEqual([
+      [1, "far"],
+      [2, "near"],
+    ]);
+  });
+
+  test("rank 2: an event without any input-side counts pairs by time alone, with the nearest call", () => {
+    const near = call("near", { tsEnd: T0 + 10, ...tokens(1, 2, 3, 4).call });
+    const far = call("far", { tsEnd: T0 + 900, ...tokens(5, 6, 7, 8).call });
+    expect(pairs(bedrock.matchApiRequests([event(1)], [far, near]))).toEqual([[1, "near"]]);
+    // The output count alone is not input-side evidence.
+    expect(pairs(bedrock.matchApiRequests([event(1, { outputTokens: 6 })], [far, near]))).toEqual([[1, "near"]]);
+  });
+
+  test("a partly known input side must match in full: it is not an event without counts", () => {
+    const calls = [call("c", { tsEnd: T0 + 10, ...tokens(1, 2, 3, 4).call })];
+    expect(bedrock.matchApiRequests([event(1, { ...tokens(1, 2, 3, 4).event, cacheCreationTokens: null })], calls).size).toBe(0);
+  });
+
+  test("parallel subagents on one model ending in the same second, events in reverse order: each gets its own call", () => {
+    const counts = [tokens(3, 410, 52_000, 1200), tokens(5, 90, 18_000, 0), tokens(8, 15, 31_000, 64)];
+    const calls = counts.map((c, i) => call(`msg_bdrk_${i}`, { tsEnd: T0 + 100 * i, ...c.call }));
+    // The events arrive in the opposite order, each nearest in time to another agent's call.
+    const events = counts.map((c, i) => event(i + 1, { ts: T0 + 100 * (2 - i), ...c.event })).reverse();
+    expect(pairs(bedrock.matchApiRequests(events, calls))).toEqual([
+      [1, "msg_bdrk_0"],
+      [2, "msg_bdrk_1"],
+      [3, "msg_bdrk_2"],
+    ]);
   });
 
   test("equal rank and distance: input order decides, the same result every time", () => {
