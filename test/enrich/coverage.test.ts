@@ -8,6 +8,7 @@ import { openMemoryDb } from "../../src/db/db.ts";
 import { deriveEnrichment, startReceiverWindow } from "../../src/enrich/coverage.ts";
 import { REF_PRICES } from "../support/reference.ts";
 import { SEED_TIME, seed } from "../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../support/provider.ts";
 
 /** Second `n` from the start of the example. */
 const at = (n: number) => SEED_TIME + n * 1000;
@@ -102,7 +103,7 @@ describe("enrichment marker", () => {
   /** Far after the example: there are no open windows. */
   const LATER = at(100_000);
 
-  const derive = (db: Database, now = LATER, sessionId = "s1") => deriveEnrichment({ db, sessionId, prices: REF_PRICES, now });
+  const derive = (db: Database, now = LATER, sessionId = "s1") => deriveEnrichment({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now });
   const enrichment = (db: Database, id = "s1") => db.query<{ enrichment: Enrichment }, [string]>("SELECT enrichment FROM sessions WHERE id = ?").get(id)!.enrichment;
 
   /** A session with two active spans: seconds 0–60 and 600–660. There is idle time between them. */
@@ -253,6 +254,6 @@ test("marker none: the receiver was running but no event arrived from the sessio
   // An event of another session does not change this one's marker.
   seed.otelEvent(db, { session_id: "s2", name: OTEL_EVENT_NAMES.apiRequest });
 
-  deriveEnrichment({ db, sessionId: "s1", prices: REF_PRICES, now: SEED_TIME + 10 * RECEIVER_HEARTBEAT_MS });
+  deriveEnrichment({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: SEED_TIME + 10 * RECEIVER_HEARTBEAT_MS });
   expect(db.query<{ enrichment: Enrichment }, []>("SELECT enrichment FROM sessions WHERE id = 's1'").get()!.enrichment).toBe("none");
 });

@@ -24,6 +24,11 @@ export interface TranscriptOptions {
   entrypoint?: string;
   /** Time of the first line, epoch milliseconds. */
   startAt?: number;
+  /**
+   * Assistant lines as a Bedrock gateway writes them: no `requestId` field, `message.id` of the form `msg_bdrk_…`,
+   * default model `claude-align-aws-opus-5-5`. The call key is then the message id.
+   */
+  gateway?: boolean;
 }
 
 export interface UsageInput {
@@ -47,6 +52,7 @@ export const toolUse = (name: string, input: unknown = {}, id?: string): BlockIn
 
 export interface AssistantInput {
   blocks: BlockInput[];
+  /** The call key: `requestId`; with the `gateway` option `message.id`. */
   requestId?: string;
   model?: string;
   usage?: UsageInput;
@@ -80,7 +86,10 @@ export interface Transcript {
   tick(ms: number): Transcript;
   /** User message. Returns the line's uuid. */
   prompt(textValue: string, opts?: { at?: number; images?: number; isMeta?: boolean; isCompactSummary?: boolean; origin?: string; uuid?: string }): string;
-  /** Model response: one line per block with a shared `requestId`. */
+  /**
+   * Model response: one line per block with a shared `requestId`. The returned `requestId` is the call key
+   * (`model_calls.id`): with the `gateway` option it is the shared `message.id`, the lines have no `requestId`.
+   */
   assistant(input: AssistantInput): { requestId: string; uuids: string[]; toolUseIds: string[] };
   /** A `user` line with a tool result. Returns the line's uuid. */
   toolResult(toolUseId: string, input?: ToolResultInput): string;
@@ -109,6 +118,7 @@ export function transcript(options: TranscriptOptions): Transcript {
     gitBranch: options.gitBranch ?? "main",
     entrypoint: options.entrypoint ?? "claude-desktop",
     startAt: options.startAt ?? Date.UTC(2026, 9, 1, 10, 0, 0),
+    gateway: options.gateway ?? false,
   };
   const lines: RawLine[] = [];
   const prefix = createHash("sha1").update(`${opts.sessionId}/${opts.agentId ?? "main"}`).digest("hex").slice(0, 8);
@@ -190,8 +200,8 @@ export function transcript(options: TranscriptOptions): Transcript {
       );
     },
     assistant(input) {
-      const requestId = input.requestId ?? `req_${prefix}${nextId()}`;
-      const messageId = `msg_${prefix}${nextId()}`;
+      const requestId = opts.gateway ? null : (input.requestId ?? `req_${prefix}${nextId()}`);
+      const messageId = opts.gateway ? (input.requestId ?? `msg_bdrk_${prefix}${nextId()}`) : `msg_${prefix}${nextId()}`;
       const usage = input.usage ?? {};
       const finalOutput = usage.output ?? 0;
       const blocks = input.blocks.map((block) =>
@@ -209,12 +219,12 @@ export function transcript(options: TranscriptOptions): Transcript {
         return push(
           {
             type: "assistant",
-            requestId,
+            ...(requestId !== null ? { requestId } : {}),
             message: {
               id: messageId,
               type: "message",
               role: "assistant",
-              model: input.model ?? "claude-opus-5-5",
+              model: input.model ?? (opts.gateway ? "claude-align-aws-opus-5-5" : "claude-opus-5-5"),
               content,
               stop_reason: last ? stopReason : null,
               stop_sequence: null,
@@ -226,7 +236,7 @@ export function transcript(options: TranscriptOptions): Transcript {
           input.uuids?.[index],
         );
       });
-      return { requestId, uuids, toolUseIds };
+      return { requestId: requestId ?? messageId, uuids, toolUseIds };
     },
     toolResult(toolUseId, input = {}) {
       return push(

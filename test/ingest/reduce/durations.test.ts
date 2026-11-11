@@ -7,11 +7,12 @@ import { deriveDurations } from "../../../src/ingest/reduce/durations.ts";
 import { REF_PRICES, REF_SESSION_ID } from "../../support/reference.ts";
 import { seedReference } from "../../support/reference-seed.ts";
 import { SEED_TIME, seed } from "../../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 /** Second `n` from the start of the example. */
 const at = (n: number) => SEED_TIME + n * 1000;
 
-const derive = (db: Database, sessionId = "s1") => deriveDurations({ db, sessionId, prices: REF_PRICES, now: 0 });
+const derive = (db: Database, sessionId = "s1") => deriveDurations({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: 0 });
 const sessionRow = (db: Database, id = "s1") => db.query<SessionRow, [string]>("SELECT * FROM sessions WHERE id = ?").get(id)!;
 const agentRows = (db: Database, id = "s1") => db.query<AgentRow, [string]>("SELECT * FROM agents WHERE session_id = ? ORDER BY agent_id").all(id);
 

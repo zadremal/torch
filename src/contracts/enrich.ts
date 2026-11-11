@@ -108,13 +108,33 @@ export interface HookEventExtras {
 
 // ── Source of network events (decisions 13, 18, 24) ─────────────────────────────────────────
 
+/**
+ * `api_request` carries the token counts of the response: through a gateway the event has no `request_id`, and
+ * the provider pairs it with a model call by model, time and tokens (src/contracts/provider.ts).
+ */
 export type NetworkEvent =
-  | { kind: "api_request"; eventId: number; sessionId: string; ts: number; requestId: string; model: string | null; durationMs: number | null; querySource: string | null }
+  | {
+      kind: "api_request";
+      eventId: number;
+      sessionId: string;
+      ts: number;
+      requestId: string | null;
+      model: string | null;
+      durationMs: number | null;
+      querySource: string | null;
+      inputTokens: number | null;
+      outputTokens: number | null;
+      cacheReadTokens: number | null;
+      cacheCreationTokens: number | null;
+    }
   | { kind: "api_error"; eventId: number; sessionId: string; ts: number; requestId: string | null; statusCode: number | null; error: string; attempt: number | null; durationMs: number | null };
 
 /** The only implementation in the first wave reads `otel_events`; the gateway adapter is the second wave. */
 export interface NetworkSource {
-  /** Network events of the session not yet applied. `eventId` is the event's identifier at the source. */
+  /**
+   * Network events of the session not yet applied. `eventId` is the event's identifier at the source. An event
+   * without `requestId` is tied to a call by the provider's `matchApiRequests`.
+   */
   pending(sessionId: string): NetworkEvent[];
   /** The merge applied these events: the source no longer returns them. */
   markApplied(eventIds: number[]): void;

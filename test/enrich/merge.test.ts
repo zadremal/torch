@@ -6,6 +6,7 @@ import type { ApiErrorRow, ModelCallRow, ToolCallRow } from "../../src/contracts
 import { openMemoryDb } from "../../src/db/db.ts";
 import { mergeEnrichment } from "../../src/enrich/merge.ts";
 import { SEED_TIME, seed } from "../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../support/provider.ts";
 
 function sessionDb(): Database {
   const db = openMemoryDb();
@@ -46,7 +47,7 @@ test("api_request sets the exact duration and the request source on the call wit
     attrs: { request_id: "req_1", model: "claude-opus-5-5", duration_ms: 2350, ttft_ms: 410, cost_usd: 0.01, query_source: "repl_main_thread" },
   });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(modelCall(db, "req_1")).toEqual({ ...before, duration_ms: 2350, duration_exact: 1, query_source: "repl_main_thread" });
   expect(modelCall(db, "req_2")).toEqual(untouched);
@@ -58,7 +59,7 @@ test("api_request without a duration gives only the request source: the duration
   const before = seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", query_source: "compact" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(modelCall(db, "req_1")).toEqual({ ...before, query_source: "compact" });
   expect(applied(db)).toEqual([1]);
@@ -69,9 +70,21 @@ test("a repeated event about the same request replaces the duration and the requ
   seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 2350, duration_exact: 1, query_source: "sdk" });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2400, query_source: "repl_main_thread" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2400, duration_exact: 1, query_source: "repl_main_thread" });
+});
+
+test("two events about the same request in one merge are both applied: the later one wins", () => {
+  const db = sessionDb();
+  seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2400, query_source: "sdk" } });
+  seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 10, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 2450, query_source: "repl_main_thread" } });
+
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
+
+  expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 2450, duration_exact: 1, query_source: "repl_main_thread" });
+  expect(applied(db)).toEqual([1, 1]);
 });
 
 test("api_request without a duration does not reset an exact duration recorded earlier", () => {
@@ -79,7 +92,7 @@ test("api_request without a duration does not reset an exact duration recorded e
   const before = seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 2350, duration_exact: 1, query_source: "repl_main_thread" });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(modelCall(db, "req_1")).toEqual(before);
 });
@@ -90,7 +103,18 @@ test("api_request without a call in the transcript changes nothing and waits", (
   // A request that is not in the transcript: for example, a service call for the session title.
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_title", duration_ms: 300 } });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
+
+  expect(modelCall(db, "req_1")).toEqual(call);
+  expect(applied(db)).toEqual([0]);
+});
+
+test("on the direct API an api_request without request_id changes nothing and waits, even next to a call of its model", () => {
+  const db = sessionDb();
+  const call = seed.modelCall(db, { session_id: "s1", id: "req_1", model: "claude-opus-5-5" });
+  seed.otelEvent(db, { session_id: "s1", ts: call.ts_end, name: OTEL_EVENT_NAMES.apiRequest, attrs: { model: "claude-opus-5-5", duration_ms: 950, query_source: "repl_main_thread" } });
+
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(modelCall(db, "req_1")).toEqual(call);
   expect(applied(db)).toEqual([0]);
@@ -107,7 +131,7 @@ test("tool_result sets the exact duration on the call with the same tool_use_id"
     attrs: { tool_use_id: "toolu_1", tool_name: "Bash", success: "true", duration_ms: 4321, tool_result_size_bytes: 80, request_id: "req_1" },
   });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(toolCall(db, "toolu_1")).toEqual({ ...before, duration_ms: 4321, duration_exact: 1 });
   expect(applied(db)).toEqual([1]);
@@ -118,7 +142,7 @@ test("a duration that arrived as a string is stored as a number", () => {
   seed.toolCall(db, { session_id: "s1", id: "toolu_1" });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolResult, attrs: { tool_use_id: "toolu_1", duration_ms: "4321" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toMatchObject({ duration_ms: 4321, duration_exact: 1 });
 });
@@ -128,7 +152,7 @@ test("the duration from tool_result takes precedence over the one measured in th
   seed.toolCall(db, { session_id: "s1", id: "toolu_1", duration_ms: 700, duration_exact: 1 });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolResult, attrs: { tool_use_id: "toolu_1", duration_ms: 688 } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toMatchObject({ duration_ms: 688, duration_exact: 1 });
 });
@@ -142,7 +166,7 @@ test("tool_decision stores the decision and its source and does not touch the du
     attrs: { tool_use_id: "toolu_1", tool_name: "Read", decision: "accept", source: "config", permission_mode: "default" },
   });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toEqual({ ...before, permission_decision: "accept", permission_source: "config" });
 });
@@ -152,7 +176,7 @@ test("tool_decision does not reset the exact duration of the call", () => {
   const before = seed.toolCall(db, { session_id: "s1", id: "toolu_1", duration_ms: 700, duration_exact: 1 });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolDecision, attrs: { tool_use_id: "toolu_1", decision: "accept", source: "config" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toEqual({ ...before, permission_decision: "accept", permission_source: "config" });
 });
@@ -162,7 +186,7 @@ test("the decision from the event replaces the one recorded by the transcript", 
   seed.toolCall(db, { session_id: "s1", id: "toolu_1", permission_decision: "accept", permission_source: "user" });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolDecision, attrs: { tool_use_id: "toolu_1", decision: "reject", source: "user_reject" } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toMatchObject({ permission_decision: "reject", permission_source: "user_reject" });
 });
@@ -176,7 +200,7 @@ test("tool_result with decision_type and decision_source gives both the duration
     attrs: { tool_use_id: "toolu_1", duration_ms: 15, decision_type: "accept", decision_source: "user_temporary" },
   });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toMatchObject({ duration_ms: 15, duration_exact: 1, permission_decision: "accept", permission_source: "user_temporary" });
 });
@@ -187,7 +211,7 @@ test("tool_decision and tool_result of the same call add up; a tool_result witho
   seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME, name: OTEL_EVENT_NAMES.toolDecision, attrs: { tool_use_id: "toolu_1", decision: "accept", source: "hook" } });
   seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 40, name: OTEL_EVENT_NAMES.toolResult, attrs: { tool_use_id: "toolu_1", duration_ms: 38 } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(toolCall(db, "toolu_1")).toMatchObject({ duration_ms: 38, duration_exact: 1, permission_decision: "accept", permission_source: "hook" });
   expect(applied(db)).toEqual([1, 1]);
@@ -198,7 +222,7 @@ test("tool events without a call in the transcript wait", () => {
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolDecision, attrs: { tool_use_id: "toolu_1", decision: "accept", source: "config" } });
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolResult, attrs: { tool_use_id: "toolu_1", duration_ms: 38 } });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(applied(db)).toEqual([0, 0]);
 });
@@ -209,7 +233,7 @@ test("api_error without a transcript row gives a record with source otel", () =>
   const db = sessionDb();
   const event = errorEvent(db, 500, { request_id: "req_9", status_code: 529, attempt: 2 });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(apiErrors(db)).toEqual([
     {
@@ -233,7 +257,7 @@ test("api_error without a server response arrives without request_id and status_
   const db = sessionDb();
   errorEvent(db, 0, { error: "Connection error.", attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toMatchObject([{ request_id: null, status_code: null, error: "Connection error.", attempt: 1, source: "otel" }]);
 });
@@ -244,7 +268,7 @@ test("an error from two sources with the same request_id and attempt number is o
   // The event time differs from the row by more than a second: the pair is found by identifier.
   errorEvent(db, 30_000, { request_id: "req_9", status_code: 529, attempt: 2 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toEqual([{ ...fromTranscript, status_code: 529 }]);
   expect(applied(db)).toEqual([1]);
@@ -255,7 +279,7 @@ test("a final refusal from the transcript gets the attempt number from the event
   const refusal = refusalLine(db, "uuid-1", 0, "req_9");
   errorEvent(db, 0, { request_id: "req_9", status_code: 529, attempt: 11 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toEqual([{ ...refusal, attempt: 11 }]);
 });
@@ -265,7 +289,7 @@ test("the same request_id with different attempt numbers gives two records", () 
   seed.apiError(db, { session_id: "s1", id: "uuid-1", request_id: "req_9", attempt: 1 });
   errorEvent(db, 10, { request_id: "req_9", status_code: 529, attempt: 2 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db).map((row) => [row.source, row.attempt])).toEqual([
     ["transcript", 1],
@@ -278,7 +302,7 @@ test("without request_id, errors from two sources are merged by time within a se
   const fromTranscript = seed.apiError(db, { session_id: "s1", id: "uuid-1", agent_id: "a1", ts: SEED_TIME, status_code: null, error: "529 Overloaded", attempt: 1 });
   errorEvent(db, 999, { request_id: "req_9", status_code: 529, attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   // The transcript row stays with its own agent and text; request_id and status come from the event.
   expect(apiErrors(db)).toEqual([{ ...fromTranscript, request_id: "req_9", status_code: 529 }]);
@@ -289,7 +313,7 @@ test("errors more than a second apart are different records", () => {
   retryLine(db, "uuid-1", 0, 1);
   errorEvent(db, 1000, { attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db).map((row) => row.source)).toEqual(["transcript", "otel"]);
 });
@@ -299,7 +323,7 @@ test("different request_id values are not merged, even if the errors are close i
   refusalLine(db, "uuid-1", 0, "req_1");
   errorEvent(db, 10, { request_id: "req_2", attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db).map((row) => row.request_id)).toEqual(["req_1", "req_2"]);
 });
@@ -309,7 +333,7 @@ test("close in time but with different attempt numbers: two records", () => {
   const line = retryLine(db, "uuid-1", 0, 1);
   errorEvent(db, 500, { attempt: 2 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toMatchObject([line, { source: "otel", attempt: 2 }]);
 });
@@ -320,7 +344,7 @@ test("one row and two events nearby: the row accepts one, the other stays a reco
   errorEvent(db, 5, { attempt: 1 });
   errorEvent(db, 600, { attempt: 2 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db).map((row) => [row.source, row.attempt])).toEqual([
     ["transcript", 1],
@@ -335,7 +359,7 @@ test("a row accepts one event, even when the attempt number does not tell them a
   errorEvent(db, 5, { attempt: 1, status_code: 529 });
   errorEvent(db, 590, { attempt: 2, status_code: 503 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   // The pair goes to the event nearest in time, not the first in order.
   expect(apiErrors(db).map((row) => [row.source, row.attempt, row.status_code])).toEqual([
@@ -349,7 +373,7 @@ test("a refusal with a known attempt number does not get a foreign number from a
   const refusal = seed.apiError(db, { session_id: "s1", id: "uuid-1", ts: SEED_TIME, request_id: "req_A", status_code: 529, attempt: 4 });
   errorEvent(db, 400, { attempt: 3 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toMatchObject([refusal, { source: "otel", request_id: null, attempt: 3 }]);
 });
@@ -360,7 +384,7 @@ test("an exact pair by request_id takes precedence over the nearest in time", ()
   const refusal = refusalLine(db, "uuid-2", 900, "req_A");
   errorEvent(db, 0, { request_id: "req_A", status_code: 529, attempt: 3 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toEqual([retry, { ...refusal, attempt: 3 }]);
 });
@@ -371,7 +395,7 @@ test("an exact pair also takes precedence over the row that is nearer in time an
   const refusal = refusalLine(db, "uuid-2", 900, "req_A");
   errorEvent(db, 0, { request_id: "req_A", status_code: 529, attempt: 3 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toEqual([retry, { ...refusal, attempt: 3 }]);
 });
@@ -382,7 +406,7 @@ test("a row that got an exact pair does not also accept an event close in time",
   errorEvent(db, 0, { request_id: "req_A", status_code: 529, attempt: 3 });
   errorEvent(db, 100, { error: "Connection error.", attempt: 3 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toMatchObject([
     { ...refusal, attempt: 3 },
@@ -398,7 +422,7 @@ test("two consecutive attempts each merge with their own row, the nearest in tim
   errorEvent(db, 600, { request_id: "req_2", status_code: 503, attempt: 2 });
   errorEvent(db, 0, { request_id: "req_1", status_code: 529, attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db).map((row) => [row.id, row.request_id, row.status_code, row.attempt])).toEqual([
     ["uuid-1", "req_1", 529, 1],
@@ -415,7 +439,7 @@ test("when merging, the row's own value takes precedence over the event's, an em
   const bare = retryLine(db, "uuid-2", 60_000, 2);
   errorEvent(db, 60_010, { request_id: "req_B", status_code: 503 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toEqual([
     { ...own, attempt: 3 },
@@ -434,7 +458,7 @@ test("events of another session and events without a session are not applied", (
   seed.otelEvent(db, { session_id: null, name: OTEL_EVENT_NAMES.apiRequest, attrs: { request_id: "req_1", duration_ms: 200 } });
   seed.otelEvent(db, { session_id: "s2", name: "claude_code.user_prompt", attrs: { prompt_length: 12 } });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 4000, duration_exact: 0 });
   expect(modelCall(db, "req_1", "s2")).toEqual(other);
@@ -458,7 +482,7 @@ test("identifiers are unique within a session: events refine only the rows of th
   errorEvent(db, 0, { request_id: "req_9", status_code: 529, attempt: 2 });
   errorEvent(db, 60_010, { status_code: 503, attempt: 1 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(modelCall(db, "req_1")).toMatchObject({ duration_ms: 100, duration_exact: 1, query_source: "repl_main_thread" });
   expect(toolCall(db, "toolu_1")).toMatchObject({ duration_ms: 77, duration_exact: 1, permission_decision: "accept" });
@@ -468,7 +492,7 @@ test("identifiers are unique within a session: events refine only the rows of th
   ]);
   expect({ call: modelCall(db, "req_1", "s2"), tool: toolCall(db, "toolu_1", "s2"), errors: apiErrors(db).filter((row) => row.session_id === "s2") }).toEqual(copy);
   // The merge of the other session does not see these events: neither its rows nor the events themselves change.
-  expect(mergeEnrichment(db, "s2")).toBe(false);
+  expect(mergeEnrichment(db, "s2", ANTHROPIC_PROVIDER)).toBe(false);
   expect(apiErrors(db).filter((row) => row.session_id === "s2")).toEqual(copy.errors);
 });
 
@@ -478,7 +502,7 @@ test("an error record from OTel is not merged with a transcript row of another s
   const foreign = seed.apiError(db, { session_id: "s2", id: "uuid-1", request_id: "req_9", status_code: null, attempt: null });
   errorEvent(db, 0, { request_id: "req_9", status_code: 529, attempt: 2 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(apiErrors(db)).toMatchObject([{ session_id: "s1", source: "otel", request_id: "req_9" }, foreign]);
 });
@@ -490,7 +514,7 @@ test("events without a rule are marked as applied and do not change session data
   seed.otelEvent(db, { session_id: "s1", name: OTEL_EVENT_NAMES.toolResult, attrs: { tool_use_id: "toolu_later", duration_ms: 5 } });
 
   // The session data did not change: there is no need to recalculate derived data.
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   // Only the event that waits for its row stays pending.
   expect(applied(db)).toEqual([1, 1, 0]);
@@ -501,12 +525,12 @@ test("until the session is in the database, its events wait: both API errors and
   errorEvent(db, 0, { attempt: 1 });
   seed.otelEvent(db, { session_id: "s1", name: "claude_code.user_prompt", attrs: {} });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
   expect(apiErrors(db)).toEqual([]);
   expect(applied(db)).toEqual([0, 0]);
 
   seed.session(db, { id: "s1" });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   expect(apiErrors(db)).toHaveLength(1);
   expect(applied(db)).toEqual([1, 1]);
 });

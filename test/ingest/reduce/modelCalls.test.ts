@@ -1,9 +1,10 @@
 // Model calls: the rules of plan §6.2 and §3.1 (one record per requestId, duration estimate, cost).
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import type { Database } from "bun:sqlite";
 import { SYNTHETIC_MODEL } from "../../../src/contracts/constants.ts";
 import type { ModelCallRow } from "../../../src/contracts/rows.ts";
 import { openMemoryDb } from "../../../src/db/db.ts";
+import { bedrock } from "../../../src/providers/bedrock.ts";
 import { text, thinking, toolUse, transcript } from "../../support/transcript.ts";
 import { lastEventTs, parsed, reduce, rows, setTime, START } from "./modelCalls.support.ts";
 
@@ -65,6 +66,80 @@ test("rows with the <synthetic> model and rows without requestId are not model c
   reduce(db, t);
 
   expect(modelCalls(db).map((call) => call.id)).toEqual([requestId]);
+});
+
+describe("bedrock provider", () => {
+  test("<synthetic> and API error rows are not model calls; a row with message.id and no requestId is one", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1" });
+    t.prompt("Go");
+    const message = { role: "assistant", content: [{ type: "text", text: "API Error" }], usage: { input_tokens: 7, output_tokens: 9 } };
+    t.envelope({ type: "assistant", isApiErrorMessage: true, error: "overloaded", apiErrorStatus: 529, message: { ...message, id: "msg_bdrk_failed", model: "claude-align-aws-opus-5-5" } });
+    t.envelope({ type: "assistant", message: { ...message, id: "msg_bdrk_synthetic", model: SYNTHETIC_MODEL } });
+    t.envelope({ type: "assistant", message: { ...message, id: "msg_bdrk_plain", model: "claude-align-aws-opus-5-5" } });
+
+    reduce(db, t, { provider: bedrock });
+
+    expect(modelCalls(db).map((call) => call.id)).toEqual(["msg_bdrk_plain"]);
+  });
+
+  test("a gateway reply of several rows — one call keyed by message.id, tokens from the last row, the reported model, a cost", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1", startAt: START, gateway: true });
+    t.prompt("Fix it");
+    const { requestId } = t.assistant({
+      blocks: [thinking("hm"), text("Reading"), toolUse("Read", { file_path: "/a.ts" })],
+      usage: { input: 10, output: 500, cacheRead: 2000, cacheWrite5m: 100, cacheWrite1h: 300, thinking: 40 },
+    });
+    [4000, 5000, 7000].forEach((offset, index) => setTime(t.lines[index + 1]!, START + offset));
+    expect(requestId).toStartWith("msg_bdrk_");
+    expect(t.lines.slice(1).every((line) => !("requestId" in line))).toBe(true);
+
+    reduce(db, t, { provider: bedrock });
+
+    expect(modelCalls(db)).toEqual([
+      expect.objectContaining({
+        id: requestId,
+        turn_index: 1,
+        model: "claude-align-aws-opus-5-5",
+        ts_start: START,
+        ts_end: START + 7000,
+        stop_reason: "tool_use",
+        tok_output: 500,
+        ctx_tokens: 2410,
+        // Priced as claude-opus-5-5: the same tokens as the direct-API reply above.
+        cost_usd: 0.017175,
+      }),
+    ]);
+  });
+
+  test("a direct-shaped row in a gateway history still keys by requestId", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1", gateway: true });
+    t.prompt("Go");
+    const gateway = t.assistant({ blocks: [text("Via the gateway")] });
+    t.envelope({
+      type: "assistant",
+      requestId: "req_direct",
+      message: { id: "msg_direct", role: "assistant", model: "claude-opus-5-5", content: [{ type: "text", text: "Direct" }], usage: { input_tokens: 1, output_tokens: 2 } },
+    });
+
+    reduce(db, t, { provider: bedrock });
+
+    const calls = byId(db);
+    expect(Object.keys(calls).sort()).toEqual([gateway.requestId, "req_direct"].sort());
+    expect(calls[gateway.requestId]!.turn_index).toBe(1);
+    expect(calls["req_direct"]!.turn_index).toBe(2);
+  });
+
+  test("the anthropic provider gives a gateway history no model calls", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1", gateway: true });
+    t.prompt("Go");
+    t.assistant({ blocks: [text("Via the gateway")] });
+    reduce(db, t);
+    expect(modelCalls(db)).toEqual([]);
+  });
 });
 
 test("the duration is an estimate: from the agent's previous event to the last row of the reply", () => {

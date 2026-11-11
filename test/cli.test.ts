@@ -19,6 +19,9 @@ const REPO = join(import.meta.dir, "..");
 
 const INDEX_HTML = '<!doctype html><html><body><div id="root"></div></body></html>';
 
+const PROVIDER_MISMATCH =
+  "The database was indexed with provider anthropic, config.json sets bedrock: sessions indexed before keep the anthropic result. To reindex: torch index --rebuild";
+
 /** The command environment: temporary directories and captured output. */
 function cli(overrides: Partial<CliDeps> = {}) {
   const root = mkdtempSync(join(tmpdir(), "torch-cli-"));
@@ -190,6 +193,24 @@ describe("torch index", () => {
     expect(c.output()).not.toContain("secret payload");
   });
 
+  test("the provider in config.json differs from the one the database was indexed with: one line with both and the remedy", () => {
+    const c = cli();
+    c.write(sessionFiles("s1"));
+    expect(c.run("index")).toBe(0);
+    expect(c.err).toEqual([]);
+
+    c.config.provider = "bedrock";
+    c.write(sessionFiles("s2"));
+    expect(c.run("index")).toBe(0);
+    expect(c.err).toEqual([PROVIDER_MISMATCH]);
+    // New files are indexed regardless; the database is not rebuilt on its own.
+    expect(query(c.config.dbPath, "SELECT id FROM sessions ORDER BY id")).toEqual([{ id: "s1" }, { id: "s2" }]);
+
+    expect(c.run("index", "--rebuild", "--yes")).toBe(0);
+    expect(c.err).toEqual([PROVIDER_MISMATCH]);
+    expect(query(c.config.dbPath, "SELECT value FROM meta WHERE key = 'provider'")).toEqual([{ value: "bedrock" }]);
+  });
+
   test("a file that could not be processed is named in the errors; the rest are loaded, exit code 1", () => {
     const c = cli();
     const locked = c.write(sessionFiles("locked"));
@@ -318,6 +339,8 @@ describe("torch doctor", () => {
     expect(c.out).toEqual([
       `Transcripts: ${c.config.transcriptsDir}`,
       "Files: 2 (main 1, subagent 1), lines: 12",
+      "Provider: anthropic",
+      "  Model response lines without a call key: 0",
       "Unknown line types: 3",
       "        2  mystery-line",
       "        1  <invalid>",
@@ -347,7 +370,7 @@ describe("torch doctor", () => {
 
     expect(c.run("doctor")).toBe(0);
 
-    expect(c.out.slice(2, 8)).toEqual([
+    expect(c.out.slice(4, 10)).toEqual([
       "Unknown line types: 5",
       "        1  ok-type/sub_v2.x",
       "  nonstandard name: 5",
@@ -374,7 +397,7 @@ describe("torch doctor", () => {
       `Transcripts: ${c.config.transcriptsDir}`,
       "Files: 1 (main 1, subagent 0), lines: 5",
       "Files and directories that could not be read: 1",
-      "Unknown line types: none",
+      "Provider: anthropic",
     ]);
     expect(c.err).toEqual([]);
   });
@@ -395,6 +418,8 @@ describe("torch doctor", () => {
     expect(c.out).toEqual([
       `Transcripts: ${c.config.transcriptsDir}`,
       "Files: 1 (main 1, subagent 0), lines: 5",
+      "Provider: anthropic",
+      "  Model response lines without a call key: 0",
       "Unknown line types: none",
       "Unknown fields: none",
       "Enrichment channels:",
@@ -402,6 +427,57 @@ describe("torch doctor", () => {
       "  Hooks: no events",
       "  OTel receiver: ran until 2026-11-09T11:59:57.000Z",
     ]);
+  });
+});
+
+describe("torch doctor: provider", () => {
+  /** A session written through a gateway: assistant lines without requestId. */
+  function gatewaySession(sessionId: string): SessionFiles {
+    const main = transcript({ sessionId, gateway: true });
+    main.prompt("GATEWAY-PROMPT-MUST-NOT-LEAK");
+    main.tick(2000).assistant({ blocks: [text("Reading"), text("Done")], usage: { input: 10, output: 100 } });
+    main.tick(100).assistant({ blocks: [text("No response requested.")], model: "<synthetic>", split: false });
+    return { main };
+  }
+
+  const HINT =
+    '  They give no model calls, tokens or cost. Transcripts written through a gateway need "provider": "bedrock" in config.json, then torch index --rebuild';
+
+  test("gateway transcripts with the default provider: the count of model responses without a call key and the hint", () => {
+    const c = cli();
+    c.write(gatewaySession("g1"));
+
+    expect(c.run("doctor")).toBe(0);
+
+    expect(c.out.slice(2, 5)).toEqual(["Provider: anthropic", "  Model response lines without a call key: 2", HINT]);
+    expect(c.output()).not.toContain("MUST-NOT-LEAK");
+  });
+
+  test("the same transcripts with bedrock: every response has a key; the database indexed before names its provider", () => {
+    const c = cli();
+    c.write(gatewaySession("g1"));
+    c.run("index");
+    c.out.length = 0;
+    c.err.length = 0;
+    c.config.provider = "bedrock";
+
+    expect(c.run("doctor")).toBe(0);
+
+    expect(c.out.slice(2, 5)).toEqual(["Provider: bedrock", `  ${PROVIDER_MISMATCH}`, "  Model response lines without a call key: 0"]);
+    expect(c.out).not.toContain(HINT);
+  });
+
+  test("with bedrock already set, responses without any key are counted without the advice to set bedrock", () => {
+    const c = cli();
+    const files = gatewaySession("g1");
+    // Neither requestId nor message.id: no provider can key these lines.
+    for (const line of files.main.lines) delete (line as { message?: { id?: string } }).message?.id;
+    c.write(files);
+    c.config.provider = "bedrock";
+
+    expect(c.run("doctor")).toBe(0);
+
+    expect(c.out.slice(2, 5)).toEqual(["Provider: bedrock", "  Model response lines without a call key: 2", "  They give no model calls, tokens or cost."]);
   });
 });
 
@@ -484,6 +560,17 @@ describe("torch start", () => {
         const page = await fetch(new URL(path, url));
         expect({ path, status: page.status, body: await page.text() }).toEqual({ path, status: 200, body: INDEX_HTML });
       }
+    });
+  });
+
+  test("the catch-up pass names a provider that differs from the one the database was indexed with", async () => {
+    const c = cli();
+    c.write(sessionFiles("s1"));
+    c.run("index");
+    c.config.provider = "bedrock";
+
+    await started(c, ["--no-open"], async () => {
+      expect(c.err).toEqual([PROVIDER_MISMATCH]);
     });
   });
 

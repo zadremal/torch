@@ -1,10 +1,11 @@
 // Model text and thinking go into messages; tool calls and Claude Code rows do not.
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import type { Database } from "bun:sqlite";
 import { MAIN_AGENT_ID, SYNTHETIC_MODEL } from "../../../src/contracts/constants.ts";
 import type { MessageRow } from "../../../src/contracts/rows.ts";
 import { openMemoryDb } from "../../../src/db/db.ts";
 import { reduceMessages } from "../../../src/ingest/reduce/messages.ts";
+import { bedrock } from "../../../src/providers/bedrock.ts";
 import { text, thinking, toolUse, transcript } from "../../support/transcript.ts";
 import { context, contentText, parsed, rows } from "./session.support.ts";
 
@@ -78,6 +79,35 @@ test("a row without requestId gives a message without a model call", () => {
   delete t.lines[0]!.requestId;
   reduceMessages(context(db, t), parsed(t));
   expect(messages(db).map((row) => [row.model_call_id, row.text])).toEqual([[null, "Answer"]]);
+});
+
+describe("bedrock provider", () => {
+  test("<synthetic> and API error rows are still not a model reply", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1", gateway: true });
+    t.assistant({ model: SYNTHETIC_MODEL, blocks: [text("No response requested.")] });
+    t.envelope({
+      type: "assistant",
+      isApiErrorMessage: true,
+      error: "overloaded",
+      apiErrorStatus: 529,
+      message: { id: "msg_bdrk_1", type: "message", role: "assistant", model: "claude-align-aws-opus-5-5", content: [{ type: "text", text: "API Error: Overloaded" }], stop_reason: "stop_sequence" },
+    });
+    reduceMessages(context(db, t, { provider: bedrock }), parsed(t));
+    expect(messages(db)).toEqual([]);
+  });
+
+  test("a row with message.id and no requestId gives a message of the model call message.id", () => {
+    const db = openMemoryDb();
+    const t = transcript({ sessionId: "s1", gateway: true });
+    const { requestId } = t.assistant({ blocks: [thinking("hm"), text("Answer")] });
+    expect(requestId).toStartWith("msg_bdrk_");
+    reduceMessages(context(db, t, { provider: bedrock }), parsed(t));
+    expect(messages(db).map((row) => [row.model_call_id, row.text])).toEqual([
+      [requestId, "hm"],
+      [requestId, "Answer"],
+    ]);
+  });
 });
 
 test("reprocessing the same rows does not change the table", () => {

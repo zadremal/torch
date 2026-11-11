@@ -102,7 +102,7 @@ const FINISH = `
     lines_removed = $lines_removed
   WHERE session_id = $session_id AND id = $id`;
 
-export const reduceToolCalls: LineReducer = ({ db, sessionId, agentId }, lines) => {
+export const reduceToolCalls: LineReducer = ({ db, sessionId, agentId, provider }, lines) => {
   const turnOf = db.query<{ turn_index: number }, [string, string]>("SELECT turn_index FROM model_calls WHERE session_id = ? AND id = ?");
   const insert = db.query(INSERT);
   const find = db.query<Pick<ToolCallRow, "name" | "ts_start" | "input_content_id">, [string, string]>(
@@ -112,12 +112,13 @@ export const reduceToolCalls: LineReducer = ({ db, sessionId, agentId }, lines) 
 
   for (const line of lines) {
     if (line.kind === "assistant" && line.timestamp !== null) {
+      const callId = provider.callKey(line);
       for (const block of line.blocks) {
         if (block.type !== "tool_use") continue;
         const input = JSON.stringify(block.input ?? {}, null, 2);
-        const turn = line.requestId === null ? null : (turnOf.get(sessionId, line.requestId)?.turn_index ?? null);
+        const turn = callId === null ? null : (turnOf.get(sessionId, callId)?.turn_index ?? null);
         insert.run(
-          sessionId, block.id, agentId, line.requestId, turn, block.name, mcpServer(block.name), target(block.input),
+          sessionId, block.id, agentId, callId, turn, block.name, mcpServer(block.name), target(block.input),
           line.timestamp, putContent(db, input), Buffer.byteLength(input),
         );
       }

@@ -67,6 +67,13 @@ export const RECEIVER_HEARTBEAT_MS = 30_000;
 /** API errors from two sources without a request_id are merged if closer than this in time. */
 export const API_ERROR_DEDUP_WINDOW_MS = 1000;
 
+/**
+ * An OTel `api_request` without `request_id` pairs with a model call of the same model whose end is at most this far
+ * from the event (bedrock provider). Chosen by reasoning, not measured: the event is written when the response
+ * ends, the transcript line right after it; to be verified on real data.
+ */
+export const API_REQUEST_MATCH_WINDOW_MS = 5000;
+
 /** A working directory with such a beginning is temporary (decision 6). */
 export const TEMP_DIR_PREFIXES = ["/private/var/folders/", "/private/tmp/"] as const;
 

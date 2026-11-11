@@ -1,10 +1,10 @@
-// Model calls: one record per requestId (plan §6.2). Package I1.
+// Model calls: one record per call key of the provider (plan §6.2). Package I1.
 import { SYNTHETIC_MODEL } from "../../contracts/constants.ts";
 import type { LineReducer } from "../../contracts/pipeline.ts";
 import { callCost } from "./cost.ts";
 
 /**
- * An API response is recorded as several rows with the same requestId, one per block, each with its own
+ * An API response is recorded as several rows with the same call key (`provider.callKey`), one per block, each with its own
  * time, and they can arrive in different passes. So the start of a call (number within the agent, time of the
  * agent's previous event) is written once, by the first row, while the end (usage, stop reason,
  * time) is overwritten by each following row: the final result is in the last one. The duration estimate runs from the previous
@@ -32,7 +32,7 @@ const UPSERT = `
     cost_usd = excluded.cost_usd
   RETURNING turn_index`;
 
-export const reduceModelCalls: LineReducer = ({ db, sessionId, agentId, prices, prevEventTs }, lines) => {
+export const reduceModelCalls: LineReducer = ({ db, sessionId, agentId, prices, provider, prevEventTs }, lines) => {
   const upsert = db.query<{ turn_index: number }, Record<string, string | number | null>>(UPSERT);
   let lastTurn = db
     .query<{ turn: number }, [string, string]>("SELECT COALESCE(MAX(turn_index), 0) AS turn FROM model_calls WHERE session_id = ? AND agent_id = ?")
@@ -43,7 +43,8 @@ export const reduceModelCalls: LineReducer = ({ db, sessionId, agentId, prices, 
   for (const line of lines) {
     if (!("timestamp" in line) || line.timestamp === null) continue;
     const ts = line.timestamp;
-    if (line.kind === "assistant" && line.requestId !== null && line.model !== null && line.model !== SYNTHETIC_MODEL && !line.isApiErrorMessage) {
+    const key = line.kind === "assistant" ? provider.callKey(line) : null;
+    if (line.kind === "assistant" && key !== null && line.model !== null && line.model !== SYNTHETIC_MODEL && !line.isApiErrorMessage) {
       const tsStart = prevTs !== null && prevTs < ts ? prevTs : ts;
       const usage = line.usage;
       const tokens = {
@@ -55,7 +56,7 @@ export const reduceModelCalls: LineReducer = ({ db, sessionId, agentId, prices, 
       };
       const row = upsert.get({
         $session_id: sessionId,
-        $id: line.requestId,
+        $id: key,
         $agent_id: agentId,
         $turn_index: lastTurn + 1,
         $model: line.model,
@@ -70,7 +71,8 @@ export const reduceModelCalls: LineReducer = ({ db, sessionId, agentId, prices, 
         $tok_cache_write_1h: tokens.cacheWrite1h,
         $tok_thinking: usage?.thinkingTokens ?? 0,
         $ctx_tokens: tokens.input + tokens.cacheRead + (usage?.cacheWriteTokens ?? 0),
-        $cost_usd: callCost(prices, line.model, tokens),
+        // Priced by the name the price table knows; the stored model stays the reported one.
+        $cost_usd: callCost(prices, provider.canonicalModel(line.model), tokens),
       })!;
       // A new record got the next number back, an existing one its previous number.
       lastTurn = Math.max(lastTurn, row.turn_index);

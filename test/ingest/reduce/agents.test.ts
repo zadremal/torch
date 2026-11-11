@@ -12,12 +12,13 @@ import { REF_PRICES } from "../../support/reference.ts";
 import { seed } from "../../support/seed.ts";
 import { text, transcript, type Transcript } from "../../support/transcript.ts";
 import { context, contentText, parsed, rows } from "./session.support.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 const START = Date.UTC(2026, 9, 1, 10, 0, 0);
 
 const meta = (fields: Partial<AgentMeta>): AgentMeta => ({ agentType: null, description: null, toolUseId: null, spawnDepth: null, model: null, parentAgentId: null, ...fields });
 
-const derive = (db: Database, sessionId = "s1"): DeriveContext => ({ db, sessionId, prices: REF_PRICES, now: START });
+const derive = (db: Database, sessionId = "s1"): DeriveContext => ({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: START });
 
 type Link = Pick<AgentRow, "agent_id" | "parent_agent_id" | "depth" | "spawn_tool_call_id">;
 

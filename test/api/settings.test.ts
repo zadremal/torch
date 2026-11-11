@@ -124,6 +124,20 @@ describe("PUT /api/settings", () => {
     expect(db.query<{ cost_usd: number | null }, []>("SELECT cost_usd FROM sessions WHERE id = 's1'").get()!.cost_usd).toBeNull();
   });
 
+  test("a gateway model name is priced by the provider's canonical name: bedrock gives a cost, the default provider none", async () => {
+    const callCostAfterEdit = async (provider: "anthropic" | "bedrock") => {
+      db = openMemoryDb();
+      app = createApi({ db, config: { ...config(), provider }, now: () => 0 });
+      seed.session(db, { id: "s1" });
+      seed.agent(db, { session_id: "s1", model: "claude-align-aws-opus-5-5" });
+      seed.modelCall(db, { session_id: "s1", id: "c1", model: "claude-align-aws-opus-5-5", tok_input: 1_000_000, cost_usd: null });
+      await put({ prices: edited(await get(), 10) });
+      return db.query<{ cost_usd: number | null }, []>("SELECT cost_usd FROM model_calls WHERE id = 'c1'").get()!.cost_usd;
+    };
+    expect(await callCostAfterEdit("bedrock")).toBe(10);
+    expect(await callCostAfterEdit("anthropic")).toBeNull();
+  });
+
   test("an invalid table — 400, prices.json and cost do not change", async () => {
     const settings = await get();
     await put({ prices: settings.prices });

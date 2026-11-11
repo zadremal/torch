@@ -22,6 +22,7 @@ import { parseLine } from "../../src/ingest/parse.ts";
 import { listSessions, referenceScenario, type RefScenario } from "./reference.ts";
 import { referenceFiles } from "./reference-transcript.ts";
 import { seed } from "./seed.ts";
+import { ANTHROPIC_PROVIDER } from "./provider.ts";
 
 export interface ReferenceRows {
   session: SessionRow;
@@ -49,6 +50,7 @@ export function seedReference(db: Database, scn: RefScenario = referenceScenario
       sessionId: session_id,
       agentId: file.transcript.options.agentId ?? MAIN_AGENT_ID,
       prices: scn.prices,
+      provider: ANTHROPIC_PROVIDER,
       prevEventTs: null,
       agentMeta: file.meta ? { ...NO_META, ...file.meta } : null,
       titles: { customFile: null, desktop: null },
@@ -56,7 +58,7 @@ export function seedReference(db: Database, scn: RefScenario = referenceScenario
     for (const reducer of LINE_REDUCERS) reducer(ctx, lines);
   }
   // "Now" is after the running session's window: the reference session is completed.
-  for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: session_id, prices: scn.prices, now: scn.endedAt + RUNNING_WINDOW_MS });
+  for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: session_id, prices: scn.prices, provider: ANTHROPIC_PROVIDER, now: scn.endedAt + RUNNING_WINDOW_MS });
 
   const all = <Row>(table: string, order: string) => db.query<Row, [string]>(`SELECT * FROM ${table} WHERE session_id = ? ORDER BY ${order}`).all(session_id);
   /** Rows in scenario order: by the identifier from it. */

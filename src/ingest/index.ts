@@ -3,12 +3,15 @@ import type { Database } from "bun:sqlite";
 import { sep } from "node:path";
 import type { TorchConfig } from "../config.ts";
 import type { PriceTable } from "../contracts/api.ts";
+import { SYNTHETIC_MODEL } from "../contracts/constants.ts";
 import type { ParsedLine } from "../contracts/lines.ts";
 import type { DeriveContext, DerivedReducer, IndexResult, LineReducer, ReadResult, ReduceContext, UnknownStats } from "../contracts/pipeline.ts";
+import { DEFAULT_PROVIDER, PROVIDER_IDS, type Provider, type ProviderId } from "../contracts/provider.ts";
 import type { SessionStatus } from "../contracts/rows.ts";
 import { deriveEnrichment } from "../enrich/coverage.ts";
 import { ingestSpool } from "../enrich/hooks.ts";
 import { mergeEnrichment } from "../enrich/merge.ts";
+import { providerFor } from "../providers/index.ts";
 import { discoverFiles, isMissing, knownFiles, readAgentMeta, readCustomTitle, type DiscoveredFile } from "./discover.ts";
 import { countUnknown, parseLine } from "./parse.ts";
 import { readTranscript } from "./reader.ts";
@@ -164,6 +167,23 @@ export function rebuildBlocker(plan: RebuildPlan): string | null {
   return null;
 }
 
+// ── Provider of the index ───────────────────────────────────────────────────────────────────
+
+/**
+ * The provider the database was indexed with. A pass reads only new lines, so switching `provider` in config.json
+ * leaves already indexed sessions with the old provider's result until a rebuild. Without the key — anthropic:
+ * the only behaviour before the key existed.
+ */
+export function indexedProvider(db: Database): ProviderId {
+  const value = db.query<{ value: string }, []>("SELECT value FROM meta WHERE key = 'provider'").get()?.value;
+  return (PROVIDER_IDS as readonly (string | undefined)[]).includes(value) ? (value as ProviderId) : DEFAULT_PROVIDER;
+}
+
+/** Recorded by a pass that builds the index from nothing: after a rebuild or over a database without sessions. */
+function recordProvider(db: Database, id: ProviderId): void {
+  db.query("INSERT INTO meta (key, value) VALUES ('provider', ?1) ON CONFLICT (key) DO UPDATE SET value = ?1 WHERE value <> ?1").run(id);
+}
+
 // ── Pass ────────────────────────────────────────────────────────────────────────────────────
 
 /** The time of the last line with a timestamp: `prevEventTs` of the next pass over this file. */
@@ -185,6 +205,7 @@ function lastEventTs(lines: ParsedLine[]): number | null {
 export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): IndexResult {
   const { db, config, prices } = deps;
   const now = deps.now();
+  const provider = providerFor(config.provider);
 
   const unreadableDirs: FileFailure[] = [];
   const files = discoverFiles(config.transcriptsDir, (path, error) => unreadableDirs.push({ path, error }));
@@ -193,6 +214,8 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
     if (blocker) throw new Error(blocker);
     clearIndex(db);
   }
+  // Nothing indexed yet: everything this pass loads is the configured provider's result.
+  if (!db.query("SELECT 1 FROM sessions LIMIT 1").get()) recordProvider(db, provider.id);
 
   // hooks events accumulated in the spool are accepted at the start of each pass (plan §7.2):
   // at startup and then with each watch pass.
@@ -219,7 +242,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
        EXISTS (SELECT 1 FROM source_files WHERE session_id = ?1 AND kind = 'main' AND missing_since IS NULL)
      WHERE id = ?1`,
   );
-  const deriveCtx = (sessionId: string): DeriveContext => ({ db, sessionId, prices, now });
+  const deriveCtx = (sessionId: string): DeriveContext => ({ db, sessionId, prices, provider, now });
   const derive = (sessionId: string): void => {
     for (const reducer of DERIVED_REDUCERS) reducer(deriveCtx(sessionId));
   };
@@ -258,6 +281,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
       sessionId: file.sessionId,
       agentId: file.agentId,
       prices,
+      provider,
       prevEventTs,
       agentMeta: file.kind === "subagent" ? readAgentMeta(file.path) : null,
       titles: { customFile: customTitle(file.sessionDir), desktop: desktopTitles.get(file.sessionId) ?? null },
@@ -281,7 +305,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
       for (const reducer of LINE_REDUCERS) reducer(ctx, lines);
       // Merge — after lines and before derivatives (plan §6.3): it reads the end of the session, while the status and
       // the exact model time are computed from the refined lines.
-      mergeEnrichment(db, file.sessionId);
+      mergeEnrichment(db, file.sessionId, provider);
     } else if (reapply) {
       // Comparison — after agent linking: a link computed from calls takes precedence over meta.json,
       // and a discrepancy between them is not a change.
@@ -342,7 +366,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
   for (const { id } of waiting) {
     if (changed.has(id)) continue;
     db.transaction(() => {
-      if (!mergeEnrichment(db, id)) return;
+      if (!mergeEnrichment(db, id, provider)) return;
       derive(id);
       changed.add(id);
     })();
@@ -363,13 +387,27 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
   return result;
 }
 
+/** What `torch doctor` counts over all transcripts. */
+export interface TranscriptScan {
+  mainFiles: number;
+  subagentFiles: number;
+  lines: number;
+  unreadable: number;
+  unknown: UnknownStats;
+  /**
+   * Model responses (a model, not `<synthetic>`, not an API error line) for which the provider gives no call key:
+   * they produce no model call, no tokens and no cost.
+   */
+  keyless: number;
+}
+
 /**
  * Runs the parser over all transcripts from the start, writing nothing: counters of the unknown
- * for `torch doctor`. Line content does not leave: only types, field names and numbers.
- * A file or directory that is unreadable is skipped and counted in `unreadable`.
+ * and of model responses the provider cannot key, for `torch doctor`. Line content does not leave: only types,
+ * field names and numbers. A file or directory that is unreadable is skipped and counted in `unreadable`.
  */
-export function scanTranscripts(transcriptsDir: string): { mainFiles: number; subagentFiles: number; lines: number; unreadable: number; unknown: UnknownStats } {
-  const scan = { mainFiles: 0, subagentFiles: 0, lines: 0, unreadable: 0, unknown: { types: {}, fields: {} } as UnknownStats };
+export function scanTranscripts(transcriptsDir: string, provider: Provider): TranscriptScan {
+  const scan: TranscriptScan = { mainFiles: 0, subagentFiles: 0, lines: 0, unreadable: 0, unknown: { types: {}, fields: {} }, keyless: 0 };
   const files = discoverFiles(transcriptsDir, () => {
     scan.unreadable += 1;
   });
@@ -384,7 +422,12 @@ export function scanTranscripts(transcriptsDir: string): { mainFiles: number; su
     if (file.kind === "main") scan.mainFiles += 1;
     else scan.subagentFiles += 1;
     scan.lines += raw.length;
-    for (const line of raw) countUnknown(scan.unknown, parseLine(line));
+    for (const text of raw) {
+      const result = parseLine(text);
+      countUnknown(scan.unknown, result);
+      const { line } = result;
+      if (line.kind === "assistant" && line.model !== null && line.model !== SYNTHETIC_MODEL && !line.isApiErrorMessage && provider.callKey(line) === null) scan.keyless += 1;
+    }
   }
   return scan;
 }

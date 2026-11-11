@@ -28,6 +28,22 @@ test("a response of several blocks is written as lines with a shared requestId, 
   expect(result.parentUuid).toBe(uuids[2]);
 });
 
+test("gateway: lines have no requestId, the call key is the shared msg_bdrk_ message id, the model is the gateway's", () => {
+  const t = transcript({ sessionId: "s1", gateway: true });
+  const { requestId } = t.assistant({ blocks: [text("a"), text("b")] });
+  const assistant = t.lines as Line[];
+  expect(assistant).toHaveLength(2);
+  expect(assistant.every((l) => !("requestId" in l))).toBe(true);
+  expect(requestId).toStartWith("msg_bdrk_");
+  expect(assistant.map((l) => l.message.id)).toEqual([requestId, requestId]);
+  expect(assistant.map((l) => l.message.model)).toEqual(["claude-align-aws-opus-5-5", "claude-align-aws-opus-5-5"]);
+
+  // An explicit key names the message; an explicit model wins.
+  const second = t.assistant({ blocks: [text("c")], requestId: "msg_bdrk_given", model: "claude-align-aws-sonnet-5-5" });
+  expect(second.requestId).toBe("msg_bdrk_given");
+  expect((t.lines as Line[]).at(-1)!.message).toMatchObject({ id: "msg_bdrk_given", model: "claude-align-aws-sonnet-5-5" });
+});
+
 test("a subagent file marks lines with agentId and isSidechain", () => {
   const t = transcript({ sessionId: "s1", agentId: "a1" });
   t.prompt("Explore");

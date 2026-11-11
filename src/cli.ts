@@ -11,10 +11,11 @@ import type { PriceTable } from "./contracts/api.ts";
 import type { IndexResult } from "./contracts/pipeline.ts";
 import type { ReceiverWindowRow } from "./contracts/rows.ts";
 import { openDb, openReadonlyDb, schemaVersion } from "./db/db.ts";
-import { IndexError, planRebuild, rebuildBlocker, runIndex, scanTranscripts, type IndexDeps } from "./ingest/index.ts";
+import { IndexError, indexedProvider, planRebuild, rebuildBlocker, runIndex, scanTranscripts, type IndexDeps } from "./ingest/index.ts";
 import { INVALID_TYPE } from "./ingest/parse.ts";
 import { DEFAULT_PRICES_PATH, loadPrices } from "./ingest/reduce/cost.ts";
 import { startWatcher } from "./ingest/watch.ts";
+import { providerFor } from "./providers/index.ts";
 import { accessToken, createServer, WEB_DIST } from "./server.ts";
 import { runSetup, runUninstall } from "./setup/index.ts";
 
@@ -99,6 +100,16 @@ function watchDeps(db: Database, deps: CliDeps): IndexDeps {
   };
 }
 
+/**
+ * The database was indexed with another provider than config.json sets: unchanged files are not read again, so
+ * their sessions keep the old result. null — they agree.
+ */
+function providerMismatch(db: Database, config: TorchConfig): string | null {
+  const indexed = indexedProvider(db);
+  if (indexed === config.provider) return null;
+  return `The database was indexed with provider ${indexed}, config.json sets ${config.provider}: sessions indexed before keep the ${indexed} result. To reindex: torch index --rebuild`;
+}
+
 /** An indexer pass with a report. false if some files could not be processed. */
 function catchUp(deps: CliDeps, db: Database, options: { rebuild?: boolean } = {}): boolean {
   const { config, out, err } = deps;
@@ -116,6 +127,8 @@ function catchUp(deps: CliDeps, db: Database, options: { rebuild?: boolean } = {
     ok = false;
   }
   out(`Files: ${result.filesSeen}, with new lines: ${result.filesRead}, lines parsed: ${result.linesParsed}, sessions changed: ${result.sessionsChanged.length}`);
+  const mismatch = providerMismatch(db, config);
+  if (mismatch) err(mismatch);
   const unknownTypes = Object.keys(result.unknown.types).length;
   const unknownFields = Object.keys(result.unknown.fields).length;
   if (unknownTypes + unknownFields > 0) out(`Unknown line types: ${unknownTypes}, fields: ${unknownFields} — details: torch doctor`);
@@ -166,14 +179,23 @@ function printCounts(out: CliDeps["out"], title: string, counts: Record<string, 
 
 function doctor({ config, out }: CliDeps): number {
   // Only line types, field names and counters are printed: line contents never go out.
-  const scan = scanTranscripts(config.transcriptsDir);
+  const scan = scanTranscripts(config.transcriptsDir, providerFor(config.provider));
   out(`Transcripts: ${config.transcriptsDir}`);
   out(`Files: ${scan.mainFiles + scan.subagentFiles} (main ${scan.mainFiles}, subagent ${scan.subagentFiles}), lines: ${scan.lines}`);
   if (scan.unreadable > 0) out(`Files and directories that could not be read: ${scan.unreadable}`);
+  out(`Provider: ${config.provider}`);
+  const db = openReadonlyDb(config.dbPath);
+  const mismatch = db && providerMismatch(db, config);
+  if (mismatch) out(`  ${mismatch}`);
+  out(`  Model response lines without a call key: ${scan.keyless}`);
+  if (scan.keyless > 0) {
+    // With bedrock already set the advice to set it would mislead: such lines have neither requestId nor message.id.
+    const advice = config.provider === "bedrock" ? "" : ' Transcripts written through a gateway need "provider": "bedrock" in config.json, then torch index --rebuild';
+    out(`  They give no model calls, tokens or cost.${advice}`);
+  }
   printCounts(out, "Unknown line types", scan.unknown.types);
   printCounts(out, "Unknown fields", scan.unknown.fields);
 
-  const db = openReadonlyDb(config.dbPath);
   if (!db) {
     out(`Enrichment channels: no database yet (${config.dbPath})`);
     return 0;

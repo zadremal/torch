@@ -138,7 +138,7 @@ export interface PromptRow {
 /** reduce/modelCalls.ts; duration_ms and duration_exact are refined by enrich/merge.ts. */
 export interface ModelCallRow {
   session_id: string;
-  /** requestId. */
+  /** The provider's call key: `requestId`; with the bedrock provider `message.id` when there is no `requestId`. */
   id: string;
   agent_id: string;
   /** Sequence number of the call within the agent, from 1. */

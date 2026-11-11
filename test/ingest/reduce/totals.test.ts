@@ -7,8 +7,9 @@ import { deriveTotals } from "../../../src/ingest/reduce/totals.ts";
 import { REF_PRICES, REF_SESSION_ID } from "../../support/reference.ts";
 import { seedReference } from "../../support/reference-seed.ts";
 import { SEED_TIME, seed } from "../../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
-const derive = (db: Database, sessionId = "s1") => deriveTotals({ db, sessionId, prices: REF_PRICES, now: 0 });
+const derive = (db: Database, sessionId = "s1") => deriveTotals({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: 0 });
 const sessionRow = (db: Database, id = "s1") => db.query<SessionRow, [string]>("SELECT * FROM sessions WHERE id = ?").get(id)!;
 const agentRows = (db: Database, id = "s1") => db.query<AgentRow, [string]>("SELECT * FROM agents WHERE session_id = ? ORDER BY agent_id").all(id);
 const agentRow = (db: Database, agentId = "main", id = "s1") => agentRows(db, id).find((agent) => agent.agent_id === agentId)!;

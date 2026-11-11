@@ -60,6 +60,7 @@ Plan date: 2026-11-09.
 | 37 | Defaults | See sections 9 and 10. |
 | 38 | Principles | The code follows DRY, KISS and YAGNI (section 4.2). The interface is built by atomic design (section 9.4). |
 | 39 | Charts | Carbon Charts (React). What counts as a chart and which component is used: section 9.4. |
+| 40 | Providers | Differences between API providers in what Claude Code logs (the call identity, model names, the OTel join) live in provider plugins (`src/providers/`), selected by `config.provider`; `anthropic` by default, `bedrock` for gateways. Switching does not reindex by itself: `torch index --rebuild` stays the owner's command (2026-11-11, spikes.md §10). |
 
 ---
 
@@ -81,7 +82,7 @@ Volume: 1001 main sessions, 230 subagent files, 510 MB, since 2026-08-06. All se
 
 Rules that correctness depends on:
 
-- **Token deduplication.** One API response is recorded as several `assistant` lines (one per content block) with the same `requestId`. Their input part of `usage` is identical, `output_tokens` grows towards the last line. A model call = a unique `requestId`; `usage` is taken from the last line of the request.
+- **Token deduplication.** One API response is recorded as several `assistant` lines (one per content block) with the same `requestId`. Their input part of `usage` is identical, `output_tokens` grows towards the last line. A model call = a unique call key of the provider (`requestId` on the direct API, `message.id` through a gateway, which writes no `requestId`: spikes.md §10); `usage` is taken from the last line of the request.
 - **Identifiers are unique within a session.** A continued session copies the history of the original, so one `requestId`, `tool_use.id` or `uuid` appears in the files of two sessions. The session identifier is the name of the transcript file.
 - **Linking a call and its result.** `tool_use.id` in an `assistant` line ↔ `tool_result.tool_use_id` in a `user` line. The result line has a `toolUseResult` whose structure depends on the tool.
 - **Subagents** live in separate files; the main transcript has no `isSidechain: true` lines. The link: `meta.json.toolUseId` = `tool_use.id` of the parent `Agent` call; `agentId` in the file name = `toolUseResult.agentId`.
@@ -162,7 +163,8 @@ torch/
   prices.default.json         table of prices and context window sizes by model
   src/
     contracts/                shared types and constants: lines, rows, pipeline, api, selection, enrich,
-                              events, constants
+                              events, constants, provider
+    providers/                API provider plugins: anthropic, bedrock; index.ts — the registry
     cli.ts                    start | index | doctor | setup | uninstall | status
     server.ts                 assembling the Hono app, serving the interface
     config.ts                 ~/.torch/config.json, paths, port
@@ -231,6 +233,7 @@ Three principles apply to all the code. Below is what each one means in torch sp
 | API route paths | `API_ROUTES` in `src/contracts/api.ts` |
 | Writing and reading bodies | `src/ingest/reduce/contents.ts` |
 | Recording the selection in the page address | `src/contracts/selection.ts` |
+| How a provider shapes what Claude Code logs: call identity, model names, the OTel join | `src/providers/`, behind `src/contracts/provider.ts`; the rest of the code asks the active provider |
 
 DRY is about knowledge, not similar-looking lines: two blocks that look the same but change for different reasons stay separate. In tests clarity matters more: the example data is written directly in the test.
 
@@ -253,7 +256,7 @@ DRY is about knowledge, not similar-looking lines: two blocks that look the same
 ```
 ~/.torch/
   torch.db            0600 permissions
-  config.json
+  config.json         port, host, transcriptsDir, desktopSessionsDir, claudeSettingsPath, provider
   prices.json         a copy of prices.default.json, edited from Settings
   spool/              hooks event files, one per event
   hooks/record.sh     a copy of the hooks handler; settings.json refers to it; it finds the spool relative to its own location
@@ -311,7 +314,7 @@ Time is in UTC epoch milliseconds. Identifiers are taken from Claude Code where 
 **`receiver_windows`** — when the OTel receiver was running.
 `started_at`, `stopped_at` (updated by a heartbeat every 30 seconds so that it survives a crash).
 
-**`meta`** — `schema_version`.
+**`meta`** — `schema_version`; `provider`, the provider the index was built with (recorded by a rebuild and by a pass over a database without sessions; absent — `anthropic`).
 
 There are no separate tables with daily totals: the order of magnitude is tens of thousands of calls, and the dashboard is computed by queries over indexes on `ts`.
 
@@ -333,7 +336,7 @@ A full rebuild is a separate command, `torch index --rebuild`, with a warning th
 ### 6.2 Rules
 
 - **Project**: `cwd` from the first line that has this field; the project name is the last path segment. `is_temp_dir` if the path starts with `/private/var/folders/` or `/private/tmp/`.
-- **Model call**: one record per `requestId`. Lines with `message.model = "<synthetic>"` are not counted as calls.
+- **Model call**: one record per call key of the provider (`requestId` on the direct API; decision 40). Prices and the context window are looked up by the provider's canonical model name; the reported name is stored. Lines with `message.model = "<synthetic>"` are not counted as calls.
 - **Model call duration**: from `api_request.duration_ms`; otherwise an estimate — the time of the last line of the response minus the time of the previous event of the same agent, `duration_exact = 0`. The lines of one response are written as the blocks become ready and are spread out in time.
 - **Tool call duration**: from `tool_result.duration_ms` (OTel); otherwise from `toolUseResult.durationMs` / `totalDurationMs` where present (measured by Claude Code, `duration_exact = 1`); otherwise the difference between the times of the result line and the call line, `duration_exact = 0`.
 - **Tool status**, in descending priority: `toolDenialKind` or `reject` in `permissionDecision` → denied if the user rejected the call (`toolDenialKind = user-rejected` or a `user…` source), otherwise error (blocked by a rule, auto mode, a hook or another app); `interrupted` → interrupted; `is_error` → error; otherwise ok; no result → pending. The result of a denied call is also marked `is_error`, so the denial is checked first. A denial without `permissionDecision` records `reject` with `toolDenialKind` as the source. Migration 003 reclassifies indexed calls.
@@ -355,7 +358,7 @@ A full rebuild is a separate command, `torch index --rebuild`, with a warning th
 
 ### 6.3 Merging enrichment
 
-- `api_request` → `model_calls` by `request_id`: `duration_ms`, `duration_exact = 1`.
+- `api_request` → `model_calls` by the provider's matcher (by `request_id` on the direct API; through a gateway, without `request_id`, by model, end time and tokens): `duration_ms`, `duration_exact = 1`.
 - `api_error` → `api_errors` (source otel); duplicates with the transcript's `api_error` lines are glued by `request_id` + `attempt`, or, when absent, by time within a second.
 - `tool_result` and `tool_decision` → `tool_calls` by `tool_use_id`: duration, `permission_decision`, `permission_source`.
 - `InstructionsLoaded` → `instructions_loaded`; the file size is read from disk at the moment of receipt.
@@ -400,7 +403,7 @@ Order of work: read the file, show a line-by-line diff, ask for confirmation, sa
 |---|---|
 | `torch start [--port N] [--host H]` | Catch up the index, start the server and the receiver, open the browser |
 | `torch index [--rebuild]` | Only the indexer pass |
-| `torch doctor` | Run the parser over the real history, print unknown line types and fields, the state of the channels |
+| `torch doctor` | Run the parser over the real history, print unknown line types and fields, the provider and the model responses it gives no call key, the state of the channels |
 | `torch setup` / `torch uninstall` | Editing and rolling back `settings.json` |
 | `torch status` | Schema version, number of sessions, database size, the latest receiver windows |
 

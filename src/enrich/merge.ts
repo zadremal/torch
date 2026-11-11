@@ -2,12 +2,15 @@
 //
 // An event refines the row written by the transcript reducer and gets `applied = 1`.
 // An event whose row does not exist yet stays with `applied = 0` and is applied by the next merge.
+// Which model call an `api_request` refines is decided by the active provider (`matchApiRequests`): an
+// event it pairs with no call waits the same way.
 // An API error and an instructions load produce a record even without a transcript (source otel and
 // hook); when a transcript row about the same thing appears, the event record is folded into it and
 // deleted, so the order in which the sources arrive does not affect the result.
 import type { Database } from "bun:sqlite";
 import { API_ERROR_DEDUP_WINDOW_MS, estimateTokens, MAIN_AGENT_ID } from "../contracts/constants.ts";
 import { OTEL_EVENT_NAMES, type HookEventName } from "../contracts/enrich.ts";
+import type { ApiRequestEvent, CallCandidate, Provider } from "../contracts/provider.ts";
 import type { ApiErrorRow, InstructionLoadedRow, RawEventRow } from "../contracts/rows.ts";
 import { otelNetworkSource } from "./networkSource.ts";
 
@@ -62,13 +65,53 @@ const gap = (a: Timed, b: Timed): number => Math.abs(a.ts - b.ts);
 
 // ── Network events: api_request and api_error ───────────────────────────────────────────────
 
+interface CallCandidateRow {
+  id: string;
+  model: string;
+  ts_end: number;
+  duration_exact: number;
+  tok_input: number;
+  tok_output: number;
+  tok_cache_read: number;
+  tok_cache_write: number;
+}
+
 /**
- * `api_request` → the model call with the same `request_id`: exact duration and request source.
+ * The session's model calls as the provider's matcher sees them. The matchers break ties by input order,
+ * so the order is fixed: by end time, then id.
+ */
+function callCandidates(db: Database, sessionId: string): CallCandidate[] {
+  return db
+    .query<CallCandidateRow, [string]>(
+      `SELECT id, model, ts_end, duration_exact, tok_input, tok_output, tok_cache_read, tok_cache_write_5m + tok_cache_write_1h AS tok_cache_write
+       FROM model_calls WHERE session_id = ? ORDER BY ts_end, id`,
+    )
+    .all(sessionId)
+    .map((row) => ({
+      id: row.id,
+      model: row.model,
+      tsEnd: row.ts_end,
+      durationExact: row.duration_exact === 1,
+      tokInput: row.tok_input,
+      tokOutput: row.tok_output,
+      tokCacheRead: row.tok_cache_read,
+      tokCacheWrite: row.tok_cache_write,
+    }));
+}
+
+/**
+ * `api_request` → the model call the provider pairs it with (by `request_id` on the direct API; by model,
+ * time and tokens through a gateway): exact duration and request source. An event paired with no call
+ * waits: its call may not be in the database yet.
  * `api_error` → a record with source otel. The event does not name an agent: the record belongs to the
  * main one until it is folded into a transcript row (`foldApiErrors`), where the agent is known.
  */
-function applyNetworkEvents(db: Database, sessionId: string): void {
+function applyNetworkEvents(db: Database, sessionId: string, provider: Provider): void {
   const network = otelNetworkSource(db);
+  // By time, then id: the source's order, which the matchers rely on for ties.
+  const events = network.pending(sessionId);
+  const requests = events.filter((event): event is ApiRequestEvent => event.kind === "api_request");
+  const callOf = requests.length === 0 ? new Map<number, string>() : provider.matchApiRequests(requests, callCandidates(db, sessionId));
   const refineCall = db.query(
     `UPDATE model_calls SET
        duration_ms = COALESCE(?3, duration_ms),
@@ -80,9 +123,11 @@ function applyNetworkEvents(db: Database, sessionId: string): void {
     "INSERT INTO api_errors (session_id, id, agent_id, ts, request_id, status_code, error, attempt, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'otel')",
   );
   const applied: number[] = [];
-  for (const event of network.pending(sessionId)) {
+  for (const event of events) {
     if (event.kind === "api_request") {
-      if (refineCall.run(sessionId, event.requestId, event.durationMs, event.querySource).changes === 0) continue;
+      const callId = callOf.get(event.eventId);
+      if (callId === undefined) continue;
+      refineCall.run(sessionId, callId, event.durationMs, event.querySource);
     } else {
       insertError.run(sessionId, `otel:${event.eventId}`, MAIN_AGENT_ID, event.ts, event.requestId, event.statusCode, event.error, event.attempt);
     }
@@ -343,7 +388,7 @@ const totalChanges = (db: Database): number => db.query<{ n: number }, []>("SELE
  * depend on the refined rows and on `end_reason`. Until the session appears in the database, its events wait.
  * Returns true if the merge changed the session data, in which case its derived data must be recalculated.
  */
-export function mergeEnrichment(db: Database, sessionId: string): boolean {
+export function mergeEnrichment(db: Database, sessionId: string, provider: Provider): boolean {
   return db.transaction((): boolean => {
     const session = db.query<{ ended_at: number | null }, [string]>("SELECT ended_at FROM sessions WHERE id = ?").get(sessionId);
     if (!session) return false;
@@ -351,7 +396,7 @@ export function mergeEnrichment(db: Database, sessionId: string): boolean {
     skipUnruled(db, sessionId, "hook_events", Object.keys(HOOK_RULES));
     // Marking events that have no rule does not change session data: it is not counted as a change.
     const before = totalChanges(db);
-    applyNetworkEvents(db, sessionId);
+    applyNetworkEvents(db, sessionId, provider);
     applyPending(db, sessionId, "otel_events", TOOL_RULES);
     applyPending(db, sessionId, "hook_events", HOOK_RULES);
     foldApiErrors(db, sessionId);

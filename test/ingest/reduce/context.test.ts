@@ -4,15 +4,17 @@ import { describe, expect, test } from "bun:test";
 import type { AgentRow, ModelCallRow } from "../../../src/contracts/rows.ts";
 import { openMemoryDb } from "../../../src/db/db.ts";
 import { deriveContext } from "../../../src/ingest/reduce/context.ts";
+import { bedrock } from "../../../src/providers/bedrock.ts";
 import { REF_PRICES, REF_SESSION_ID } from "../../support/reference.ts";
 import { seedReference } from "../../support/reference-seed.ts";
 import { SEED_TIME, seed } from "../../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 /** Second `n` from the start of the example. */
 const at = (n: number) => SEED_TIME + n * 1000;
 
 // In REF_PRICES each model's window is 200K, the known sizes are 200K and 1M.
-const derive = (db: Database, sessionId = "s1") => deriveContext({ db, sessionId, prices: REF_PRICES, now: 0 });
+const derive = (db: Database, sessionId = "s1") => deriveContext({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: 0 });
 const agentRows = (db: Database, id = "s1") => db.query<AgentRow, [string]>("SELECT * FROM agents WHERE session_id = ? ORDER BY agent_id").all(id);
 const agentRow = (db: Database, agentId = "main", id = "s1") => agentRows(db, id).find((agent) => agent.agent_id === agentId)!;
 
@@ -113,6 +115,38 @@ describe("context window", () => {
     derive(db);
     expect(agentRow(db).ctx_window).toBe(1_000_000);
     expect(agentRow(db, "sub-1").ctx_window).toBe(200_000);
+  });
+
+  describe("bedrock provider", () => {
+    const deriveBedrock = (db: Database) => deriveContext({ db, sessionId: "s1", prices: REF_PRICES, provider: bedrock, now: 0 });
+
+    test("a gateway model name resolves to the price table's window", () => {
+      const db = withAgents("main");
+      call(db, "m1", 0, 150_000, { model: "claude-align-aws-opus-5-5" });
+      deriveBedrock(db);
+      expect(agentRow(db).ctx_window).toBe(200_000);
+    });
+
+    test("a [1m] suffix declares a 1M window even with a small peak", () => {
+      const db = withAgents("main");
+      call(db, "m1", 0, 5000, { model: "claude-align-aws-opus-5-5[1m]" });
+      deriveBedrock(db);
+      expect(agentRow(db)).toMatchObject({ ctx_window: 1_000_000, ctx_peak: 5000 });
+    });
+
+    test("a context larger than the window still raises it to the next known size", () => {
+      const db = withAgents("main");
+      call(db, "m1", 0, 200_001, { model: "claude-align-aws-opus-5-5" });
+      deriveBedrock(db);
+      expect(agentRow(db).ctx_window).toBe(1_000_000);
+    });
+
+    test("an unknown model: no window", () => {
+      const db = withAgents("main");
+      call(db, "m1", 0, 1000, { model: "gateway-model-9" });
+      deriveBedrock(db);
+      expect(agentRow(db)).toMatchObject({ ctx_window: null, ctx_peak: 1000 });
+    });
   });
 
   test("unknown model: no window, First / Last / Peak are computed", () => {

@@ -294,3 +294,48 @@ A session of two model calls and one `Read` call, started after `setup`.
 - API errors from two sources on real data.
 - The session appearing in an open UI by eye: checked by an end-to-end run on synthetic data and by API requests to the real server.
 - The merge pair windows (5 and 10 minutes) on real data.
+
+---
+
+## 10. Transcripts through a gateway (2026-11-10)
+
+Measured on the owner's machine, where Claude Code talks to the API through an AWS Bedrock / corporate gateway. torch indexed the history without a single error, and the result was empty. Counters only: shapes and numbers, no contents.
+
+### Database after a pass
+
+| Counter | Value |
+|---|---|
+| Sessions | 176 |
+| `model_calls` | 0 |
+| Sessions with `primary_model` | 0 |
+| Sessions with `tok_total` > 0 | 0 |
+| Agents with `ctx_peak` / `ctx_window` | 0 of 397 |
+| OTel `api_request` events | 208, none with `request_id` or `client_request_id` |
+
+### Transcripts
+
+| Counter | Value |
+|---|---|
+| Assistant lines, main files | 14,297 |
+| Assistant lines, `subagents/` | 7,793 |
+| Lines with `requestId` | 0 |
+| Lines with `requestRef` | 3,876 |
+| `message.id` | `msg_bdrk_…` |
+
+| Model in `message.model` | Lines |
+|---|---|
+| `claude-align-aws-opus-5-5` | 14,250 |
+| `claude-align-aws-sonnet-5-5` | 1,322 |
+| `claude-opus-5-5` | 222 |
+| `<synthetic>` | 13 |
+
+OTel names the models without the `claude-` prefix: `align-aws-haiku-4-5`.
+
+### What follows
+
+- A model call was a unique `requestId`: without it there are no calls, so no tokens, no cost, no model and no context. Through the gateway the lines of one response share `message.id`.
+- The price table does not know gateway names: even with calls the cost and the window would be NULL. The name has to be reduced to the table's (`claude-align-aws-opus-5-5` → `claude-opus-5-5`).
+- `api_request` cannot be joined by `request_id`; only by model, end time and token counts.
+- 1,235 green tests did not notice: all synthetic data had the direct-API shape. The transcript builder now writes gateway-shaped lines (`gateway` option).
+- Decision 40: provider plugins, `src/providers/`, selected by `config.provider`. `torch doctor` counts the model responses the configured provider gives no call key.
+- `requestRef` (3,876 lines) and `client_request_id` are not used: no event on this machine carries `client_request_id`.

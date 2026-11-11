@@ -7,6 +7,7 @@ import { mergeEnrichment } from "../../src/enrich/merge.ts";
 import { deriveStatus } from "../../src/ingest/reduce/status.ts";
 import { REF_PRICES } from "../support/reference.ts";
 import { SEED_TIME, seed } from "../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../support/provider.ts";
 
 const MINUTE = 60_000;
 /** The last transcript event in the session from `sessionDb`. */
@@ -45,7 +46,7 @@ test("InstructionsLoaded without a transcript row gives a record with source hoo
   const db = sessionDb();
   const event = hook(db, "InstructionsLoaded", 20, { file_path: CLAUDE_MD, memory_type: "Project", load_reason: "session_start", file_bytes: 4097 });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(instructions(db)).toEqual([
     {
@@ -69,7 +70,7 @@ test("a record of a subagent's event belongs to that subagent", () => {
   const db = sessionDb();
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start", agent_id: "a1", agent_type: "Explore" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db)).toMatchObject([{ agent_id: "a1", source: "hook" }]);
 });
@@ -78,7 +79,7 @@ test("a file that could not be read when the event was ingested is stored withou
   const db = sessionDb();
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start", file_bytes: null });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db)).toMatchObject([{ file_path: CLAUDE_MD, memory_type: null, bytes: null, tokens_est: null, source: "hook" }]);
 });
@@ -88,7 +89,7 @@ test("a transcript row about the same file gets the load reason: there is one re
   const fromTranscript = loadedLine(db, "uuid-1:0", 3 * MINUTE, { bytes: 5000, tokens_est: 1250 });
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, memory_type: "Project", load_reason: "session_start", file_bytes: 4000 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   // The size and time stay from the transcript: it holds the file contents.
   expect(instructions(db)).toEqual([{ ...fromTranscript, load_reason: "session_start" }]);
@@ -102,7 +103,7 @@ test("the memory type from the event fills an empty one and does not replace the
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, memory_type: "Project", load_reason: "session_start" });
   hook(db, "InstructionsLoaded", 0, { file_path: "/home/CLAUDE.md", memory_type: "Managed", load_reason: "session_start" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.file_path, row.memory_type, row.load_reason])).toEqual([
     [CLAUDE_MD, "Project", "session_start"],
@@ -115,7 +116,7 @@ test("an event about another file is not merged with the transcript row", () => 
   loadedLine(db, "uuid-1:0", 0);
   hook(db, "InstructionsLoaded", 5, { file_path: "/repo/web/CLAUDE.md", load_reason: "nested_traversal", file_bytes: 800 });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.file_path, row.source, row.load_reason])).toEqual([
     [CLAUDE_MD, "transcript", null],
@@ -128,7 +129,7 @@ test("an event of the main agent is not merged with a subagent's row about the s
   const ofSubagent = loadedLine(db, "uuid-1:0", MINUTE, { agent_id: "a1" });
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db)).toMatchObject([{ agent_id: "main", source: "hook", load_reason: "session_start" }, ofSubagent]);
 });
@@ -140,7 +141,7 @@ test("a subagent's event is merged with that subagent's row, not with the main a
   loadedLine(db, "uuid-3:0", 30_000, { agent_id: "a1" });
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start", agent_id: "a1" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.agent_id, row.source, row.load_reason])).toEqual([
     ["main", "transcript", null],
@@ -159,7 +160,7 @@ test("a row more than five minutes from the event is another load: the event sta
     loadedLine(db, "uuid-1:0", offset);
     hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" });
 
-    mergeEnrichment(db, "s1");
+    mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
     expect(instructions(db).map((row) => row.source)).toEqual([...sources]);
   }
@@ -171,7 +172,7 @@ test("two events about a file and one row: the nearest in time gives the reason,
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" });
   hook(db, "InstructionsLoaded", 40 * MINUTE - 50, { file_path: CLAUDE_MD, load_reason: "compact" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.source, row.load_reason])).toEqual([
     ["hook", "session_start"],
@@ -185,7 +186,7 @@ test("two events within the window of one row: the row accepts the nearest", () 
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" });
   hook(db, "InstructionsLoaded", 2 * MINUTE - 50, { file_path: CLAUDE_MD, load_reason: "nested_traversal" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.source, row.load_reason])).toEqual([
     ["hook", "session_start"],
@@ -199,7 +200,7 @@ test("an event within the window of two rows goes to the nearest", () => {
   loadedLine(db, "uuid-2:0", 4 * MINUTE);
   hook(db, "InstructionsLoaded", 3 * MINUTE, { file_path: CLAUDE_MD, load_reason: "compact" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.id, row.load_reason])).toEqual([
     ["uuid-1:0", null],
@@ -211,11 +212,11 @@ test("a row that already has a reason does not accept a second event", () => {
   const db = sessionDb();
   loadedLine(db, "uuid-1:0", 0);
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" });
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   // The next merge: one more event about the same file near the same row.
   hook(db, "InstructionsLoaded", 1000, { file_path: CLAUDE_MD, load_reason: "include" });
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db).map((row) => [row.source, row.load_reason])).toEqual([
     ["transcript", "session_start"],
@@ -227,7 +228,7 @@ test("InstructionsLoaded without a file path gives no record and does not wait f
   const db = sessionDb();
   hook(db, "InstructionsLoaded", 0, { load_reason: "session_start" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(instructions(db)).toEqual([]);
   expect(applied(db)).toEqual([1]);
@@ -240,13 +241,13 @@ test("SessionEnd after the last session event stores the end reason; the merge d
   const before = session(db);
   hook(db, "SessionEnd", MINUTE + 1000, { reason: "other", prompt_id: "p1" });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(session(db)).toEqual({ ...before, end_reason: "other" });
   expect(applied(db)).toEqual([1]);
 
   // The last event is fresher than five minutes, but there was a SessionEnd: the status derivation sets completed.
-  deriveStatus({ db, sessionId: "s1", prices: REF_PRICES, now: LAST_EVENT + 2000 });
+  deriveStatus({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: LAST_EVENT + 2000 });
   expect(session(db).status).toBe("completed");
 });
 
@@ -254,7 +255,7 @@ test("SessionEnd at the same moment as the last session event also ends it", () 
   const db = sessionDb();
   hook(db, "SessionEnd", MINUTE, { reason: "other" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(session(db).end_reason).toBe("other");
 });
@@ -263,7 +264,7 @@ test("SessionEnd without a reason still ends the session", () => {
   const db = sessionDb();
   hook(db, "SessionEnd", MINUTE);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(session(db).end_reason).toBe("unknown");
 });
@@ -271,22 +272,22 @@ test("SessionEnd without a reason still ends the session", () => {
 test("the session was reopened: transcript rows arrived after SessionEnd, so the end reason is cleared", () => {
   const db = sessionDb();
   hook(db, "SessionEnd", MINUTE + 1000, { reason: "other" });
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   expect(session(db).end_reason).toBe("other");
 
   // The app was opened the next day: SessionStart and new rows in the same file.
   const resumedAt = LAST_EVENT + 20 * 60 * MINUTE;
   hook(db, "SessionStart", 21 * 60 * MINUTE - 5000, { source: "resume" });
   db.query("UPDATE sessions SET ended_at = ? WHERE id = 's1'").run(resumedAt);
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(session(db).end_reason).toBeNull();
-  deriveStatus({ db, sessionId: "s1", prices: REF_PRICES, now: resumedAt + 1000 });
+  deriveStatus({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: resumedAt + 1000 });
   expect(session(db).status).toBe("running");
 
   // A new SessionEnd after the new rows ends the session again.
   hook(db, "SessionEnd", 21 * 60 * MINUTE + 5000, { reason: "logout" });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   expect(session(db).end_reason).toBe("logout");
 });
 
@@ -294,7 +295,7 @@ test("SessionEnd before the last session event does not store a reason", () => {
   const db = sessionDb();
   hook(db, "SessionEnd", MINUTE - 1, { reason: "other" });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(session(db).end_reason).toBeNull();
   expect(applied(db)).toEqual([1]);
@@ -303,11 +304,11 @@ test("SessionEnd before the last session event does not store a reason", () => {
 test("an earlier SessionEnd ingested after a later one does not overwrite the reason", () => {
   const db = sessionDb();
   hook(db, "SessionEnd", 3 * MINUTE, { reason: "logout" });
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   // The event file from the spool was ingested late.
   hook(db, "SessionEnd", 2 * MINUTE, { reason: "clear" });
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(session(db).end_reason).toBe("logout");
   expect(applied(db)).toEqual([1, 1]);
@@ -318,10 +319,10 @@ test("SessionEnd of another session does not end this one", () => {
   seed.session(db, { id: "s2", ended_at: LAST_EVENT });
   hook(db, "SessionEnd", 2 * MINUTE, { reason: "other" }, "s2");
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
   expect(session(db).end_reason).toBeNull();
 
-  mergeEnrichment(db, "s2");
+  mergeEnrichment(db, "s2", ANTHROPIC_PROVIDER);
   expect(session(db, "s2").end_reason).toBe("other");
   expect(session(db).end_reason).toBeNull();
 });
@@ -331,7 +332,7 @@ test("SessionStart does not change the session and is marked as applied: it carr
   const before = session(db);
   hook(db, "SessionStart", 0, { source: "startup" });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(session(db)).toEqual(before);
   expect(applied(db)).toEqual([1]);
@@ -345,7 +346,7 @@ test("PreCompact and PostCompact supplement the compaction with what the transcr
   hook(db, "PreCompact", 0, { trigger: "auto" });
   hook(db, "PostCompact", 30_500, { trigger: "auto", compact_summary: "…" });
 
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(compactions(db)).toEqual([{ ...before, trigger: "auto", duration_ms: 30_500 }]);
   expect(applied(db)).toEqual([1, 1]);
@@ -357,7 +358,7 @@ test("the trigger and duration from the transcript's compactMetadata take preced
   hook(db, "PreCompact", 0, { trigger: "auto" });
   hook(db, "PostCompact", 30_500, { trigger: "auto" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db)).toEqual([before]);
   expect(applied(db)).toEqual([1, 1]);
@@ -370,7 +371,7 @@ test("PostCompact recorded before or after the transcript row finds the same com
     hook(db, "PreCompact", 0, { trigger: "manual" });
     hook(db, "PostCompact", postAt, { trigger: "manual" });
 
-    mergeEnrichment(db, "s1");
+    mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
     expect(compactions(db)).toMatchObject([{ trigger: "manual", duration_ms: postAt }]);
   }
@@ -385,7 +386,7 @@ test("each compaction has its own PreCompact and PostCompact", () => {
   hook(db, "PreCompact", 60 * MINUTE, { trigger: "auto" });
   hook(db, "PostCompact", 60 * MINUTE + 44_000);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db).map((row) => [row.id, row.trigger, row.duration_ms])).toEqual([
     ["uuid-1", "manual", 20_000],
@@ -401,7 +402,7 @@ test("a compaction takes the nearest PreCompact before it: the PreCompact of an 
   hook(db, "PreCompact", 3 * MINUTE, { trigger: "auto" });
   hook(db, "PostCompact", 3 * MINUTE + 30_000);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db)).toMatchObject([{ trigger: "auto", duration_ms: 30_000 }]);
   expect(applied(db)).toEqual([0, 1, 1]);
@@ -413,7 +414,7 @@ test("a compaction without its own PreCompact does not get the trigger of an abo
   hook(db, "PreCompact", 0, { trigger: "manual" });
   const before = bareCompaction(db, "uuid-1", 60 * MINUTE);
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(compactions(db)).toEqual([before]);
   expect(applied(db)).toEqual([0]);
@@ -428,7 +429,7 @@ test("a compaction row no more than ten minutes from PreCompact is its compactio
     bareCompaction(db, "uuid-1", offset);
     hook(db, "PreCompact", 0, { trigger: "auto" });
 
-    mergeEnrichment(db, "s1");
+    mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
     expect(compactions(db)).toMatchObject([{ trigger }]);
   }
@@ -439,7 +440,7 @@ test("a PreCompact after the compaction row does not belong to it", () => {
   const before = bareCompaction(db, "uuid-1", 0);
   hook(db, "PreCompact", 1, { trigger: "auto" });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db)).toEqual([before]);
   expect(applied(db)).toEqual([0]);
@@ -452,7 +453,7 @@ test("PostCompact without a PreCompact before it within the window is not applie
     if (preAt !== null) hook(db, "PreCompact", preAt, { trigger: "auto" });
     hook(db, "PostCompact", 100);
 
-    expect(mergeEnrichment(db, "s1")).toBe(false);
+    expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
     expect(compactions(db)).toEqual([before]);
     expect(applied(db).at(-1)).toBe(0);
@@ -469,7 +470,7 @@ test("PostCompact more than ten minutes from PreCompact does not close its compa
     hook(db, "PreCompact", 0, { trigger: "auto" });
     hook(db, "PostCompact", postAt);
 
-    mergeEnrichment(db, "s1");
+    mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
     expect(compactions(db)).toMatchObject([{ trigger: "auto", duration_ms: duration }]);
     expect(applied(db)).toEqual([1, postApplied]);
@@ -482,7 +483,7 @@ test("PreCompact and PostCompact with the same time do not store a duration", ()
   hook(db, "PreCompact", 0, { trigger: "auto" });
   hook(db, "PostCompact", 0);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db)).toMatchObject([{ trigger: "auto", duration_ms: null }]);
   expect(applied(db)).toEqual([1, 1]);
@@ -497,11 +498,11 @@ test("hooks events of another session refine neither the compactions nor the ins
   hook(db, "PostCompact", 29_000, {}, "s2");
   hook(db, "InstructionsLoaded", 0, { file_path: CLAUDE_MD, load_reason: "session_start" }, "s2");
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
   expect(applied(db)).toEqual([0, 0, 0]);
 
   // Merging its own session: its events do not find rows of another one.
-  mergeEnrichment(db, "s2");
+  mergeEnrichment(db, "s2", ANTHROPIC_PROVIDER);
   expect(compactions(db)).toEqual([compaction]);
   expect(instructions(db)).toMatchObject([line, { session_id: "s2", source: "hook" }]);
 });
@@ -514,7 +515,7 @@ test("a PreCompact of another session between the event and the compaction row d
   hook(db, "PreCompact", 10_000, { trigger: "manual" }, "s2");
   hook(db, "PostCompact", 30_000);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
 
   expect(compactions(db)).toMatchObject([{ trigger: "auto", duration_ms: 30_000 }]);
 });

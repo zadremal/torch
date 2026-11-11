@@ -26,11 +26,12 @@ export const reduceMessages: LineReducer = (ctx, lines) => {
     if (line.kind !== "assistant" || line.uuid === null || line.timestamp === null) continue;
     // The row with the <synthetic> model was added by Claude Code: it is neither a model reply nor an API call.
     if (line.isApiErrorMessage || line.model === SYNTHETIC_MODEL) continue;
+    const callId = ctx.provider.callKey(line);
     for (const [index, block] of line.blocks.entries()) {
       const message = messageOf(block);
       // There is nothing to show for an empty block (thinking without text, a line break before a tool call).
       if (message === null || message.body.trim() === "") continue;
-      upsert.run(ctx.sessionId, `${line.uuid}:${index}`, ctx.agentId, line.requestId, line.timestamp, message.kind, putContent(ctx.db, message.body));
+      upsert.run(ctx.sessionId, `${line.uuid}:${index}`, ctx.agentId, callId, line.timestamp, message.kind, putContent(ctx.db, message.body));
     }
   }
 };
