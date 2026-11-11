@@ -13,6 +13,7 @@ import { reduceFileOps } from "../../../src/ingest/reduce/fileOps.ts";
 import { reduceModelCalls } from "../../../src/ingest/reduce/modelCalls.ts";
 import { reduceToolCalls } from "../../../src/ingest/reduce/toolCalls.ts";
 import type { RawLine, Transcript } from "../../support/transcript.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 /** Default time of the transcript's first row. */
 export const START = Date.UTC(2026, 9, 1, 10, 0, 0);
@@ -56,6 +57,7 @@ export function reduce(db: Database, t: Transcript, pass: Pass = {}): void {
     sessionId: t.options.sessionId,
     agentId: t.options.agentId ?? MAIN_AGENT_ID,
     prices: pass.prices ?? PRICES,
+    provider: ANTHROPIC_PROVIDER,
     prevEventTs: pass.prevEventTs ?? null,
     agentMeta: null,
     titles: { customFile: null, desktop: null },

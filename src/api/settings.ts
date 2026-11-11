@@ -4,9 +4,11 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { dirname } from "node:path";
 import type { TorchConfig } from "../config.ts";
 import { API_ROUTES, type ApiError, type ChannelState, type PriceTable, type SettingsResponse } from "../contracts/api.ts";
+import type { Provider } from "../contracts/provider.ts";
 import { deriveContext } from "../ingest/reduce/context.ts";
 import { DEFAULT_PRICES_PATH, callCost, loadPrices } from "../ingest/reduce/cost.ts";
 import { deriveTotals } from "../ingest/reduce/totals.ts";
+import { providerFor } from "../providers/index.ts";
 import type { Handler } from "./context.ts";
 
 /** Marker of torch hooks in settings.json: the handler installed by `torch setup` (plan §7.2). */
@@ -78,7 +80,7 @@ interface CallRow {
  * Recalculates model call costs by the new table and the totals of all sessions. The context window also
  * depends on the table, so the context is recalculated too.
  */
-function reprice(db: Database, prices: PriceTable, now: number): void {
+function reprice(db: Database, prices: PriceTable, provider: Provider, now: number): void {
   const calls = db
     .query<CallRow, []>("SELECT session_id, id, model, tok_input, tok_output, tok_cache_read, tok_cache_write_5m, tok_cache_write_1h FROM model_calls")
     .all();
@@ -96,8 +98,8 @@ function reprice(db: Database, prices: PriceTable, now: number): void {
       update.run(c.session_id, c.id, cost);
     }
     for (const { id } of sessions) {
-      deriveContext({ db, sessionId: id, prices, now });
-      deriveTotals({ db, sessionId: id, prices, now });
+      deriveContext({ db, sessionId: id, prices, provider, now });
+      deriveTotals({ db, sessionId: id, prices, provider, now });
     }
   })();
 }
@@ -129,6 +131,6 @@ export const putSettings: Handler = async (c) => {
   }
   renameSync(temp, config.pricesPath);
 
-  reprice(db, prices, now());
+  reprice(db, prices, providerFor(config.provider), now());
   return c.json<SettingsResponse>(buildSettings(db, config));
 };

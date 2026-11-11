@@ -7,12 +7,13 @@ import { deriveContext } from "../../../src/ingest/reduce/context.ts";
 import { REF_PRICES, REF_SESSION_ID } from "../../support/reference.ts";
 import { seedReference } from "../../support/reference-seed.ts";
 import { SEED_TIME, seed } from "../../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 /** Second `n` from the start of the example. */
 const at = (n: number) => SEED_TIME + n * 1000;
 
 // In REF_PRICES each model's window is 200K, the known sizes are 200K and 1M.
-const derive = (db: Database, sessionId = "s1") => deriveContext({ db, sessionId, prices: REF_PRICES, now: 0 });
+const derive = (db: Database, sessionId = "s1") => deriveContext({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: 0 });
 const agentRows = (db: Database, id = "s1") => db.query<AgentRow, [string]>("SELECT * FROM agents WHERE session_id = ? ORDER BY agent_id").all(id);
 const agentRow = (db: Database, agentId = "main", id = "s1") => agentRows(db, id).find((agent) => agent.agent_id === agentId)!;
 

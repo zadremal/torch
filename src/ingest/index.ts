@@ -9,6 +9,7 @@ import type { SessionStatus } from "../contracts/rows.ts";
 import { deriveEnrichment } from "../enrich/coverage.ts";
 import { ingestSpool } from "../enrich/hooks.ts";
 import { mergeEnrichment } from "../enrich/merge.ts";
+import { providerFor } from "../providers/index.ts";
 import { discoverFiles, isMissing, knownFiles, readAgentMeta, readCustomTitle, type DiscoveredFile } from "./discover.ts";
 import { countUnknown, parseLine } from "./parse.ts";
 import { readTranscript } from "./reader.ts";
@@ -185,6 +186,7 @@ function lastEventTs(lines: ParsedLine[]): number | null {
 export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): IndexResult {
   const { db, config, prices } = deps;
   const now = deps.now();
+  const provider = providerFor(config.provider);
 
   const unreadableDirs: FileFailure[] = [];
   const files = discoverFiles(config.transcriptsDir, (path, error) => unreadableDirs.push({ path, error }));
@@ -219,7 +221,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
        EXISTS (SELECT 1 FROM source_files WHERE session_id = ?1 AND kind = 'main' AND missing_since IS NULL)
      WHERE id = ?1`,
   );
-  const deriveCtx = (sessionId: string): DeriveContext => ({ db, sessionId, prices, now });
+  const deriveCtx = (sessionId: string): DeriveContext => ({ db, sessionId, prices, provider, now });
   const derive = (sessionId: string): void => {
     for (const reducer of DERIVED_REDUCERS) reducer(deriveCtx(sessionId));
   };
@@ -258,6 +260,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
       sessionId: file.sessionId,
       agentId: file.agentId,
       prices,
+      provider,
       prevEventTs,
       agentMeta: file.kind === "subagent" ? readAgentMeta(file.path) : null,
       titles: { customFile: customTitle(file.sessionDir), desktop: desktopTitles.get(file.sessionId) ?? null },
@@ -281,7 +284,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
       for (const reducer of LINE_REDUCERS) reducer(ctx, lines);
       // Merge — after lines and before derivatives (plan §6.3): it reads the end of the session, while the status and
       // the exact model time are computed from the refined lines.
-      mergeEnrichment(db, file.sessionId);
+      mergeEnrichment(db, file.sessionId, provider);
     } else if (reapply) {
       // Comparison — after agent linking: a link computed from calls takes precedence over meta.json,
       // and a discrepancy between them is not a change.
@@ -342,7 +345,7 @@ export function runIndex(deps: IndexDeps, options: { rebuild?: boolean } = {}): 
   for (const { id } of waiting) {
     if (changed.has(id)) continue;
     db.transaction(() => {
-      if (!mergeEnrichment(db, id)) return;
+      if (!mergeEnrichment(db, id, provider)) return;
       derive(id);
       changed.add(id);
     })();

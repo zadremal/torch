@@ -6,10 +6,11 @@ import { openMemoryDb } from "../../../src/db/db.ts";
 import { deriveStatus } from "../../../src/ingest/reduce/status.ts";
 import { REF_PRICES } from "../../support/reference.ts";
 import { SEED_TIME, seed } from "../../support/seed.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 const MINUTE = 60_000;
 
-const derive = (db: Database, now: number, sessionId = "s1") => deriveStatus({ db, sessionId, prices: REF_PRICES, now });
+const derive = (db: Database, now: number, sessionId = "s1") => deriveStatus({ db, sessionId, prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now });
 const sessionRow = (db: Database, id = "s1") => db.query<SessionRow, [string]>("SELECT * FROM sessions WHERE id = ?").get(id)!;
 
 test("the last event is younger than five minutes and there was no SessionEnd: running", () => {

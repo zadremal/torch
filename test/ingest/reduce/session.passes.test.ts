@@ -16,6 +16,7 @@ import { REF_PRICES } from "../../support/reference.ts";
 import { seed } from "../../support/seed.ts";
 import { text, thinking, toolUse, transcript } from "../../support/transcript.ts";
 import { context, contentText, parsed, rows } from "./session.support.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 const START = Date.UTC(2026, 9, 1, 10, 0, 0);
 
@@ -76,7 +77,7 @@ function index(passes: FilePass[][]) {
     for (const file of files) {
       for (const reduce of REDUCERS) reduce(file.ctx(db), file.lines);
     }
-    linkAgents({ db, sessionId: "s1", prices: REF_PRICES, now: START });
+    linkAgents({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: START });
   }
   return dump(db);
 }

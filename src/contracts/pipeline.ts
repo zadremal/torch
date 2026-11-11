@@ -5,6 +5,7 @@
 import type { Database } from "bun:sqlite";
 import type { PriceTable } from "./api.ts";
 import type { AgentMeta, ParsedLine } from "./lines.ts";
+import type { Provider } from "./provider.ts";
 
 // ── Reading (ingest/reader.ts) ──────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ export interface ReduceContext {
   /** `main` for the main file, otherwise the `agentId` from the subagent file name. */
   agentId: string;
   prices: PriceTable;
+  /** The API provider of config.json: call keys and model names of the lines. */
+  provider: Provider;
   /** Time of the last line of this file from previous passes; null on the first pass. */
   prevEventTs: number | null;
   /** Contents of `agent-<agentId>.meta.json`; null for the main file and when the file is missing. */
@@ -89,6 +92,8 @@ export interface DeriveContext {
   db: Database;
   sessionId: string;
   prices: PriceTable;
+  /** The API provider of config.json: model names for prices and the context window. */
+  provider: Provider;
   /** Current time: the running status is computed from it. */
   now: number;
 }

@@ -8,6 +8,7 @@ import { parseLine } from "../../../src/ingest/parse.ts";
 import { getContent } from "../../../src/ingest/reduce/contents.ts";
 import { REF_PRICES } from "../../support/reference.ts";
 import type { Transcript } from "../../support/transcript.ts";
+import { ANTHROPIC_PROVIDER } from "../../support/provider.ts";
 
 /** Transcript rows parsed by the parser, in recording order. */
 export const parsed = (t: Transcript): ParsedLine[] => t.lines.map((line) => parseLine(JSON.stringify(line)).line);
@@ -19,6 +20,7 @@ export function context(db: Database, t: Transcript, extra: Partial<Pick<ReduceC
     sessionId: t.options.sessionId,
     agentId: t.options.agentId ?? MAIN_AGENT_ID,
     prices: REF_PRICES,
+    provider: ANTHROPIC_PROVIDER,
     prevEventTs: null,
     agentMeta: null,
     titles: { customFile: null, desktop: null },

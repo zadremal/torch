@@ -8,6 +8,7 @@
 import type { Database } from "bun:sqlite";
 import { API_ERROR_DEDUP_WINDOW_MS, estimateTokens, MAIN_AGENT_ID } from "../contracts/constants.ts";
 import { OTEL_EVENT_NAMES, type HookEventName } from "../contracts/enrich.ts";
+import type { Provider } from "../contracts/provider.ts";
 import type { ApiErrorRow, InstructionLoadedRow, RawEventRow } from "../contracts/rows.ts";
 import { otelNetworkSource } from "./networkSource.ts";
 
@@ -67,7 +68,7 @@ const gap = (a: Timed, b: Timed): number => Math.abs(a.ts - b.ts);
  * `api_error` → a record with source otel. The event does not name an agent: the record belongs to the
  * main one until it is folded into a transcript row (`foldApiErrors`), where the agent is known.
  */
-function applyNetworkEvents(db: Database, sessionId: string): void {
+function applyNetworkEvents(db: Database, sessionId: string, _provider: Provider): void {
   const network = otelNetworkSource(db);
   const refineCall = db.query(
     `UPDATE model_calls SET
@@ -343,7 +344,7 @@ const totalChanges = (db: Database): number => db.query<{ n: number }, []>("SELE
  * depend on the refined rows and on `end_reason`. Until the session appears in the database, its events wait.
  * Returns true if the merge changed the session data, in which case its derived data must be recalculated.
  */
-export function mergeEnrichment(db: Database, sessionId: string): boolean {
+export function mergeEnrichment(db: Database, sessionId: string, provider: Provider): boolean {
   return db.transaction((): boolean => {
     const session = db.query<{ ended_at: number | null }, [string]>("SELECT ended_at FROM sessions WHERE id = ?").get(sessionId);
     if (!session) return false;
@@ -351,7 +352,7 @@ export function mergeEnrichment(db: Database, sessionId: string): boolean {
     skipUnruled(db, sessionId, "hook_events", Object.keys(HOOK_RULES));
     // Marking events that have no rule does not change session data: it is not counted as a change.
     const before = totalChanges(db);
-    applyNetworkEvents(db, sessionId);
+    applyNetworkEvents(db, sessionId, provider);
     applyPending(db, sessionId, "otel_events", TOOL_RULES);
     applyPending(db, sessionId, "hook_events", HOOK_RULES);
     foldApiErrors(db, sessionId);

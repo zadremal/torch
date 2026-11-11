@@ -32,7 +32,17 @@ function networkEvent(row: RawEventRow & { session_id: string }): NetworkEvent |
   }
   const requestId = text(attrs.request_id);
   if (requestId === null) return null;
-  return { kind: "api_request", ...common, requestId, model: text(attrs.model), querySource: text(attrs.query_source) };
+  return {
+    kind: "api_request",
+    ...common,
+    requestId,
+    model: text(attrs.model),
+    querySource: text(attrs.query_source),
+    inputTokens: number(attrs.input_tokens),
+    outputTokens: number(attrs.output_tokens),
+    cacheReadTokens: number(attrs.cache_read_tokens),
+    cacheCreationTokens: number(attrs.cache_creation_tokens),
+  };
 }
 
 export function otelNetworkSource(db: Database): NetworkSource {

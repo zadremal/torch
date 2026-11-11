@@ -13,6 +13,7 @@ import { parseLine } from "../../src/ingest/parse.ts";
 import { REF_PRICES } from "../support/reference.ts";
 import { SEED_TIME, seed } from "../support/seed.ts";
 import { toolUse, transcript, type RawLine, type Transcript } from "../support/transcript.ts";
+import { ANTHROPIC_PROVIDER } from "../support/provider.ts";
 
 const START = SEED_TIME;
 
@@ -31,6 +32,7 @@ function reduce(db: Database, t: Transcript, lines: RawLine[] = t.lines): void {
     sessionId: t.options.sessionId,
     agentId: MAIN_AGENT_ID,
     prices: REF_PRICES,
+    provider: ANTHROPIC_PROVIDER,
     prevEventTs: null,
     agentMeta: null,
     titles: { customFile: null, desktop: null },
@@ -52,19 +54,19 @@ test("an event without a pair stays with applied = 0 and is applied once the row
   seed.hookEvent(db, { session_id: "s1", ts: SEED_TIME, name: "PreCompact", attrs: { trigger: "auto" } });
   seed.hookEvent(db, { session_id: "s1", ts: SEED_TIME + 30_000, name: "PostCompact", attrs: { trigger: "auto" } });
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
   expect(flags(db, "otel_events")).toEqual([0, 0, 0]);
   expect(flags(db, "hook_events")).toEqual([0, 0]);
 
   // The next indexer pass brought a model call; the other rows are not there yet.
   seed.modelCall(db, { session_id: "s1", id: "req_1", duration_ms: 4000 });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   expect(flags(db, "otel_events")).toEqual([1, 0, 0]);
   expect(flags(db, "hook_events")).toEqual([0, 0]);
 
   seed.toolCall(db, { session_id: "s1", id: "toolu_1" });
   seed.compaction(db, { session_id: "s1", id: "uuid-1", ts: SEED_TIME + 30_100, trigger: null, duration_ms: null });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   expect(flags(db, "otel_events")).toEqual([1, 1, 1]);
   expect(flags(db, "hook_events")).toEqual([1, 1]);
 
@@ -81,14 +83,14 @@ test("an API error arrived from OTel before the transcript row: once the row app
   seed.agent(db, { session_id: "s1", agent_id: "a1" });
   seed.otelEvent(db, { session_id: "s1", ts: SEED_TIME + 20, name: OTEL_EVENT_NAMES.apiError, attrs: { request_id: "req_9", status_code: 529, error: "Overloaded", attempt: 1 } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   expect(all(db, "SELECT source FROM api_errors")).toEqual([{ source: "otel" }]);
 
   const fromTranscript = seed.apiError(db, { session_id: "s1", id: "uuid-1", agent_id: "a1", ts: SEED_TIME, status_code: null, error: "529 Overloaded", attempt: 1 });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(all(db, "SELECT * FROM api_errors")).toEqual([{ ...fromTranscript, request_id: "req_9", status_code: 529 }]);
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 });
 
 test("InstructionsLoaded arrived before the transcript row: once the row appears there is one record", () => {
@@ -96,14 +98,14 @@ test("InstructionsLoaded arrived before the transcript row: once the row appears
   seed.session(db, { id: "s1" });
   seed.hookEvent(db, { session_id: "s1", ts: SEED_TIME, name: "InstructionsLoaded", attrs: { file_path: "/repo/CLAUDE.md", memory_type: "Project", load_reason: "session_start", file_bytes: 4000 } });
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   expect(all(db, "SELECT source FROM instructions_loaded")).toEqual([{ source: "hook" }]);
 
   const fromTranscript = seed.instruction(db, { session_id: "s1", id: "uuid-1:0", ts: SEED_TIME + 90_000, file_path: "/repo/CLAUDE.md" });
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
 
   expect(all(db, "SELECT * FROM instructions_loaded")).toEqual([{ ...fromTranscript, load_reason: "session_start" }]);
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 });
 
 // ── A whole session: transcript reducers and merge ──────────────────────────────────────────
@@ -140,11 +142,11 @@ function eventsFirst(): { db: Database; s: ReturnType<typeof scenario> } {
   const db = openMemoryDb();
   const s = scenario();
   seedEvents(db, s);
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   reduce(db, s.t, s.t.lines.slice(0, s.firstPass));
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   reduce(db, s.t, s.t.lines.slice(s.firstPass));
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   return { db, s };
 }
 
@@ -178,7 +180,7 @@ test("the result does not depend on what arrived first: events or transcript row
   const s = scenario();
   reduce(late, s.t);
   seedEvents(late, s);
-  mergeEnrichment(late, "s1");
+  mergeEnrichment(late, "s1", ANTHROPIC_PROVIDER);
 
   expect(dump(late)).toEqual(dump(early));
 });
@@ -187,8 +189,8 @@ test("a repeated merge changes nothing", () => {
   const { db } = eventsFirst();
   const merged = dump(db);
 
-  expect(mergeEnrichment(db, "s1")).toBe(false);
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(dump(db)).toEqual(merged);
 });
@@ -199,7 +201,7 @@ test("reloading the transcript from the start does not lose refinements from eve
 
   // The file was replaced and re-read in full: the reducers write all its rows again.
   reduce(db, s.t);
-  expect(mergeEnrichment(db, "s1")).toBe(false);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(false);
 
   expect(dump(db)).toEqual(merged);
 });
@@ -213,12 +215,12 @@ test("after the merge the derived data see the refinements: exact model time, AP
   seed.otelEvent(db, { session_id: "s1", ts: START + 20_000, name: OTEL_EVENT_NAMES.apiError, attrs: { error: "Connection error.", attempt: 1 } });
   const derive = (): void => {
     // Right after the last session event: without SessionEnd it would count as running.
-    for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: "s1", prices: REF_PRICES, now: START + 71_000 });
+    for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now: START + 71_000 });
   };
   derive();
   expect(all<SessionRow>(db, "SELECT * FROM sessions")).toMatchObject([{ model_ms_exact: 0, api_errors: 1, status: "running" }]);
 
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   derive();
 
   expect(all<SessionRow>(db, "SELECT * FROM sessions")).toMatchObject([{ model_ms: 3210, model_ms_exact: 1, api_errors: 2, status: "completed", end_reason: "other" }]);
@@ -227,7 +229,7 @@ test("after the merge the derived data see the refinements: exact model time, AP
 test("the session was reopened: new transcript rows after SessionEnd return it to running", () => {
   const { db, s } = eventsFirst();
   const derive = (now: number): void => {
-    for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: "s1", prices: REF_PRICES, now });
+    for (const reducer of DERIVED_REDUCERS) reducer({ db, sessionId: "s1", prices: REF_PRICES, provider: ANTHROPIC_PROVIDER, now });
   };
   derive(START + 71_000);
   expect(all(db, "SELECT end_reason, status FROM sessions")).toEqual([{ end_reason: "other", status: "completed" }]);
@@ -237,7 +239,7 @@ test("the session was reopened: new transcript rows after SessionEnd return it t
   const before = s.t.lines.length;
   s.t.at(resumedAt).prompt("Continue");
   reduce(db, s.t, s.t.lines.slice(before));
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   derive(resumedAt + 1000);
 
   expect(all(db, "SELECT end_reason, status FROM sessions")).toEqual([{ end_reason: null, status: "running" }]);
@@ -256,7 +258,7 @@ test("outside an outer transaction the merge is atomic: a failure on one event r
   db.query("UPDATE otel_events SET attrs_json = '{' WHERE id = ?").run(broken.id);
   const before = dump(db);
 
-  expect(() => mergeEnrichment(db, "s1")).toThrow();
+  expect(() => mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toThrow();
 
   expect(db.inTransaction).toBe(false);
   expect(dump(db)).toEqual(before);
@@ -271,13 +273,13 @@ test("the merge works inside the indexer transaction and is rolled back together
   const before = dump(db);
 
   db.exec("BEGIN IMMEDIATE");
-  expect(mergeEnrichment(db, "s1")).toBe(true);
+  expect(mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER)).toBe(true);
   expect(db.inTransaction).toBe(true);
   db.exec("ROLLBACK");
   expect(dump(db)).toEqual(before);
 
   db.exec("BEGIN IMMEDIATE");
-  mergeEnrichment(db, "s1");
+  mergeEnrichment(db, "s1", ANTHROPIC_PROVIDER);
   db.exec("COMMIT");
   expect(flags(db, "otel_events")).toEqual([1, 1]);
   expect(all(db, "SELECT duration_ms, duration_exact FROM model_calls")).toEqual([{ duration_ms: 2350, duration_exact: 1 }]);
