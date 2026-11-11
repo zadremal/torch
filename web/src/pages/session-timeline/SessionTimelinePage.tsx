@@ -7,6 +7,7 @@ import type { PanelDock, Selection, TimelineView, TimelineZoom } from "@contract
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { ErrorNotice } from "../../components/molecules/ErrorNotice.tsx";
+import { panelSizeStyle, type ResizeEdge, ResizeHandle } from "../../components/molecules/ResizeHandle.tsx";
 import { SegmentedControl, type SegmentedOption } from "../../components/molecules/SegmentedControl.tsx";
 import { shortId } from "../../components/organisms/Timeline/model.ts";
 import { Timeline } from "../../components/organisms/Timeline/Timeline.tsx";
@@ -14,6 +15,7 @@ import { TimelineLegend } from "../../components/organisms/Timeline/TimelineLege
 import { SessionHeader } from "../../components/templates/SessionLayout.tsx";
 import { api } from "../../lib/api.ts";
 import { useLiveReload } from "../../lib/live.ts";
+import { usePanelHeight, usePanelWidth } from "../../lib/panelSize.ts";
 import { ROUTES, sessionHref } from "../../lib/routes.ts";
 import { useApi } from "../../lib/useApi.ts";
 import { panelHref } from "../panel/address.ts";
@@ -34,6 +36,18 @@ const WORKSPACE_CLASS: Record<PanelDock, string> = {
   left: `${styles.workspace} ${styles.workspaceLeft}`,
   bottom: `${styles.workspace} ${styles.workspaceBottom}`,
 };
+
+/** The panel edge facing the timeline: the one the panel is resized by. */
+const RESIZE_EDGE: Record<PanelDock, ResizeEdge> = { right: "left", left: "right", bottom: "top" };
+
+/**
+ * Panel size limits in pixels. Next to a side panel the timeline keeps `--torch-timeline-page-min-width`
+ * (narrower and the panel would wrap under it); above the bottom panel it keeps a few lanes.
+ */
+const PANEL_MIN_WIDTH = 320;
+const PANEL_MIN_HEIGHT = 160;
+const TIMELINE_MIN_WIDTH = 560;
+const TIMELINE_MIN_HEIGHT = 160;
 
 const VIEW_OPTIONS: SegmentedOption<TimelineView>[] = [
   { value: "compact", label: "Compact" },
@@ -68,6 +82,10 @@ export function SessionTimelinePage() {
   const close = () => go(closeNavigation(state));
 
   const data = timeline.data;
+  const [panelWidth, setPanelWidth] = usePanelWidth();
+  const [panelHeight, setPanelHeight] = usePanelHeight();
+  const bottom = state.dock === "bottom";
+  const panelSize = bottom ? panelHeight : panelWidth;
 
   return (
     <>
@@ -102,7 +120,14 @@ export function SessionTimelinePage() {
             {data && <Timeline data={data} selection={state.sel} view={state.view} zoom={state.zoom} onSelect={select} />}
           </div>
           {state.sel && (
-            <div className={styles.panel}>
+            <div className={styles.panel} style={panelSizeStyle(panelSize)}>
+              <ResizeHandle
+                edge={RESIZE_EDGE[state.dock]}
+                size={panelSize}
+                min={bottom ? PANEL_MIN_HEIGHT : PANEL_MIN_WIDTH}
+                reserve={bottom ? TIMELINE_MIN_HEIGHT : TIMELINE_MIN_WIDTH}
+                onResize={bottom ? setPanelHeight : setPanelWidth}
+              />
               <PanelContainer
                 sessionId={id}
                 selection={state.sel}

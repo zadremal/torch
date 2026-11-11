@@ -470,9 +470,12 @@ describe("legend and page", () => {
     expect(pressedIn(html, "Zoom")).toBe("4×");
     expect(html).toContain("SessionTimelinePage__workspaceLeft");
     // In the dock stands the panel with the marked position and a link to a separate tab with the same selection.
-    expect(html).toContain('<div class="SessionTimelinePage__panel"><section class="DetailPanel__root" aria-label="Details">');
+    // Its edge facing the timeline resizes it: the right edge in the left dock, the top edge in the bottom one.
+    expect(html).toMatch(/<div class="SessionTimelinePage__panel"><div role="separator" aria-label="Resize panel" aria-orientation="vertical"[^>]*class="ResizeHandle__handle ResizeHandle__right"><\/div><section class="DetailPanel__root" aria-label="Details">/);
     expect(html).toContain('href="/sessions/abc/panel?sel=agent%3Agp-1"');
     expect(html).not.toContain("Show details");
-    expect(renderRoute("/sessions/abc/timeline?sel=session&dock=bottom")).toContain("SessionTimelinePage__workspaceBottom");
+    const bottom = renderRoute("/sessions/abc/timeline?sel=session&dock=bottom");
+    expect(bottom).toContain("SessionTimelinePage__workspaceBottom");
+    expect(bottom).toMatch(/aria-orientation="horizontal"[^>]*class="ResizeHandle__handle ResizeHandle__top"/);
   });
 });

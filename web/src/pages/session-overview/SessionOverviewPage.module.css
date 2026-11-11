@@ -5,9 +5,8 @@
 .workspace {
   /* The minimum overview width next to the panel: narrower and the panel wraps under it. */
   --torch-overview-page-min-width: 560px;
-  /* The same panel width as in the timeline dock. */
+  /* The same default panel width as in the timeline dock; the resize edge replaces it with `--torch-panel-size`. */
   --torch-overview-page-panel-width: 440px;
-  --torch-overview-page-panel-max-width: 520px;
 
   display: flex;
   flex-grow: 1;
@@ -25,10 +24,10 @@
 .panel {
   position: sticky;
   inset-block-start: 0;
-  flex: 1 1 var(--torch-overview-page-panel-width);
+  flex: 0 0 var(--torch-panel-size, var(--torch-overview-page-panel-width));
   background: var(--cds-background);
   block-size: 100vh;
   border-inline-start: 1px solid var(--cds-border-subtle-01);
-  max-inline-size: var(--torch-overview-page-panel-max-width);
+  max-inline-size: 100%;
   overflow-y: auto;
 }

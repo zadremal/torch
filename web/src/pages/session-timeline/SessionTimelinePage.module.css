@@ -7,9 +7,11 @@
 .root {
   /* The minimum timeline width next to the panel: narrower and the panel wraps under it. */
   --torch-timeline-page-min-width: 560px;
-  /* The panel in a side dock and its share of the workspace height in the bottom one. */
+  /*
+   * The default panel width in a side dock and its share of the workspace height in the bottom one.
+   * The resize edge replaces them with `--torch-panel-size`.
+   */
   --torch-timeline-page-panel-width: 440px;
-  --torch-timeline-page-panel-max-width: 520px;
   --torch-timeline-page-panel-bottom-share: 50%;
   /*
    * Height of the app header, the session header and the legend row above the workspace (264px): the workspace
@@ -83,11 +85,13 @@
 }
 
 .panel {
-  flex: 1 1 var(--torch-timeline-page-panel-width);
+  /* The resize edge is positioned inside the panel. */
+  position: relative;
+  flex: 0 0 var(--torch-panel-size, var(--torch-timeline-page-panel-width));
   background: var(--cds-background);
   block-size: var(--torch-timeline-page-height);
   border-inline-start: 1px solid var(--cds-border-subtle-01);
-  max-inline-size: var(--torch-timeline-page-panel-max-width);
+  max-inline-size: 100%;
   overflow-y: auto;
 }
 
@@ -98,7 +102,8 @@
 
 .workspaceBottom .panel {
   flex: none;
-  block-size: var(--torch-timeline-page-panel-bottom-share);
+  block-size: var(--torch-panel-size, var(--torch-timeline-page-panel-bottom-share));
+  max-block-size: 100%;
   border-block-start: 1px solid var(--cds-border-subtle-01);
   border-inline-start: 0;
   max-inline-size: none;

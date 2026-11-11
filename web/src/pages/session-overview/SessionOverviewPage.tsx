@@ -10,10 +10,12 @@ import { parseSelection } from "@contracts/selection.ts";
 import { Link, useParams, useSearchParams } from "react-router";
 import { Mono } from "../../components/atoms/Mono.tsx";
 import { ErrorNotice } from "../../components/molecules/ErrorNotice.tsx";
+import { panelSizeStyle, ResizeHandle } from "../../components/molecules/ResizeHandle.tsx";
 import { StatTile, StatTileGrid } from "../../components/molecules/StatTile.tsx";
 import { SessionContent, SessionHeader } from "../../components/templates/SessionLayout.tsx";
 import { api } from "../../lib/api.ts";
 import { useLiveReload } from "../../lib/live.ts";
+import { usePanelWidth } from "../../lib/panelSize.ts";
 import { ROUTES, sessionHref } from "../../lib/routes.ts";
 import { useApi } from "../../lib/useApi.ts";
 import { panelHref, withSelection } from "../panel/address.ts";
@@ -42,6 +44,10 @@ const SELECTION_PARAM = "sel";
 /** `errors=1`: the Errors list is shown. */
 const ERRORS_PARAM = "errors";
 
+/** Panel width limits in pixels: the overview keeps `--torch-overview-page-min-width` next to the panel. */
+const PANEL_MIN_WIDTH = 320;
+const OVERVIEW_MIN_WIDTH = 560;
+
 /** Short form of the identifier for breadcrumbs. */
 function shortId(id: string): string {
   return id.length > 8 ? id.slice(0, 8) : id;
@@ -55,6 +61,7 @@ export function SessionOverviewPage() {
   const [exportError, setExportError] = useState<string | null>(null);
   const s = session.data;
   const [search, setSearchParams] = useSearchParams();
+  const [panelWidth, setPanelWidth] = usePanelWidth();
   const sel = parseSelection(search.get(SELECTION_PARAM));
   const agentHref = (agentId: string) => `?${withSelection(search, { kind: "agent", id: agentId }).toString()}`;
   const errorHref = (callId: string) => `?${withSelection(search, { kind: "tool", id: callId }).toString()}`;
@@ -182,7 +189,14 @@ export function SessionOverviewPage() {
           </SessionContent>
         </div>
         {sel && (
-          <div className={styles.panel}>
+          <div className={styles.panel} style={panelSizeStyle(panelWidth)}>
+            <ResizeHandle
+              edge="left"
+              size={panelWidth}
+              min={PANEL_MIN_WIDTH}
+              reserve={OVERVIEW_MIN_WIDTH}
+              onResize={setPanelWidth}
+            />
             <PanelContainer
               sessionId={id}
               selection={sel}
