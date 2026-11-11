@@ -9,7 +9,10 @@ import type { PriceTable } from "../../src/contracts/api.ts";
 import { MAIN_AGENT_ID, RUNNING_WINDOW_MS } from "../../src/contracts/constants.ts";
 import type { AgentRow, SessionRow, SourceFileRow } from "../../src/contracts/rows.ts";
 import { openDb, openMemoryDb, openReadonlyDb } from "../../src/db/db.ts";
-import { IndexError, planRebuild, rebuildBlocker, runIndex, scanTranscripts } from "../../src/ingest/index.ts";
+import type { ProviderId } from "../../src/contracts/provider.ts";
+import { IndexError, indexedProvider, planRebuild, rebuildBlocker, runIndex, scanTranscripts } from "../../src/ingest/index.ts";
+import { anthropic } from "../../src/providers/anthropic.ts";
+import { bedrock } from "../../src/providers/bedrock.ts";
 import { REF_PRICES, referenceScenario } from "../support/reference.ts";
 import { seedReference } from "../support/reference-seed.ts";
 import { referenceFiles } from "../support/reference-transcript.ts";
@@ -863,10 +866,10 @@ describe("parser run for torch doctor", () => {
     w.write(files);
     w.index();
 
-    const scan = scanTranscripts(w.config.transcriptsDir);
+    const scan = scanTranscripts(w.config.transcriptsDir, anthropic);
 
-    expect(scan).toEqual({ mainFiles: 1, subagentFiles: 1, lines: files.main.lines.length + 2, unreadable: 0, unknown: { types: { "mystery-line": 1 }, fields: { "user.brandNewField": 1 } } });
-    expect(scanTranscripts(join(w.config.transcriptsDir, "missing"))).toEqual({ mainFiles: 0, subagentFiles: 0, lines: 0, unreadable: 0, unknown: { types: {}, fields: {} } });
+    expect(scan).toEqual({ mainFiles: 1, subagentFiles: 1, lines: files.main.lines.length + 2, unreadable: 0, unknown: { types: { "mystery-line": 1 }, fields: { "user.brandNewField": 1 } }, keyless: 0 });
+    expect(scanTranscripts(join(w.config.transcriptsDir, "missing"), anthropic)).toEqual({ mainFiles: 0, subagentFiles: 0, lines: 0, unreadable: 0, unknown: { types: {}, fields: {} }, keyless: 0 });
   });
 
   test("an unreadable transcript and an unreadable directory are skipped and counted", () => {
@@ -881,10 +884,60 @@ describe("parser run for torch doctor", () => {
     chmodSync(dirname(hidden.mainPath), 0o000);
 
     try {
-      expect(scanTranscripts(w.config.transcriptsDir)).toEqual({ mainFiles: 1, subagentFiles: 2, lines: files.main.lines.length + 4, unreadable: 2, unknown: { types: {}, fields: {} } });
+      expect(scanTranscripts(w.config.transcriptsDir, anthropic)).toEqual({ mainFiles: 1, subagentFiles: 2, lines: files.main.lines.length + 4, unreadable: 2, unknown: { types: {}, fields: {} }, keyless: 0 });
     } finally {
       chmodSync(locked.mainPath, 0o600);
       chmodSync(dirname(hidden.mainPath), 0o700);
     }
+  });
+
+  test("model responses the provider gives no call key are counted; synthetic and API error lines are not", () => {
+    const w = world();
+    const main = transcript({ sessionId: "g1", gateway: true });
+    main.prompt("Fix the flaky test");
+    // One response of two blocks: two lines without requestId.
+    main.tick(2000).assistant({ blocks: [text("Reading"), text("Done")] });
+    main.tick(100).assistant({ blocks: [text("No response requested.")], model: "<synthetic>", split: false });
+    main.envelope({ type: "assistant", isApiErrorMessage: true, message: { role: "assistant", model: "claude-align-aws-opus-5-5", content: [{ type: "text", text: "API Error" }] } });
+    w.write({ main });
+
+    expect(scanTranscripts(w.config.transcriptsDir, anthropic).keyless).toBe(2);
+    expect(scanTranscripts(w.config.transcriptsDir, bedrock).keyless).toBe(0);
+  });
+});
+
+describe("provider of the index", () => {
+  const indexWith = (w: World, provider: ProviderId, options?: { rebuild?: boolean }) =>
+    runIndex({ db: w.db, config: { ...w.config, provider }, prices: REF_PRICES, now: () => w.clock.now }, options);
+  const recorded = (w: World) => all<{ value: string }>(w.db, "SELECT value FROM meta WHERE key = 'provider'");
+
+  test("a database without the key was indexed by anthropic", () => {
+    const w = world();
+    expect(recorded(w)).toEqual([]);
+    expect(indexedProvider(w.db)).toBe("anthropic");
+  });
+
+  test("recorded by the first pass and by a rebuild; a pass over an indexed database keeps it", () => {
+    const w = world();
+    w.write(smallSession());
+    indexWith(w, "anthropic");
+    expect(recorded(w)).toEqual([{ value: "anthropic" }]);
+
+    // New files are indexed with the configured provider, the record stays: sessions indexed before are unchanged.
+    w.write(smallSession("s2"));
+    indexWith(w, "bedrock");
+    expect(indexedProvider(w.db)).toBe("anthropic");
+
+    indexWith(w, "bedrock", { rebuild: true });
+    expect(indexedProvider(w.db)).toBe("bedrock");
+  });
+
+  test("a pass over a database without sessions records the configured provider", () => {
+    const w = world();
+    indexWith(w, "bedrock");
+    expect(indexedProvider(w.db)).toBe("bedrock");
+    w.write(smallSession());
+    indexWith(w, "anthropic");
+    expect(indexedProvider(w.db)).toBe("anthropic");
   });
 });

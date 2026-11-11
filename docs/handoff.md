@@ -4,7 +4,7 @@ You have been handed the implementation of torch: a local application for analyz
 
 ---
 
-## State as of 2026-11-10
+## State as of 2026-11-11
 
 | | |
 |---|---|
@@ -16,7 +16,8 @@ You have been handed the implementation of torch: a local application for analyz
 | K2 | Held 2026-11-09, results in spikes.md §7 |
 | Stage C | Merged in full 2026-11-10: S1, E1, E2, L1, W7, T1, D1. Event reception and merging are wired into the indexer pass and into `torch start` |
 | K3 | Held 2026-11-10, results in spikes.md §9: enrichment works on a new desktop session, `torch uninstall` restores the file byte for byte, T1 is green. The first wave is fully built |
-| Checks | `bun run typecheck`, `bun test` (1235 tests), `bun run build` and `bun run e2e` (14 steps in headless Chrome, 12 s) are green on `main` |
+| Providers | 2026-11-11: through a Bedrock / corporate gateway the owner's history indexed empty (spikes.md §10). Decision 40: provider plugins in `src/providers/`, selected by `config.provider`. The foundation is committed; package PC: the provider recorded in `meta` and named by `torch index`, `start`, `doctor`, the `doctor` count of model responses without a call key, the price recalculation by the canonical model, the docs. The ingest reducers and the OTel merge are wired by two packages in parallel |
+| Checks | `bun run typecheck` green. `bun test`: 1297 tests, 1286 pass, 11 fail in a container running as root, the same 11 as at the foundation commit: 9 chmod-based unreadable-file and write-failure tests, and 2 that expect schema version 2 while migration 003 makes it 3 (`torch status` and the full rebuild test in `test/ingest/index.test.ts`). `bun run e2e` (build + 14 steps in headless Chrome, 17 s) green |
 | F6 checks | All seven held 2026-11-10 (spikes.md §3 and §8): hooks and OTel log export work in desktop sessions, identifiers match the transcript. Stage C is open; package S1 needs the owner's decision about metrics (below) |
 | Owner's Claude Code settings | After K3 they were restored by `torch uninstall`, then at the owner's word `torch setup` was run again (2026-11-10): enrichment is on, the receiver is port 4820. Rollback is `torch uninstall`; the copy of the previous file is `~/.torch/backups/settings.json.2026-11-10T17-09-11-942Z`. `cleanupPeriodDays: 365` was added with the owner's consent; the copy of the previous file is in `~/.torch/backups/`. The temporary edit for the F6 checks (2026-11-10) was restored, the file matches the copy `settings.json.2026-11-10-before-spikes` |
 | Consents | Commits to `main` and a run on the real history for K1 — received. The rest of the table below is still a separate question |
@@ -85,6 +86,13 @@ From stage C:
 - **Duplicates:** active segments in `enrich/coverage.ts` and `reduce/durations.ts`; `--port` parsing in two branches of `cli.ts`; launching a real `torch start` process in `test/cli.test.ts` and `test/e2e/torch.ts`; reading SSE records in two tests; the path `<dataDir>/hooks/record.sh` is built in `cli.ts`, there is no field in `TorchConfig`.
 - **The end-to-end run does not cover:** Export JSON, the Custom range, list sorting and pages, the project filter, timeline zoom, the prompt, file and net panels.
 - **`ttft_ms`** arrives in `api_request`, but there is no column and no screen for it.
+
+From the claude-trace parity analysis and the providers (spikes.md §10):
+
+- **The owner's database** needs `"provider": "bedrock"` in `~/.torch/config.json` and `torch index --rebuild` (with his consent: sessions without a transcript on disk are lost). Then check by counters: `model_calls` > 0, `tok_total` > 0, `primary_model` not null, `ctx_window` not null, `api_request` events applied.
+- **`API_REQUEST_MATCH_WINDOW_MS`** (5 s) was chosen by reasoning: verify on real data.
+- **Not done, waiting for the owner's decisions:** reported OTel cost overriding the estimate (the context of decision 8); `ttft_ms`; the `client_request_id` → `requestRef` join (no event on the owner's machine carries `client_request_id`); model calls known only from OTel (side requests: title, prompt suggestion, summaries); partial cost with "N unpriced" instead of NULL; MCP / network-Bash / sandbox-violation marks on the Network track; the TCP connection sampler (a plan §13 change); agent panel additions (context series, models list, outcome).
+- **A price-table `aliases` map** for names the provider's rules cannot resolve was not added: an unresolved model still gives a NULL cost.
 
 Decide later:
 
@@ -166,7 +174,8 @@ You alone read the real history, and only structurally: counters, line types, fi
 Things that are not visible from the code and configuration.
 
 - **Environment hints about Vercel and Next.js.** When a session starts in this directory, the Vercel plugin suggests Next.js, deployment and "start right away, without questions". This does not apply to torch: the stack is set by decision 10, the application is local.
-- **Tokens are doubled.** One API response is recorded in the transcript as several lines with the same `requestId` and a repeated `usage`. Count by the unique `requestId`.
+- **Tokens are doubled.** One API response is recorded in the transcript as several lines with the same `requestId` and a repeated `usage`. Count by the unique call key of the provider (`requestId` on the direct API, `message.id` through a gateway).
+- **Green tests on direct-API data prove nothing about a gateway.** Through Bedrock there is no `requestId` and models have gateway names (spikes.md §10); synthetic data for anything that touches calls or models is also written with `transcript({ gateway: true })`.
 - **Project directory names start with a hyphen** (`-Users-…`). In shell commands write paths through `./` or after `--`, otherwise the name is read as a command flag.
 - **All the owner's sessions were launched from the desktop app,** and 831 of 1001 lie in temporary directories: these are the app's service stubs, not the owner's work. By default they are hidden (decision 6).
 - **The transcript format is internal and changes between versions.** An unknown line type or field is a normal situation: skip it, count it, show it in `torch doctor`.

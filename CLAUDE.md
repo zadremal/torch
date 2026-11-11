@@ -21,6 +21,7 @@ Full text: `docs/packages.md` §2.
 
 - **Ownership.** A package creates and changes only the paths of its own ownership and its own tests in `test/<area>/`. It reads everything else.
 - **Contract.** Shared types and constants live in `src/contracts/`; the UI imports them via `@contracts`. The orchestrator owns the contracts, migrations, the root `package.json`, this file, `src/api/routes.ts`, `src/api/context.ts`, `src/ingest/reduce/contents.ts` and `test/support/`. A worker who is hindered by a contract stops and returns a contract change request: what does not fit, what change is needed, which packages it affects.
+- **Providers.** Differences between API providers (call identity, model names, the OTel join) live only in `src/providers/`, behind `src/contracts/provider.ts`; the orchestrator owns both. The rest of the code asks `ctx.provider`.
 - **Skeleton.** Every file of the plan already exists as a stub with a signature from the contract, the routes and the router are wired up. The worker fills in the stubs.
 - **Data.** Tests and screens work on synthetic data: `test/support/transcript.ts`, `test/support/seed.ts`, `test/fixtures/dto/`. Real transcripts from `~/.claude` are read only by the orchestrator; their contents do not enter the repository.
 - **Commits.** A worker commits to its own worktree branch. The orchestrator merges into `main`, one commit per package.

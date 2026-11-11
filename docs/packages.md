@@ -24,9 +24,9 @@ A package's tests live in `test/<area>/`, next to it by name, and are part of it
 
 ### Contract
 
-`src/contracts/` holds the shared types: parsed lines, table rows, signatures of the ingest stages, the DTO of every route, selection types for the panel, SSE and enrichment events. The UI imports them via the `@contracts` alias.
+`src/contracts/` holds the shared types: parsed lines, table rows, signatures of the ingest stages, the DTO of every route, selection types for the panel, SSE and enrichment events, the API provider plugin (`src/contracts/provider.ts`). The UI imports them via the `@contracts` alias.
 
-The orchestrator owns the contracts, migrations, the root `package.json`, `CLAUDE.md`, `src/api/routes.ts`, `src/api/context.ts`, `src/ingest/reduce/contents.ts` and `test/support/`. A worker who is hindered by a contract stops and returns a **contract change request**: what does not fit, what change is needed, which packages it affects. The orchestrator edits the contract on `main` and restarts the affected ones.
+The orchestrator owns the contracts (`src/contracts/provider.ts` among them), the provider plugins `src/providers/`, migrations, the root `package.json`, `CLAUDE.md`, `src/api/routes.ts`, `src/api/context.ts`, `src/ingest/reduce/contents.ts` and `test/support/`. A worker who is hindered by a contract stops and returns a **contract change request**: what does not fit, what change is needed, which packages it affects. The orchestrator edits the contract on `main` and restarts the affected ones.
 
 ### Skeleton
 

@@ -33,7 +33,7 @@ Help is printed when you run `torch` with an unknown command or flag (exit code 
 |---|---|
 | `torch start [--port N] [--host H] [--no-open]` | Catches up the index, starts the server, opens the browser. `--port` is the port (4820 by default), which is also the OTLP receiver port. `--host` is the listen address (`127.0.0.1` by default). `--no-open` does not open the browser. |
 | `torch index [--rebuild [--yes]]` | One indexer pass. `--rebuild` clears the database and reloads only what is on disk; before that it prints how many sessions without a file on disk will be lost, and asks "Continue?". `--yes` skips the question. |
-| `torch doctor` | Runs the parser over the transcripts and prints files, lines, unknown line types and fields (names and counts only, no content), as well as the state of the enrichment channels. |
+| `torch doctor` | Runs the parser over the transcripts and prints files, lines, unknown line types and fields (names and counts only, no content), the configured provider and the model responses it cannot tie to a call, as well as the state of the enrichment channels. |
 | `torch status` | The path and schema version of the database, the number of sessions, the database size, the latest receiver working windows. |
 | `torch setup [--port N]` | Edits `~/.claude/settings.json` for enrichment. Shows the diff, asks "Write?", saves a backup. `--port` is the receiver port in the settings; it must match `--port` of `torch start`. |
 | `torch uninstall` | Reverts the edits made by `torch setup` (the same diff display and question). |
@@ -43,6 +43,25 @@ An invalid port (`--port abc`) produces the message "Invalid port" and the help.
 ### Access from another address
 
 `torch start --host 0.0.0.0` (or any address other than `127.0.0.1`) exposes torch on the network. In that case torch generates an access token and prints the address with `?token=…`; without the token the server does not respond. Your prompts and responses will be available to anyone who gets this link, so keep such a run short.
+
+## Providers
+
+Claude Code logs a session differently depending on the API it talks to. The `provider` key of `~/.torch/config.json` says which one; without the key it is `anthropic`.
+
+| Value | For | Model call | Model names for prices and the context window | OTel `api_request` joined to a call |
+|---|---|---|---|---|
+| `anthropic` | the direct Anthropic API | the `requestId` of the assistant lines | as reported | by `request_id` |
+| `bedrock` | AWS Bedrock and corporate gateways in front of it | `requestId`, else `message.id` (`msg_bdrk_…`) | the gateway name reduced to the price table's (`claude-align-aws-opus-5-5` → `claude-opus-5-5`, `us.anthropic.claude-sonnet-5-5-v1:0` → `claude-sonnet-5-5`); a `[1m]` suffix declares a 1M window | by `request_id`, else by model, end time (within 5 s) and token counts |
+
+Set `bedrock` when sessions show no model calls, no tokens and no model, and `torch doctor` reports "Model response lines without a call key" above zero. Through a gateway the assistant lines have no `requestId`, and with `anthropic` they give no model calls, tokens or cost.
+
+```json
+{ "provider": "bedrock" }
+```
+
+The key applies to the lines torch reads from then on: a pass does not re-read unchanged files, so sessions indexed before keep the previous provider's result. `torch index`, `torch start` and `torch doctor` say so while the database was indexed with another provider. To reindex everything, run `torch index --rebuild`: it clears the database and reloads only what is on disk, so sessions without a transcript on disk are lost; it prints how many before asking "Continue?".
+
+Adding a provider: one file in `src/providers/` implementing `Provider` from `src/contracts/provider.ts`, one line in the registry `src/providers/index.ts`, one id in `PROVIDER_IDS`.
 
 ## What changes on your machine
 
@@ -56,7 +75,7 @@ A different directory is set by the `TORCH_HOME` variable. Contents:
 |---|---|---|---|
 | `torch.db` (+ `torch.db-wal`, `torch.db-shm`) | The SQLite database: the main storage, permissions 0600. Sessions stay in it even after Claude Code has deleted the transcript. | `torch index`, `torch start` | Delete the files. History beyond the Claude Code retention period will have nothing to be restored from. You can rebuild from the transcripts on disk with `torch index --rebuild`. |
 | `prices.json` | The model price table; a copy of `prices.default.json`, edited on the Settings page. | the first indexer pass | Delete: the next pass recreates it from the defaults. |
-| `config.json` | An optional settings file. The keys `port`, `host`, `transcriptsDir`, `desktopSessionsDir`, `claudeSettingsPath` are read. torch does not create it: it exists only if you wrote it. | by you | Delete. |
+| `config.json` | An optional settings file. The keys `port`, `host`, `transcriptsDir`, `desktopSessionsDir`, `claudeSettingsPath`, `provider` are read (`provider`: see Providers). torch does not create it: it exists only if you wrote it. | by you | Delete. |
 | `hooks/record.sh` | A copy of the hooks handler; `settings.json` refers to it. | `torch setup` | Delete after `torch uninstall`. While `settings.json` contains torch's edits the file is needed: otherwise Claude Code hooks would refer to a missing script. |
 | `spool/` | Hook event files, one per event, permissions 0700. | the first hook event | Delete. |
 | `backups/` | Copies of `settings.json` before each write (`settings.json.<time>`, permissions 0600) and `setup-state.json`, a record of what `torch setup` installed (the rollback works from it). | `torch setup` | The copies can be deleted at any time. `setup-state.json` is created by `setup` and deleted by `uninstall`; while the edits are in place, it is needed for the rollback. |

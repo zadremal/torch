@@ -88,7 +88,8 @@ function reprice(db: Database, prices: PriceTable, provider: Provider, now: numb
   const sessions = db.query<{ id: string }, []>("SELECT id FROM sessions").all();
   db.transaction(() => {
     for (const c of calls) {
-      const cost = callCost(prices, c.model, {
+      // The stored model is the reported name (a gateway's own); the table knows the canonical one.
+      const cost = callCost(prices, provider.canonicalModel(c.model), {
         input: c.tok_input,
         output: c.tok_output,
         cacheRead: c.tok_cache_read,
